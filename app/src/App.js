@@ -1,12 +1,11 @@
-import React, { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { parse } from 'papaparse';
-import Plot from 'react-plotly.js';
+import React, { useState } from "react";
+import { useForm } from "react-hook-form";
+import { parse } from "papaparse";
+import Plot from "react-plotly.js";
 
 const App = () => {
   const { register, handleSubmit } = useForm();
   const [chartData, setChartData] = useState(null);
-
 
   const onSubmit = async (data) => {
     const file = data.csvFile[0];
@@ -24,7 +23,7 @@ const App = () => {
   return (
     <div>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <input type="file" {...register('csvFile')} accept=".csv" />
+        <input type="file" {...register("csvFile")} accept=".csv" />
         <button type="submit">Submit</button>
       </form>
       {chartData && (
@@ -34,8 +33,8 @@ const App = () => {
               {
                 x: chartData.map((dataPoint) => dataPoint.label),
                 y: chartData.map((dataPoint) => dataPoint.value),
-                type: 'scatter',
-                mode: 'lines',
+                type: "scatter",
+                mode: "lines",
                 marker: { color: "#82ca9d" },
               },
             ]}
@@ -43,11 +42,11 @@ const App = () => {
               width: 800,
               height: 400,
               title: {
-                text: 'Time Series',
+                text: "Time Series",
               },
               xaxis: {
                 title: {
-                  text: 'Index',
+                  text: "Index",
                   font: {
                     size: 14,
                   },
@@ -57,7 +56,7 @@ const App = () => {
               },
               yaxis: {
                 title: {
-                  text: 'Value',
+                  text: "Value",
                   font: {
                     size: 14,
                   },
@@ -67,8 +66,7 @@ const App = () => {
               },
               margin: { t: 30, r: 30 },
               //legend: { orientation: 'h' },
-            }
-            }
+            }}
           />
         </div>
       )}
