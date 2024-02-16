@@ -1,4 +1,5 @@
 import React, { useState, useRef } from "react";
+import { motion } from "framer-motion";
 import { parse } from "papaparse";
 import Plot from "react-plotly.js";
 
@@ -9,6 +10,15 @@ const App = () => {
   const [csvHeaders, setCsvHeaders] = useState([]);
   const [XLabel, setXLabel] = useState(); //sort
   const [YLabels, setYLabels] = useState([]);
+  const [selectedId, setSelectedId] = useState(null);
+  const chartData = csvData?.map((row, index) => {
+    const value = parseFloat(row[selectedId]);
+    return {
+      label: index,
+      value: value,
+    };
+  });
+
   const handleCsvSubmission = async () => {
     const file = fileInputRef.current.files[0];
     if (file) {
@@ -44,65 +54,111 @@ const App = () => {
           <button onClick={handleXLabel}>Submit XLabel</button>
         </>
       )}
-      {YLabels.length > 0 &&
-        YLabels.map((YLabel) => {
-          const chartData = csvData.map((row, index) => {
-            const value = parseFloat(row[YLabel]);
-            return {
-              label: index,
-              value: value,
-            };
-          });
-          return (
-            <div key={YLabel}>
+      <div className="w-[100%] bg-[green] flex flex-row flex-wrap">
+        {YLabels.length > 0 &&
+          YLabels.map((YLabel, index) => (
+            <div
+              key={YLabel}
+              layoutId={YLabel}
+              onClick={() => setSelectedId(YLabel)}
+              className="bg-[blue] w-[20%]"
+            >
               <div>{YLabel}</div>
-              <div style={{ width: 800, height: 400 }}>
-                <Plot
-                  data={[
-                    {
-                      x: chartData.map((dataPoint) => dataPoint.label),
-                      y: chartData.map((dataPoint) => dataPoint.value),
-                      type: "scatter",
-                      mode: "lines",
-                      marker: { color: "#82ca9d" },
-                    },
-                  ]}
-                  layout={{
-                    width: 800,
-                    height: 400,
-                    title: {
-                      text: "Time Series",
-                    },
-                    xaxis: {
-                      title: {
-                        text: "Index",
-                        font: {
-                          size: 14,
-                        },
-                        standoff: 8,
-                      },
-                      zeroline: false,
-                    },
-                    yaxis: {
-                      title: {
-                        text: "Value",
-                        font: {
-                          size: 14,
-                        },
-                        standoff: 3,
-                      },
-                      zeroline: false,
-                    },
-                    margin: { t: 30, r: 30 },
-                    //legend: { orientation: 'h' },
-                  }}
-                />
-              </div>
             </div>
-          );
-        })}
+          ))}
+        <div>
+          {selectedId && (
+            <Plot
+              data={[
+                {
+                  x: chartData.map((dataPoint) => dataPoint.label),
+                  y: chartData.map((dataPoint) => dataPoint.value),
+                  type: "scatter",
+                  mode: "lines",
+                  marker: { color: "#82ca9d" },
+                },
+              ]}
+              layout={{
+                width: "5vw",
+                height: "500px",
+                // width: 800,
+                // height: 400,
+                title: {
+                  text: "Time Series",
+                },
+                xaxis: {
+                  title: {
+                    text: "Index",
+                    font: {
+                      size: 14,
+                    },
+                    standoff: 8,
+                  },
+                  zeroline: false,
+                },
+                yaxis: {
+                  title: {
+                    text: "Value",
+                    font: {
+                      size: 14,
+                    },
+                    standoff: 3,
+                  },
+                  zeroline: false,
+                },
+                margin: { t: 30, r: 30 },
+                //legend: { orientation: 'h' },
+              }}
+            />
+          )}
+        </div>
+      </div>
     </div>
   );
 };
 
 export default App;
+/*
+              <Plot
+                    data={[
+                      {
+                        x: chartData.map((dataPoint) => dataPoint.label),
+                        y: chartData.map((dataPoint) => dataPoint.value),
+                        type: "scatter",
+                        mode: "lines",
+                        marker: { color: "#82ca9d" },
+                      },
+                    ]}
+                    layout={{
+                      width: "5vw",
+                      height: "40vh",
+                      // width: 800,
+                      // height: 400,
+                      title: {
+                        text: "Time Series",
+                      },
+                      xaxis: {
+                        title: {
+                          text: "Index",
+                          font: {
+                            size: 14,
+                          },
+                          standoff: 8,
+                        },
+                        zeroline: false,
+                      },
+                      yaxis: {
+                        title: {
+                          text: "Value",
+                          font: {
+                            size: 14,
+                          },
+                          standoff: 3,
+                        },
+                        zeroline: false,
+                      },
+                      margin: { t: 30, r: 30 },
+                      //legend: { orientation: 'h' },
+                    }}
+                  />
+          */
