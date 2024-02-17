@@ -2,3 +2,34 @@
 @tailwind components;
 @tailwind utilities;
 
+
+@layer base {
+  html {
+    font-family: "Inter-Regular", Helvetica;
+  }
+}
+
+.custom-box-shadow {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+
+button:hover .box-shadow-button::before {
+    box-shadow:70px 0 #fff, 
+    -70px 0 #A1E3CB,
+    -70px 0 4px white,
+    10px -10px #A1E3CB,
+    -10px -10px #fff;
+}
+
+button:hover .box-shadow-button::after {
+    box-shadow:-70px 0 #fff, 
+    70px 0 #A1E3CB,
+    70px 0 4px white,
+    -10px 10px #A1E3CB,
+    10px 10px #fff;
+}
+
+.box-shadow-span {
+    box-shadow:0.5s
+}
