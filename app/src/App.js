@@ -1,9 +1,17 @@
 import React, { useState, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { parse } from "papaparse";
+import { useForm } from "react-hook-form";
 import Plot from "react-plotly.js";
 
 const App = () => {
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm();
+
   const fileInputRef = useRef(null);
   const selectXLabelRef = useRef(null);
   const [csvData, setCsvData] = useState(null);
@@ -11,6 +19,7 @@ const App = () => {
   const [XLabel, setXLabel] = useState(); //sort
   const [YLabels, setYLabels] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
+
   const chartData = csvData?.map((row, index) => {
     const value = parseFloat(row[selectedId]);
     return {
@@ -42,6 +51,10 @@ const App = () => {
     if (selectedId && !event.target.closest(".animate-presence")) {
       setSelectedId(null);
     }
+  };
+
+  const onSubmit = (data) => {
+    console.log(data); // Wyświetlenie danych w konsoli
   };
 
   return (
@@ -147,12 +160,32 @@ const App = () => {
           </motion.div>
         )}
       </AnimatePresence>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <label htmlFor="layers">Layers</label>
+        <select
+          id="layers"
+          name="layers"
+          {...register("layers")}
+          defaultValue="RNN"
+        >
+          <option value="RNN">RNN</option>
+          <option value="LSTM">LSTM</option>
+          <option value="GRU">GRU</option>
+        </select>
+        <label htmlFor="units">Units</label>
+        <input type="number" id="units" name="units" {...register("units")} />
+        <label htmlFor="returnSequences">Return_sequences</label>
+        <input
+          type="checkbox"
+          id="returnSequences"
+          name="returnSequences"
+          {...register("returnSequences")}
+          defaultChecked={true}
+        />
+        <input type="submit" />
+      </form>
     </div>
   );
 };
 
 export default App;
-/*button-hover:before:w-[6px] button-hover:before:left-[calc(50% - 3px) button-hover:before:delay-[0s,0.5s] button-hover:before:box-shadow-button
-            before:delay-[0.5s,0s] before:box-shadow-span 
-            absolute inset-0 block 
-*/
