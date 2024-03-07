@@ -1,16 +1,22 @@
 import React, { useState, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { parse } from "papaparse";
-import { useForm } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import Plot from "react-plotly.js";
 
 const App = () => {
   const {
     register,
     handleSubmit,
+    control,
     watch,
     formState: { errors },
   } = useForm();
+
+  const { fields, remove, append } = useFieldArray({
+    control,
+    name: "models",
+  });
 
   const fileInputRef = useRef(null);
   const selectXLabelRef = useRef(null);
@@ -161,27 +167,42 @@ const App = () => {
         )}
       </AnimatePresence>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <label htmlFor="layers">Layers</label>
-        <select
-          id="layers"
-          name="layers"
-          {...register("layers")}
-          defaultValue="RNN"
-        >
-          <option value="RNN">RNN</option>
-          <option value="LSTM">LSTM</option>
-          <option value="GRU">GRU</option>
-        </select>
-        <label htmlFor="units">Units</label>
-        <input type="number" id="units" name="units" {...register("units")} />
-        <label htmlFor="returnSequences">Return_sequences</label>
-        <input
-          type="checkbox"
-          id="returnSequences"
-          name="returnSequences"
-          {...register("returnSequences")}
-          defaultChecked={true}
-        />
+        {fields.map(({ id }, index) => (
+          <div key={id}>
+            <label htmlFor="layers">Layers</label>
+            <select
+              id="layers"
+              name="layers"
+              {...register(`models[${index}].layers`)}
+              defaultValue="RNN"
+            >
+              <option value="RNN">RNN</option>
+              <option value="LSTM">LSTM</option>
+              <option value="GRU">GRU</option>
+            </select>
+            <label htmlFor="units">Units</label>
+            <input
+              type="number"
+              id="units"
+              name="units"
+              {...register(`models[${index}].units`)}
+            />
+            <label htmlFor="returnSequences">Return_sequences</label>
+            <input
+              type="checkbox"
+              id="returnSequences"
+              name="returnSequences"
+              {...register(`models[${index}].returnSequences`)}
+              defaultChecked={true}
+            />
+            <button type="button" onClick={() => remove(index)}>
+              Remove
+            </button>
+          </div>
+        ))}
+        <button type="button" onClick={() => append({})}>
+          Add model
+        </button>
         <input type="submit" />
       </form>
     </div>
