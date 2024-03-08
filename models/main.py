@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_socketio import SocketIO, emit
+from flask_cors import CORS
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
@@ -15,7 +16,8 @@ from keras_preprocessing.text import Tokenizer
 from keras.layers import Dense, BatchNormalization, Embedding, LSTM
 
 app = Flask(__name__)
-socketio = SocketIO(app)
+socketio = SocketIO(app, cors_allowed_origins="*")
+CORS(app)
 
 
 @socketio.on("train/time_series")
@@ -24,9 +26,10 @@ def train_model_time_series(message):
     filter = json.loads(message).get("y_feauture")
     layers_config = json.loads(message).get("models")
     print(layers_config)
+    print(filter)
     df = pd.DataFrame(data)
     data = df[filter]
-
+    print(data)
     dataset = data.values
     scaler = MinMaxScaler(feature_range=(0, 1))
     scaled_data = scaler.fit_transform(dataset)
@@ -44,7 +47,7 @@ def train_model_time_series(message):
 
     for idx, config in enumerate(layers_config):
         units = int(config["units"])
-        return_sequences = config["returnSequences"].lower() == "true"
+        return_sequences = config["returnSequences"]
 
         layer_mapping = {"GRU": GRU, "LSTM": LSTM, "RNN": SimpleRNN}
 

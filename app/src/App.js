@@ -1,8 +1,9 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { parse } from "papaparse";
 import { useForm, useFieldArray } from "react-hook-form";
 import Plot from "react-plotly.js";
+import { io } from "socket.io-client";
 
 const App = () => {
   const {
@@ -18,6 +19,7 @@ const App = () => {
     name: "models",
   });
 
+  const socket = useRef();
   const fileInputRef = useRef(null);
   const selectXLabelRef = useRef(null);
   const [csvData, setCsvData] = useState(null);
@@ -25,6 +27,10 @@ const App = () => {
   const [XLabel, setXLabel] = useState(); //sort
   const [YLabels, setYLabels] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
+
+  useEffect(() => {
+    socket.current = io("http://127.0.0.1:5000");
+  }, []);
 
   const chartData = csvData?.map((row, index) => {
     const value = parseFloat(row[selectedId]);
@@ -43,7 +49,7 @@ const App = () => {
       setCsvData(data);
     }
   };
-  console.log(csvHeaders);
+  console.log(csvData);
   const handleXLabel = () => {
     const selectedXLabel = selectXLabelRef.current.value;
     const YLabels = csvHeaders.filter(
@@ -60,7 +66,19 @@ const App = () => {
   };
 
   const onSubmit = (data) => {
-    console.log(data); // Wyświetlenie danych w konsoli
+    console.log({
+      ...data,
+      datset: csvData,
+      y_feauture: ["close", "high"],
+    }); // Wyświetlenie danych w konsoli
+    socket.current.emit(
+      "train/time_series",
+      JSON.stringify({
+        ...data,
+        dataset: csvData,
+        y_feauture: ["close", "high"],
+      })
+    );
   };
 
   return (
