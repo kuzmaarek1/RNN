@@ -4,7 +4,7 @@ import pandas as pd
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 from keras.models import Sequential
-from keras.layers import Dense, LSTM, GRU
+from keras.layers import Dense, LSTM, GRU, SimpleRNN
 from sklearn.preprocessing import MinMaxScaler
 import keras
 import json
@@ -22,6 +22,8 @@ socketio = SocketIO(app)
 def train_model_time_series(message):
     data = json.loads(message).get("dataset")
     filter = json.loads(message).get("y_feauture")
+    layers_config = json.loads(message).get("models")
+    print(layers_config)
     df = pd.DataFrame(data)
     data = df[filter]
 
@@ -39,10 +41,31 @@ def train_model_time_series(message):
     x_train, y_train = np.array(x_train), np.array(y_train)
 
     model = Sequential()
+
+    for idx, config in enumerate(layers_config):
+        units = int(config["units"])
+        return_sequences = config["returnSequences"].lower() == "true"
+
+        layer_mapping = {"GRU": GRU, "LSTM": LSTM, "RNN": SimpleRNN}
+
+        layer_type = layer_mapping.get(config["layers"])
+
+        if idx == 0:
+            model.add(
+                layer_type(
+                    units,
+                    return_sequences=return_sequences,
+                    input_shape=(x_train.shape[1], len(filter)),
+                )
+            )
+        else:
+            model.add(layer_type(units, return_sequences=return_sequences))
+    """
     model.add(
         GRU(128, return_sequences=True, input_shape=(x_train.shape[1], len(filter)))
     )  # input_shape=(time_step, features) 30,1
     model.add(GRU(64, return_sequences=False))  # przy true jest błąd
+    """
     # model.add(Dense(25))
     model.add(Dense(len(filter)))
 
@@ -62,6 +85,7 @@ def train_model_time_series(message):
         epochs=2,
         callbacks=[EpochLogger()],
     )
+    print(model.summary())
     emit("training_completed", "Model trained successfully!")
 
 
