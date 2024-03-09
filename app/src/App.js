@@ -30,6 +30,10 @@ const App = () => {
 
   useEffect(() => {
     socket.current = io("http://127.0.0.1:5000");
+    socket.current.on("epoch_update", (epochs) => {
+      console.log(epochs);
+      //setOnlineUsers(users);
+    });
   }, []);
 
   const chartData = csvData?.map((row, index) => {

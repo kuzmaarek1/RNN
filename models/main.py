@@ -89,6 +89,8 @@ def train_model_time_series(message):
         callbacks=[EpochLogger()],
     )
     print(model.summary())
+    path_to_save = "./model.keras"
+    model.save(path_to_save)
     emit("training_completed", "Model trained successfully!")
 
 
