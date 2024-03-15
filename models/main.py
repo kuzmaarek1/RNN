@@ -14,6 +14,8 @@ import re
 from keras_preprocessing.sequence import pad_sequences
 from keras_preprocessing.text import Tokenizer
 from keras.layers import Dense, BatchNormalization, Embedding, LSTM
+import tensorflow as tf
+from sklearn import metrics
 
 app = Flask(__name__)
 socketio = SocketIO(app, cors_allowed_origins="*")
@@ -152,6 +154,45 @@ def train_model_text_classification(message):
         epochs=10,
         validation_split=0.2,
         callbacks=[EpochLogger()],
+    )
+
+
+@app.route("/predict/time_series", methods=["POST"])
+def predict_time_series():
+    path_to_save = "./model.keras"
+    model = tf.keras.models.load_model(path_to_save)
+    df = pd.read_csv("C:/Users/akuzm/OneDrive/Pulpit/praca/GOOG.csv")
+    data = df[["close", "high"]]
+    dataset = data.values
+    scaler = MinMaxScaler(feature_range=(0, 1))
+    scaled_data = scaler.fit_transform(dataset)
+    scaled_data = scaled_data[1220:1258, :]
+
+    time_step = 30  # to pasowało by dać do zmiennej
+    x_test = []
+    y_test = []
+    for i in range(time_step, len(scaled_data)):
+        x_test.append(scaled_data[i - time_step : i, :])
+        y_test.append(scaled_data[i, :])
+
+    x_test, y_test = np.array(x_test), np.array(y_test)
+
+    predictions = model.predict(x_test)
+    print(predictions)
+    print(y_test)
+    predictions = scaler.inverse_transform(predictions)
+    y_test = scaler.inverse_transform(y_test)
+    """
+    print(f"Mean Absolute Error: {metrics.mean_absolute_error(y_test, predictions)}")
+    print(f"Mean Squared Error: {metrics.mean_squared_error(y_test, predictions)}")
+    print(
+        f"Root Mean Squared Error: {np.sqrt(metrics.mean_squared_error(y_test, predictions))}"
+    )
+    print(f"R2_Score: {metrics.r2_score(y_test, predictions)}")
+    """
+
+    return jsonify(
+        {"predictions": predictions.tolist(), "actual_values": y_test.tolist()}
     )
 
 
