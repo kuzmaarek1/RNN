@@ -95,17 +95,24 @@ def train_model_time_series(message):
     print(model.summary())
 
     model_name = f"model_{int(time.time())}_{uuid.uuid4().hex[:8]}"
-    path_to_save = f"./{model_name}.keras"
+    path_to_save = f"../files/models/{model_name}.keras"
     model.save(path_to_save)
 
-    json_data = json.dumps({"path": model_name})
+    json_data = json.dumps(
+        {
+            "path": model_name,
+            "filter": filter,
+            "data_min": scaler.data_min_.tolist(),
+            "data_max": scaler.data_max_.tolist(),
+        }
+    )
 
-    with open(f"./{model_name}.txt", "w") as file:
+    with open(f"../files/results/{model_name}.txt", "w") as file:
         file.write(json_data)
 
     emit(
         "training_completed",
-        json.dumps({"path": f"./{model_name}.txt"}),
+        json.dumps({"path": f"{model_name}.txt"}),
     )
 
 
@@ -172,14 +179,29 @@ def train_model_text_classification(message):
 
 @app.route("/predict/time_series", methods=["POST"])
 def predict_time_series():
-    path_to_save = "./model.keras"
-    model = tf.keras.models.load_model(path_to_save)
-    df = pd.read_csv("C:/Users/akuzm/OneDrive/Pulpit/praca/GOOG.csv")
-    data = df[["close", "high"]]
+    request_data = request.get_json()
+    path = request_data["path"]
+    print(path)
+    # y_test = request_data["y_test"]
+    filter = request_data["filter"]
+    data = request_data["y_test"]
+
+    # path_to_save = "./model.keras"
+    model = tf.keras.models.load_model(f"../files/models/{path}.keras")
+    df = pd.DataFrame(data)
+    # df = pd.read_csv("C:/Users/akuzm/OneDrive/Pulpit/praca/GOOG.csv")
+    data = df[filter]
+
+    dataTrainMax = request_data["data_max"]
+    dataTrainMin = request_data["data_min"]
+
     dataset = data.values
     scaler = MinMaxScaler(feature_range=(0, 1))
-    scaled_data = scaler.fit_transform(dataset)
-    scaled_data = scaled_data[1220:1258, :]
+    scalar_data_min_max = scaler.fit_transform([dataTrainMax, dataTrainMin])
+    print(scalar_data_min_max)
+
+    scaled_data = scaler.transform(dataset)
+    scaled_data = scaled_data[1220:1258, :]  # do komentarza
 
     time_step = 30  # to pasowało by dać do zmiennej
     x_test = []
@@ -212,7 +234,9 @@ def predict_time_series():
 @app.route("/download/<path:filename>", methods=["GET"])
 def download(filename):
     print(filename)
-    return send_from_directory(directory="./", path=filename, as_attachment=True)
+    return send_from_directory(
+        directory="../files/results/", path=filename, as_attachment=True
+    )
 
 
 if __name__ == "__main__":
