@@ -27,6 +27,7 @@ const App = () => {
   const [XLabel, setXLabel] = useState(); //sort
   const [YLabels, setYLabels] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
+  const [downloadLink, setDownloadLink] = useState(null);
 
   useEffect(() => {
     socket.current = io("http://127.0.0.1:5000");
@@ -34,6 +35,16 @@ const App = () => {
       console.log(epochs);
       //setOnlineUsers(users);
     });
+    socket.current.on("training_completed", (results) => {
+      console.log(results);
+      const parsedData = JSON.parse(results);
+      setDownloadLink(parsedData.path);
+      //setOnlineUsers(users);
+    });
+    /*
+    return () => {
+      socket.disconnect(); // Rozłączenie socket.io po zakończeniu komponentu
+    };*/
   }, []);
 
   const chartData = csvData?.map((row, index) => {
@@ -83,6 +94,12 @@ const App = () => {
         y_feauture: ["close", "high"],
       })
     );
+  };
+
+  const handleDownload = () => {
+    if (downloadLink) {
+      window.location.href = `http://127.0.0.1:5000/download/${downloadLink}`;
+    }
   };
 
   return (
@@ -227,6 +244,11 @@ const App = () => {
         </button>
         <input type="submit" />
       </form>
+      {downloadLink && (
+        <div>
+          <button onClick={handleDownload}>Download Results</button>
+        </div>
+      )}
     </div>
   );
 };

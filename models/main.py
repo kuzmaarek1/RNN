@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from flask_socketio import SocketIO, emit
 from flask_cors import CORS
 import pandas as pd
@@ -16,6 +16,8 @@ from keras_preprocessing.text import Tokenizer
 from keras.layers import Dense, BatchNormalization, Embedding, LSTM
 import tensorflow as tf
 from sklearn import metrics
+import uuid
+import time
 
 app = Flask(__name__)
 socketio = SocketIO(app, cors_allowed_origins="*")
@@ -91,9 +93,20 @@ def train_model_time_series(message):
         callbacks=[EpochLogger()],
     )
     print(model.summary())
-    path_to_save = "./model.keras"
+
+    model_name = f"model_{int(time.time())}_{uuid.uuid4().hex[:8]}"
+    path_to_save = f"./{model_name}.keras"
     model.save(path_to_save)
-    emit("training_completed", "Model trained successfully!")
+
+    json_data = json.dumps({"path": model_name})
+
+    with open(f"./{model_name}.txt", "w") as file:
+        file.write(json_data)
+
+    emit(
+        "training_completed",
+        json.dumps({"path": f"./{model_name}.txt"}),
+    )
 
 
 def cleanText(text):
@@ -194,6 +207,12 @@ def predict_time_series():
     return jsonify(
         {"predictions": predictions.tolist(), "actual_values": y_test.tolist()}
     )
+
+
+@app.route("/download/<path:filename>", methods=["GET"])
+def download(filename):
+    print(filename)
+    return send_from_directory(directory="./", path=filename, as_attachment=True)
 
 
 if __name__ == "__main__":
