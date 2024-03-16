@@ -218,21 +218,34 @@ def predict_time_series():
     predictions = scaler.inverse_transform(predictions)
     y_test = scaler.inverse_transform(y_test)
     results = []
+
+    def calculate_errors(y_true, y_pred):
+        absolute_errors = np.abs(y_pred - y_true)
+        mean_absolute_error = np.mean(absolute_errors)
+        mean_squared_error = metrics.mean_squared_error(y_true, y_pred)
+        root_mean_squared_error = np.sqrt(mean_squared_error)
+        r2_score = metrics.r2_score(y_true, y_pred)
+        mean_percentage_error = np.mean((absolute_errors / np.abs(y_true)) * 100)
+
+        return {
+            "mean_absolute_error": mean_absolute_error,
+            "mean_squared_error": mean_squared_error,
+            "root_mean_squared_error": root_mean_squared_error,
+            "r2_score": r2_score,
+            "mean_percentage_error": mean_percentage_error,
+        }
+
     for idx, feature_name in enumerate(filter):
+        errors = calculate_errors(y_test[:, idx], predictions[:, idx])
         result = {
             "feature": feature_name,
             "y_test": y_test[:, idx].tolist(),
             "predictions": predictions[:, idx].tolist(),
-            "mean_absolute_error": metrics.mean_absolute_error(
-                y_test[:, idx], predictions[:, idx]
-            ),
-            "mean_squared_error": metrics.mean_squared_error(
-                y_test[:, idx], predictions[:, idx]
-            ),
-            "root_mean_squared_error": np.sqrt(
-                metrics.mean_squared_error(y_test[:, idx], predictions[:, idx])
-            ),
-            "r2_score": metrics.r2_score(y_test[:, idx], predictions[:, idx]),
+            "mean_absolute_error": errors["mean_absolute_error"],
+            "mean_squared_error": errors["mean_squared_error"],
+            "root_mean_squared_error": errors["root_mean_squared_error"],
+            "r2_score": errors["r2_score"],
+            "mean_percentage_error": errors["mean_percentage_error"],
         }
         results.append(result)
 

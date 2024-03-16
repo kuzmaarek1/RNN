@@ -29,6 +29,7 @@ const Predict = () => {
 
   const [csvData, setCsvData] = useState(null);
   const [csvHeaders, setCsvHeaders] = useState([]);
+  const [responseState, setResponseState] = useState(null);
 
   useEffect(() => {
     socket.current = io("http://127.0.0.1:5000");
@@ -104,6 +105,7 @@ const Predict = () => {
         { ...txtData, y_test: csvData }
       );
       console.log(response.data);
+      setResponseState(response.data);
     } catch (error) {
       console.error("Błąd podczas wysyłania zapytania POST:", error);
     }
@@ -162,7 +164,30 @@ const Predict = () => {
           </div>
         </div>
       )}
-      {txtData && <button onClick={handlePredict}>Sunmbit</button>}
+      {txtData && <button onClick={handlePredict}>Submit</button>}
+      {responseState &&
+        responseState?.results.map((state, index) => (
+          <div key={state.feature} onClick={() => setSelectedId(index)}>
+            {state.feature}
+          </div>
+        ))}
+      {selectedId !== null && (
+        <motion.div className="animate-presence" layoutId={selectedId}>
+          {Object.entries(responseState?.results[selectedId]).map(
+            ([key, value]) =>
+              key !== "predictions" &&
+              key !== "feature" &&
+              key !== "y_test" && (
+                <div key={key}>
+                  {key}: {value}
+                </div>
+              )
+          )}
+          <motion.button onClick={() => setSelectedId(null)}>
+            Close
+          </motion.button>
+        </motion.div>
+      )}
     </div>
   );
 };
