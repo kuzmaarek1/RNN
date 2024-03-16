@@ -217,17 +217,31 @@ def predict_time_series():
     print(y_test)
     predictions = scaler.inverse_transform(predictions)
     y_test = scaler.inverse_transform(y_test)
-    """
-    print(f"Mean Absolute Error: {metrics.mean_absolute_error(y_test, predictions)}")
-    print(f"Mean Squared Error: {metrics.mean_squared_error(y_test, predictions)}")
-    print(
-        f"Root Mean Squared Error: {np.sqrt(metrics.mean_squared_error(y_test, predictions))}"
-    )
-    print(f"R2_Score: {metrics.r2_score(y_test, predictions)}")
-    """
+    results = []
+    for idx, feature_name in enumerate(filter):
+        result = {
+            "feature": feature_name,
+            "y_test": y_test[:, idx].tolist(),
+            "predictions": predictions[:, idx].tolist(),
+            "mean_absolute_error": metrics.mean_absolute_error(
+                y_test[:, idx], predictions[:, idx]
+            ),
+            "mean_squared_error": metrics.mean_squared_error(
+                y_test[:, idx], predictions[:, idx]
+            ),
+            "root_mean_squared_error": np.sqrt(
+                metrics.mean_squared_error(y_test[:, idx], predictions[:, idx])
+            ),
+            "r2_score": metrics.r2_score(y_test[:, idx], predictions[:, idx]),
+        }
+        results.append(result)
 
     return jsonify(
-        {"predictions": predictions.tolist(), "actual_values": y_test.tolist()}
+        {
+            "predictions": predictions.tolist(),
+            "actual_values": y_test.tolist(),
+            "results": results,
+        }
     )
 
 
