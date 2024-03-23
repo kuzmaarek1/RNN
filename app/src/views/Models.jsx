@@ -209,6 +209,27 @@ const Models = () => {
         )}
       </AnimatePresence>
       <form onSubmit={handleSubmit(onSubmit)}>
+        <label htmlFor="time_step">Time Step</label>
+        <input
+          type="number"
+          id="time_step"
+          name="time_step"
+          {...register(`time_step`)}
+        />
+        <label htmlFor="batch_size">Batch size</label>
+        <input
+          type="number"
+          id="batch_size"
+          name="batch_size"
+          {...register(`batch_size`)}
+        />
+        <label htmlFor="epochs">Epochs</label>
+        <input
+          type="number"
+          id="epochs"
+          name="epochs"
+          {...register(`epochs`)}
+        />
         {fields.map(({ id }, index) => (
           <div key={id}>
             <label htmlFor="layers">Layers</label>

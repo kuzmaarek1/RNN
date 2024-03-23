@@ -29,8 +29,14 @@ def train_model_time_series(message):
     data = json.loads(message).get("dataset")
     filter = json.loads(message).get("y_feauture")
     layers_config = json.loads(message).get("models")
-    print(layers_config)
-    print(filter)
+
+    time_step = int(json.loads(message).get("time_step"))  # 30
+    batch_size = int(json.loads(message).get("batch_size"))  # 64
+    epochs = int(json.loads(message).get("epochs"))  # 2
+
+    print(time_step)
+    print(batch_size)
+    print(epochs)
     df = pd.DataFrame(data)
     data = df[filter]
     print(data)
@@ -38,7 +44,6 @@ def train_model_time_series(message):
     scaler = MinMaxScaler(feature_range=(0, 1))
     scaled_data = scaler.fit_transform(dataset)
 
-    time_step = 30  # to pasowało by dać do zmiennej
     x_train = []
     y_train = []
     for i in range(time_step, len(scaled_data)):
@@ -88,8 +93,8 @@ def train_model_time_series(message):
         x_train,
         y_train,
         # validation_data=(x_test, y_test),
-        batch_size=64,
-        epochs=2,
+        batch_size=batch_size,
+        epochs=epochs,
         callbacks=[EpochLogger()],
     )
     print(model.summary())
