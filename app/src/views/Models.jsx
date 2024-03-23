@@ -28,11 +28,13 @@ const Models = () => {
   const [YLabels, setYLabels] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
   const [downloadLink, setDownloadLink] = useState(null);
+  const [epochsHistory, setEpochsHistory] = useState([]);
 
   useEffect(() => {
     socket.current = io("http://127.0.0.1:5000");
     socket.current.on("epoch_update", (epochs) => {
       console.log(epochs);
+      setEpochsHistory((prev) => [...prev, JSON.parse(epochs)]);
       //setOnlineUsers(users);
     });
     socket.current.on("training_completed", (results) => {
@@ -47,6 +49,7 @@ const Models = () => {
     };*/
   }, []);
 
+  console.log(epochsHistory);
   const chartData = csvData?.map((row, index) => {
     const value = parseFloat(row[selectedId]);
     return {
@@ -244,6 +247,57 @@ const Models = () => {
         </button>
         <input type="submit" />
       </form>
+      {epochsHistory.length != 0 &&
+        epochsHistory.map((props, index) => (
+          <div key={index}>
+            <div>{props.epoch}</div>
+            <div>{props.loss}</div>
+          </div>
+        ))}
+      {downloadLink && (
+        <Plot
+          data={[
+            {
+              x: epochsHistory.map((epochHistory) => epochHistory.epoch),
+              y: epochsHistory.map((epochHistory) => epochHistory.loss),
+              type: "scatter",
+              mode: "lines",
+              marker: { color: "#82ca9d" },
+            },
+          ]}
+          layout={{
+            width: "5vw",
+            height: "500px",
+            // width: 800,
+            // height: 400,
+            title: {
+              text: "Time Series",
+            },
+            xaxis: {
+              title: {
+                text: "Index",
+                font: {
+                  size: 14,
+                },
+                standoff: 8,
+              },
+              zeroline: false,
+            },
+            yaxis: {
+              title: {
+                text: "Value",
+                font: {
+                  size: 14,
+                },
+                standoff: 3,
+              },
+              zeroline: false,
+            },
+            margin: { t: 30, r: 30 },
+            //legend: { orientation: 'h' },
+          }}
+        />
+      )}
       {downloadLink && (
         <div>
           <button onClick={handleDownload}>Download Results</button>
