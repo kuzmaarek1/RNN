@@ -1,6 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { circleCoordinates } from "./constants/index.js";
+import { circleCoordinates } from "constants/index.js";
 
 const Circle = ({ cx, cy }) => (
   <motion.circle

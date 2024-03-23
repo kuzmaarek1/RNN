@@ -5,7 +5,7 @@ import { useForm, useFieldArray } from "react-hook-form";
 import Plot from "react-plotly.js";
 import { io } from "socket.io-client";
 
-const App = () => {
+const Models = () => {
   const {
     register,
     handleSubmit,
@@ -253,4 +253,4 @@ const App = () => {
   );
 };
 
-export default App;
+export default Models;
