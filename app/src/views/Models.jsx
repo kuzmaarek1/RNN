@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import Select from "react-select";
 import { parse } from "papaparse";
 import { useForm, useFieldArray } from "react-hook-form";
 import Plot from "react-plotly.js";
@@ -11,6 +12,7 @@ const Models = () => {
     handleSubmit,
     control,
     watch,
+    setValue,
     formState: { errors },
   } = useForm();
 
@@ -18,6 +20,12 @@ const Models = () => {
     control,
     name: "models",
   });
+
+  const [selectedOptions, setSelectedOptions] = useState([]);
+
+  const handleChange = (selectedOptions) => {
+    setSelectedOptions(selectedOptions);
+  };
 
   const socket = useRef();
   const fileInputRef = useRef(null);
@@ -29,6 +37,11 @@ const Models = () => {
   const [selectedId, setSelectedId] = useState(null);
   const [downloadLink, setDownloadLink] = useState(null);
   const [epochsHistory, setEpochsHistory] = useState([]);
+
+  const options = YLabels.map((YLabel) => ({
+    value: YLabel,
+    label: YLabel,
+  }));
 
   useEffect(() => {
     socket.current = io("http://127.0.0.1:5000");
@@ -87,14 +100,14 @@ const Models = () => {
     console.log({
       ...data,
       datset: csvData,
-      y_feauture: ["close", "high"],
+      // y_feauture: ["close", "high"],
     }); // Wyświetlenie danych w konsoli
     socket.current.emit(
       "train/time_series",
       JSON.stringify({
         ...data,
         dataset: csvData,
-        y_feauture: ["close", "high"],
+        //y_feauture: ["close", "high"],
       })
     );
   };
@@ -209,6 +222,22 @@ const Models = () => {
         )}
       </AnimatePresence>
       <form onSubmit={handleSubmit(onSubmit)}>
+        <label htmlFor="y_feauture">Y Feauture</label>
+        <Select
+          //id="y_feauture"
+          //name="y_feauture"
+          options={options}
+          value={selectedOptions}
+          onChange={handleChange}
+          isMulti
+          onChange={(selectedOptions) => {
+            handleChange(selectedOptions);
+            const selectedValues = selectedOptions.map(
+              (option) => option.value
+            );
+            setValue("y_feauture", selectedValues); // Ustawienie wartości za pomocą setValue
+          }}
+        />
         <label htmlFor="time_step">Time Step</label>
         <input
           type="number"
