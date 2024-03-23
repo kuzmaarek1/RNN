@@ -224,8 +224,8 @@ const Models = () => {
       <form onSubmit={handleSubmit(onSubmit)}>
         <label htmlFor="y_feauture">Y Feauture</label>
         <Select
-          //id="y_feauture"
-          //name="y_feauture"
+          id="y_feauture"
+          name="y_feauture"
           options={options}
           value={selectedOptions}
           onChange={handleChange}
@@ -235,7 +235,7 @@ const Models = () => {
             const selectedValues = selectedOptions.map(
               (option) => option.value
             );
-            setValue("y_feauture", selectedValues); // Ustawienie wartości za pomocą setValue
+            setValue("y_feauture", selectedValues);
           }}
         />
         <label htmlFor="time_step">Time Step</label>

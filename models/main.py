@@ -107,6 +107,7 @@ def train_model_time_series(message):
         {
             "path": model_name,
             "filter": filter,
+            "time_step": time_step,
             "data_min": scaler.data_min_.tolist(),
             "data_max": scaler.data_max_.tolist(),
         }
@@ -182,8 +183,8 @@ def train_model_text_classification(message):
     )
 
 
-@app.route("/predict/time_series", methods=["POST"])
-def predict_time_series():
+@app.route("/evaluate/time_series", methods=["POST"])
+def evaluate_time_series():
     request_data = request.get_json()
     path = request_data["path"]
     print(path)
@@ -208,7 +209,7 @@ def predict_time_series():
     scaled_data = scaler.transform(dataset)
     scaled_data = scaled_data[1220:1258, :]  # do komentarza
 
-    time_step = 30  # to pasowało by dać do zmiennej
+    time_step = request_data["time_step"]  # to pasowało by dać do zmiennej
     x_test = []
     y_test = []
     for i in range(time_step, len(scaled_data)):
@@ -216,7 +217,7 @@ def predict_time_series():
         y_test.append(scaled_data[i, :])
 
     x_test, y_test = np.array(x_test), np.array(y_test)
-
+    print(x_test)
     predictions = model.predict(x_test)
     print(predictions)
     print(y_test)
@@ -260,6 +261,57 @@ def predict_time_series():
             "actual_values": y_test.tolist(),
             "results": results,
         }
+    )
+
+
+@app.route("/predict/time_series", methods=["POST"])
+def predict_time_series():
+    request_data = request.get_json()
+    path = request_data["path"]
+    filter = request_data["filter"]
+    data = request_data["y_test"]
+    model = tf.keras.models.load_model(f"../files/models/{path}.keras")
+    df = pd.DataFrame(data)
+    data = df[filter]
+
+    dataTrainMax = request_data["data_max"]
+    dataTrainMin = request_data["data_min"]
+
+    dataset = data.values
+    scaler = MinMaxScaler(feature_range=(0, 1))
+    scalar_data_min_max = scaler.fit_transform([dataTrainMax, dataTrainMin])
+    print(scalar_data_min_max)
+
+    time_step = request_data["time_step"]
+    scaled_data = scaler.transform(dataset)
+    scaled_data = scaled_data[-time_step:, :]  # do komentarza
+
+    # to pasowało by dać do zmiennej
+    next_time_steps = 10
+    predictions = []
+    current_data = []
+    current_data.append(scaled_data)
+    current_data = np.array(current_data)
+    print(current_data)
+    for _ in range(next_time_steps):
+        prediction = model.predict(current_data)
+        predictions.append(prediction[0])
+        # Aktualizacja danych wejściowych dla kolejnego kroku czasowego
+        current_data = np.roll(current_data, -1, axis=1)
+        current_data[0, -1, :] = prediction[0]
+        print("---")
+        print(current_data)
+
+    predictions = scaler.inverse_transform(predictions)
+    results = []
+    for idx, feature_name in enumerate(filter):
+        result = {"feature": feature_name, "predictions": predictions[:, idx].tolist()}
+        results.append(result)
+
+    return jsonify(
+        {
+            "results": results,
+        },
     )
 
 

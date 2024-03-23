@@ -2,7 +2,7 @@ import React from "react";
 import { NavLink } from "react-router-dom";
 
 const Navbar = () => {
-  const navbarTitle = ["models", "predict"];
+  const navbarTitle = ["models", "evaluate", "compare", "predict"];
 
   return (
     <div className="w-[212px] h-[924px] flex flex-col p-[12px] border-r-[1px] border-r-[#1c1c1c1a] border-r-solid gap-[4px]">

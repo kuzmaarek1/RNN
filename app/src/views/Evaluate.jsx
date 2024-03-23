@@ -6,7 +6,7 @@ import Plot from "react-plotly.js";
 import { io } from "socket.io-client";
 import axios from "axios";
 
-const Predict = () => {
+const Evaluate = () => {
   const {
     register,
     handleSubmit,
@@ -97,11 +97,11 @@ const Predict = () => {
   };
   console.log(csvData);
 
-  const handlePredict = async () => {
+  const handleEvaluate = async () => {
     try {
       console.log({ ...txtData, y_test: csvData });
       const response = await axios.post(
-        "http://127.0.0.1:5000/predict/time_series",
+        "http://127.0.0.1:5000/evaluate/time_series",
         { ...txtData, y_test: csvData }
       );
       console.log(response.data);
@@ -110,8 +110,6 @@ const Predict = () => {
       console.error("Błąd podczas wysyłania zapytania POST:", error);
     }
   };
-  console.log(responseState?.results[selectedId]);
-
   return (
     <div onClick={handleOutsideClick} className="flex gap-[12px]">
       <div>
@@ -166,7 +164,7 @@ const Predict = () => {
           </div>
         </div>
       )}
-      {txtData && <button onClick={handlePredict}>Submit</button>}
+      {txtData && <button onClick={handleEvaluate}>Submit</button>}
       {responseState &&
         responseState?.results.map((state, index) => (
           <div key={state.feature} onClick={() => setSelectedId(index)}>
@@ -175,11 +173,23 @@ const Predict = () => {
         ))}
       {selectedId !== null && (
         <motion.div className="animate-presence" layoutId={selectedId}>
-          <div>{responseState?.results[selectedId].predictions}</div>
+          {Object.entries(responseState?.results[selectedId]).map(
+            ([key, value]) =>
+              key !== "predictions" &&
+              key !== "feature" &&
+              key !== "y_test" && (
+                <div key={key}>
+                  {key}: {value}
+                </div>
+              )
+          )}
+          <motion.button onClick={() => setSelectedId(null)}>
+            Close
+          </motion.button>
         </motion.div>
       )}
     </div>
   );
 };
 
-export default Predict;
+export default Evaluate;
