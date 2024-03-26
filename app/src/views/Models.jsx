@@ -53,7 +53,7 @@ const Models = () => {
     socket.current.on("training_completed", (results) => {
       console.log(results);
       const parsedData = JSON.parse(results);
-      setDownloadLink(parsedData.path);
+      setDownloadLink(parsedData);
       //setOnlineUsers(users);
     });
     /*
@@ -114,7 +114,16 @@ const Models = () => {
 
   const handleDownload = () => {
     if (downloadLink) {
-      window.location.href = `http://127.0.0.1:5000/download/${downloadLink}`;
+      const dataToDownload = JSON.stringify(downloadLink);
+      const blob = new Blob([dataToDownload], { type: "text/plain" });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "models.txt";
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
     }
   };
 

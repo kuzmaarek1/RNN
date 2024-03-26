@@ -103,22 +103,17 @@ def train_model_time_series(message):
     path_to_save = f"../files/models/{model_name}.keras"
     model.save(path_to_save)
 
-    json_data = json.dumps(
-        {
-            "path": model_name,
-            "filter": filter,
-            "time_step": time_step,
-            "data_min": scaler.data_min_.tolist(),
-            "data_max": scaler.data_max_.tolist(),
-        }
-    )
-
-    with open(f"../files/results/{model_name}.txt", "w") as file:
-        file.write(json_data)
-
     emit(
         "training_completed",
-        json.dumps({"path": f"{model_name}.txt"}),
+        json.dumps(
+            {
+                "path": model_name,
+                "filter": filter,
+                "time_step": time_step,
+                "data_min": scaler.data_min_.tolist(),
+                "data_max": scaler.data_max_.tolist(),
+            }
+        ),
     )
 
 
@@ -312,14 +307,6 @@ def predict_time_series():
         {
             "results": results,
         },
-    )
-
-
-@app.route("/download/<path:filename>", methods=["GET"])
-def download(filename):
-    print(filename)
-    return send_from_directory(
-        directory="../files/results/", path=filename, as_attachment=True
     )
 
 
