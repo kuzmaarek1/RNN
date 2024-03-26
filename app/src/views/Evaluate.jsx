@@ -110,6 +110,23 @@ const Evaluate = () => {
       console.error("Błąd podczas wysyłania zapytania POST:", error);
     }
   };
+  console.log(responseState);
+
+  const handleDownloadTxt = () => {
+    if (responseState) {
+      const dataToDownload = JSON.stringify(responseState);
+      const blob = new Blob([dataToDownload], { type: "text/plain" });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "responseState.txt";
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    }
+  };
+
   return (
     <div onClick={handleOutsideClick} className="flex gap-[12px]">
       <div>
@@ -188,6 +205,7 @@ const Evaluate = () => {
           </motion.button>
         </motion.div>
       )}
+      {responseState && <button onClick={handleDownloadTxt}>Download</button>}
     </div>
   );
 };
