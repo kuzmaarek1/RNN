@@ -129,33 +129,65 @@ def train_model_text_classification(message):
     data = json.loads(message).get("dataset")
     category = json.loads(message).get("category")
     text = json.loads(message).get("text")
-    num_words = json.loads(message).get("num_words")
-    max_text_len = json.loads(message).get("max_text_len")
+    num_words = int(json.loads(message).get("num_words"))
+    max_text_len = int(json.loads(message).get("max_text_len"))
+
+    layers_config = json.loads(message).get("models")
+
+    batch_size = int(json.loads(message).get("batch_size"))  # 64
+    epochs = int(json.loads(message).get("epochs"))  # 2
 
     df = pd.DataFrame(data)
     df[text] = df[text].apply(cleanText)
     df[category] = pd.factorize(df[category])[0]
 
+    # Pierwszy element krotki to zmapowane wartości numeryczne: [0, 1, 2, 0, 1].
+    # Drugi element to indeks pandasowy Index(['A', 'B', 'C'], dtype='object'), który zawiera unikalne etykiety z kolumny 'category'.
+
     texts = df[text]
     labels = df[category]
+    print(texts)
+    tokenizer = Tokenizer(
+        num_words=num_words
+    )  # Przetwarzanie tekstu na sekwencję liczb
+    tokenizer.fit_on_texts(texts)  # słownik słów
+    print(tokenizer)
+    sequences = tokenizer.texts_to_sequences(
+        texts
+    )  # konwersaja tekstu na sekwencje czasową
 
-    tokenizer = Tokenizer(num_words=num_words)
-    tokenizer.fit_on_texts(texts)
-    sequences = tokenizer.texts_to_sequences(texts)
-    X = pad_sequences(sequences, maxlen=max_text_len)
+    X = pad_sequences(sequences, maxlen=max_text_len)  # stała wartośc sekwencji
     y = labels.copy()
+
+    print(X)
+    print(y)
 
     num_categories = df[category].nunique()
     print("Liczba kategorii:", num_categories)
 
     model = Sequential()
     model.add(Embedding(num_words, 64, input_length=max_text_len))
+
+    for idx, config in enumerate(layers_config):
+        units = int(config["units"])
+        return_sequences = config["returnSequences"]
+
+        layer_mapping = {"GRU": GRU, "LSTM": LSTM, "RNN": SimpleRNN}
+
+        layer_type = layer_mapping.get(config["layers"])
+
+        model.add(layer_type(units, return_sequences=return_sequences))
+
+    """
     model.add(LSTM(3, return_sequences=True))
     model.add(LSTM(5, return_sequences=True))
     model.add(BatchNormalization())
     model.add(LSTM(12))
+    """
     model.add(Dense(1, activation="sigmoid"))
     # model.add(Dense(num_categories, activation="softmax"))
+
+    print(model.summary())
 
     class EpochLogger(keras.callbacks.Callback):
         def on_epoch_end(self, epoch, logs=None):
@@ -164,17 +196,33 @@ def train_model_text_classification(message):
                 "loss": logs["loss"],
                 "accuracy": logs["Accuracy"],
             }
-            emit("epoch_update", json.dumps(epoch_info))
+            emit("epoch_update/text_classification", json.dumps(epoch_info))
 
     model.compile(metrics=["Accuracy"], loss="binary_crossentropy", optimizer="Adam")
 
     model.fit(
         X,
         y,
-        batch_size=50,
-        epochs=10,
+        batch_size=batch_size,
+        epochs=epochs,
         validation_split=0.2,
         callbacks=[EpochLogger()],
+    )
+
+    model_name = f"model_{int(time.time())}_{uuid.uuid4().hex[:8]}"
+    path_to_save = f"../files/models/{model_name}.keras"
+    model.save(path_to_save)
+
+    emit(
+        "training_completed/text_classification",
+        json.dumps(
+            {
+                "path": model_name,
+                "num_words": num_words,
+                "max_text_len": max_text_len,
+                "texts": texts.tolist(),
+            }
+        ),
     )
 
 

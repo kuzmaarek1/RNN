@@ -21,12 +21,16 @@ const Navbar = () => {
         </NavLink>
       ))}
       <div className="text-[#1c1c1c66] text-[14px] font-[400]">Text</div>
-      <div className="text-[#1c1c1c] text-[14px] font-[400] bg-[#1c1c1c0d] p-[8px] rounded-[8px]">
-        Datasets
-      </div>
-      <div className="text-[#1c1c1c] text-[14px] font-[400] bg-[#1c1c1c0d] p-[8px] rounded-[8px]">
-        Models
-      </div>
+      {navbarTitle.map((props, index) => (
+        <NavLink
+          key={index}
+          to={`${props}/text`}
+          className="text-[#1c1c1c] text-[14px] font-[400] bg-[#1c1c1c0d] p-[8px] rounded-[8px]"
+        >
+          {props[0].toUpperCase()}
+          {props.slice(1)}
+        </NavLink>
+      ))}
     </div>
   );
 };

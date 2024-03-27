@@ -1,6 +1,6 @@
 import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
-import { Models, Evaluate, Predict, Compare } from "views";
+import { Models, Evaluate, Predict, Compare, ModelsText } from "views";
 
 const Root = () => {
   return (
@@ -10,6 +10,7 @@ const Root = () => {
       <Route path="/predict/time_series" element={<Predict />} />
       <Route path="/compare/time_series" element={<Compare />} />
       <Route path="*" element={<Navigate to="/models/time_series" />} />
+      <Route path="/models/text" element={<ModelsText />} />
     </Routes>
   );
 };
