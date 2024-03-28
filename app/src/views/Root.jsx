@@ -7,6 +7,7 @@ import {
   Compare,
   ModelsText,
   PredictText,
+  EvaluateText,
 } from "views";
 
 const Root = () => {
@@ -19,6 +20,7 @@ const Root = () => {
       <Route path="*" element={<Navigate to="/models/time_series" />} />
       <Route path="/models/text" element={<ModelsText />} />
       <Route path="/predict/text" element={<PredictText />} />
+      <Route path="/evaluate/text" element={<EvaluateText />} />
     </Routes>
   );
 };

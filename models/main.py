@@ -7,6 +7,7 @@ from sklearn.preprocessing import MinMaxScaler
 from keras.models import Sequential
 from keras.layers import Dense, LSTM, GRU, SimpleRNN
 from sklearn.preprocessing import MinMaxScaler
+from sklearn.metrics import confusion_matrix, classification_report
 import keras
 import json
 from bs4 import BeautifulSoup
@@ -132,7 +133,7 @@ def train_model_text_classification(message):
     text = json.loads(message).get("text")
     num_words = int(json.loads(message).get("num_words"))
     max_text_len = int(json.loads(message).get("max_text_len"))
-
+    print(data)
     layers_config = json.loads(message).get("models")
 
     batch_size = int(json.loads(message).get("batch_size"))  # 64
@@ -223,6 +224,8 @@ def train_model_text_classification(message):
                 "path": model_name,
                 "num_words": num_words,
                 "max_text_len": max_text_len,
+                "category": category,
+                "text": text,
                 "texts": texts.tolist(),
                 "y_labels": category_to_number[1].tolist(),
             }
@@ -369,7 +372,7 @@ def predict_text_classification():
     num_words = request_data["num_words"]
     max_text_len = request_data["max_text_len"]
     texts = request_data["texts"]
-    text_predict = cleanText(request_data["text_predict"])  # clean dać
+    text_predict = cleanText(request_data["text_predict"])
     y_labels = request_data["y_labels"]
 
     print(path)
@@ -393,6 +396,73 @@ def predict_text_classification():
     return jsonify(
         {
             "results": results,
+        },
+    )
+
+
+@app.route("/evaluate/text_classification", methods=["POST"])
+def evaluate_text_classification():
+    request_data = request.get_json()
+    path = request_data["path"]
+    num_words = request_data["num_words"]
+    max_text_len = request_data["max_text_len"]
+    texts = request_data["texts"]
+    y_labels = request_data["y_labels"]
+    data = request_data["dataset"]
+    category = request_data["category"]
+    text = request_data["text"]
+    print(data)
+    df = pd.DataFrame(data)
+    print(df[text])
+    df[text] = df[text].astype(str)
+    df[category] = df[category].astype(str)
+    df[text] = df[text].apply(cleanText)
+
+    model = tf.keras.models.load_model(f"../files/models/{path}.keras")
+
+    tokenizer = Tokenizer(num_words=num_words)
+    tokenizer.fit_on_texts(texts)
+    texts = df[text]
+    category_mapping = {v: i for i, v in enumerate(y_labels)}
+    print(category_mapping)
+    df[category] = df[category].map(category_mapping)
+    y_true = df[category].to_numpy()
+    print("Labels")
+
+    sequences = tokenizer.texts_to_sequences(texts)
+    X = pad_sequences(sequences, maxlen=max_text_len)
+    print(X)
+    y_pred = model.predict(X)
+    # flattened_results = np.ravel(y_pred).tolist()
+    # print(flattened_results)
+    # print(np.argmax(y_pred, axis=1))
+    # results = y_labels[np.argmax(y_pred, axis=1)[0]]
+
+    print(y_true)
+    predicted_classes = np.argmax(y_pred, axis=1)
+    print(predicted_classes)
+
+    category_mapping = {i: v for i, v in enumerate(y_labels)}
+    y_true_categories = [category_mapping[label] for label in y_true]
+    y_pred_categories = [category_mapping[label] for label in predicted_classes]
+
+    print(y_true_categories)
+    print(y_pred_categories)
+
+    cm = confusion_matrix(y_true_categories, y_pred_categories, labels=y_labels)
+    report = classification_report(
+        y_true_categories, y_pred_categories, labels=y_labels
+    )
+
+    print(cm)
+    print(report)
+
+    return jsonify(
+        {
+            "results": y_pred_categories,
+            "labels": y_labels,
+            # "confusion_matrix": cm.tolist(),
+            # "report": report,
         },
     )
 
