@@ -451,7 +451,7 @@ def evaluate_text_classification():
 
     cm = confusion_matrix(y_true_categories, y_pred_categories, labels=y_labels)
     report = classification_report(
-        y_true_categories, y_pred_categories, labels=y_labels
+        y_true_categories, y_pred_categories, labels=y_labels, output_dict=True
     )
 
     print(cm)
@@ -459,10 +459,10 @@ def evaluate_text_classification():
 
     return jsonify(
         {
-            "results": y_pred_categories,
+            # "results": y_pred_categories,
             "labels": y_labels,
-            # "confusion_matrix": cm.tolist(),
-            # "report": report,
+            "confusion_matrix": cm.tolist(),
+            "report": report,
         },
     )
 
