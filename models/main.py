@@ -14,6 +14,7 @@ import re
 from keras_preprocessing.sequence import pad_sequences
 from keras_preprocessing.text import Tokenizer
 from keras.layers import Dense, BatchNormalization, Embedding, LSTM
+from keras.utils import to_categorical
 import tensorflow as tf
 from sklearn import metrics
 import uuid
@@ -139,10 +140,12 @@ def train_model_text_classification(message):
 
     df = pd.DataFrame(data)
     df[text] = df[text].apply(cleanText)
-    df[category] = pd.factorize(df[category])[0]
+    category_to_number = pd.factorize(df[category])
+    df[category] = category_to_number[0]
 
     # Pierwszy element krotki to zmapowane wartości numeryczne: [0, 1, 2, 0, 1].
     # Drugi element to indeks pandasowy Index(['A', 'B', 'C'], dtype='object'), który zawiera unikalne etykiety z kolumny 'category'.
+    print(pd.factorize(df[category])[1])
 
     texts = df[text]
     labels = df[category]
@@ -157,7 +160,7 @@ def train_model_text_classification(message):
     )  # konwersaja tekstu na sekwencje czasową
 
     X = pad_sequences(sequences, maxlen=max_text_len)  # stała wartośc sekwencji
-    y = labels.copy()
+    y = to_categorical(labels.copy())
 
     print(X)
     print(y)
@@ -184,8 +187,8 @@ def train_model_text_classification(message):
     model.add(BatchNormalization())
     model.add(LSTM(12))
     """
-    model.add(Dense(1, activation="sigmoid"))
-    # model.add(Dense(num_categories, activation="softmax"))
+    # model.add(Dense(1, activation="sigmoid"))
+    model.add(Dense(num_categories, activation="softmax"))
 
     print(model.summary())
 
@@ -221,6 +224,7 @@ def train_model_text_classification(message):
                 "num_words": num_words,
                 "max_text_len": max_text_len,
                 "texts": texts.tolist(),
+                "y_labels": category_to_number[1].tolist(),
             }
         ),
     )
@@ -350,6 +354,41 @@ def predict_time_series():
     for idx, feature_name in enumerate(filter):
         result = {"feature": feature_name, "predictions": predictions[:, idx].tolist()}
         results.append(result)
+
+    return jsonify(
+        {
+            "results": results,
+        },
+    )
+
+
+@app.route("/predict/text_classification", methods=["POST"])
+def predict_text_classification():
+    request_data = request.get_json()
+    path = request_data["path"]
+    num_words = request_data["num_words"]
+    max_text_len = request_data["max_text_len"]
+    texts = request_data["texts"]
+    text_predict = cleanText(request_data["text_predict"])  # clean dać
+    y_labels = request_data["y_labels"]
+
+    print(path)
+    print(num_words)
+    print(max_text_len)
+    print(text_predict)
+
+    model = tf.keras.models.load_model(f"../files/models/{path}.keras")
+
+    tokenizer = Tokenizer(num_words=num_words)
+    tokenizer.fit_on_texts(texts)
+    sequences = tokenizer.texts_to_sequences([text_predict])
+    X = pad_sequences(sequences, maxlen=max_text_len)
+    print(X)
+    y_pred = model.predict(X)
+    # flattened_results = np.ravel(y_pred).tolist()
+    # print(flattened_results)
+    print(np.argmax(y_pred, axis=1))
+    results = y_labels[np.argmax(y_pred, axis=1)[0]]
 
     return jsonify(
         {

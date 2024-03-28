@@ -1,6 +1,13 @@
 import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
-import { Models, Evaluate, Predict, Compare, ModelsText } from "views";
+import {
+  Models,
+  Evaluate,
+  Predict,
+  Compare,
+  ModelsText,
+  PredictText,
+} from "views";
 
 const Root = () => {
   return (
@@ -11,6 +18,7 @@ const Root = () => {
       <Route path="/compare/time_series" element={<Compare />} />
       <Route path="*" element={<Navigate to="/models/time_series" />} />
       <Route path="/models/text" element={<ModelsText />} />
+      <Route path="/predict/text" element={<PredictText />} />
     </Routes>
   );
 };

@@ -14,7 +14,7 @@ df = pd.DataFrame(
 
 texts = df["Message"]
 
-tokenizer = Tokenizer(num_words=100)
+tokenizer = Tokenizer(num_words=5)
 # oov_token="<OOV>"oov_token="<OOV>"# Przetwarzanie tekstu na sekwencję liczb
 tokenizer.fit_on_texts(texts)  # słownik słów
 print(tokenizer)
