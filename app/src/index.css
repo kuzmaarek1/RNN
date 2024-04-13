@@ -13,21 +13,27 @@
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
+.box-shadow-button::before,
+.box-shadow-button::after{
+   transition: 0.5s, box-shadow 0.5s;
+}
 
-button:hover .box-shadow-button::before {
+ .button:hover .box-shadow-button::before {
     box-shadow:50px 0 #fff, 
     -50px 0 #A1E3CB,
     -50px 0 4px white,
     10px -10px #A1E3CB,
     -10px -10px #fff;
+    transition-delay: 0s,0.5s;
 }
 
-button:hover .box-shadow-button::after {
+.button:hover .box-shadow-button::after {
     box-shadow:-50px 0 #fff, 
     50px 0 #A1E3CB,
     50px 0 4px white,
     -10px 10px #A1E3CB,
     10px 10px #fff;
+    transition-delay: 0s,0.5s;
 }
 
 .box-shadow-span {

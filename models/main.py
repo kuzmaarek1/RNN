@@ -14,6 +14,9 @@ from bs4 import BeautifulSoup
 import re
 from keras_preprocessing.sequence import pad_sequences
 from keras_preprocessing.text import Tokenizer
+
+# from tensorflow.keras.preprocessing.sequence import pad_sequences
+# from tensorflow.keras.preprocessing.text import Tokenizer
 from keras.layers import Dense, BatchNormalization, Embedding, LSTM
 from keras.utils import to_categorical
 import tensorflow as tf
@@ -151,6 +154,7 @@ def train_model_text_classification(message):
     texts = df[text]
     labels = df[category]
     print(texts)
+    texts = [str(text) for text in texts]
     tokenizer = Tokenizer(
         num_words=num_words
     )  # Przetwarzanie tekstu na sekwencję liczb
@@ -381,7 +385,7 @@ def predict_text_classification():
     print(text_predict)
 
     model = tf.keras.models.load_model(f"../files/models/{path}.keras")
-
+    texts = [str(text) for text in texts]
     tokenizer = Tokenizer(num_words=num_words)
     tokenizer.fit_on_texts(texts)
     sequences = tokenizer.texts_to_sequences([text_predict])
@@ -419,7 +423,7 @@ def evaluate_text_classification():
     df[text] = df[text].apply(cleanText)
 
     model = tf.keras.models.load_model(f"../files/models/{path}.keras")
-
+    texts = [str(text) for text in texts]
     tokenizer = Tokenizer(num_words=num_words)
     tokenizer.fit_on_texts(texts)
     texts = df[text]
