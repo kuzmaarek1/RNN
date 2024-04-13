@@ -10,15 +10,19 @@
 }
 
 .custom-box-shadow {
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4);
 }
 
-.box-shadow-button::before,
-.box-shadow-button::after{
+.box-shadow-button-green::before,
+.box-shadow-button-green::after, 
+.box-shadow-button-blue::before,
+.box-shadow-button-blue::after, 
+.box-shadow-button-grey::before,
+.box-shadow-button-grey::after{
    transition: 0.5s, box-shadow 0.5s;
 }
 
- .button:hover .box-shadow-button::before {
+ .button:hover .box-shadow-button-green::before {
     box-shadow:50px 0 #fff, 
     -50px 0 #A1E3CB,
     -50px 0 4px white,
@@ -27,7 +31,7 @@
     transition-delay: 0s,0.5s;
 }
 
-.button:hover .box-shadow-button::after {
+.button:hover .box-shadow-button-green::after {
     box-shadow:-50px 0 #fff, 
     50px 0 #A1E3CB,
     50px 0 4px white,
@@ -36,6 +40,38 @@
     transition-delay: 0s,0.5s;
 }
 
-.box-shadow-span {
-    box-shadow:0.5s
+.button:hover .box-shadow-button-blue::before {
+    box-shadow:50px 0 #fff, 
+    -50px 0 #95A4FC,
+    -50px 0 4px white,
+    10px -10px #95A4FC,
+    -10px -10px #fff;
+    transition-delay: 0s,0.5s;
+}
+
+.button:hover .box-shadow-button-blue::after {
+    box-shadow:-50px 0 #fff, 
+    50px 0 #95A4FC,
+    50px 0 4px white,
+    -10px 10px #95A4FC,
+    10px 10px #fff;
+    transition-delay: 0s,0.5s;
+}
+
+.button:hover .box-shadow-button-grey::before {
+    box-shadow:50px 0 #fff, 
+    -50px 0 #A8C5DA,
+    -50px 0 4px white,
+    10px -10px #A8C5DA,
+    -10px -10px #fff;
+    transition-delay: 0s,0.5s;
+}
+
+.button:hover .box-shadow-button-grey::after {
+    box-shadow:-50px 0 #fff, 
+    50px 0 #A8C5DA,
+    50px 0 4px white,
+    -10px 10px #A8C5DA,
+    10px 10px #fff;
+    transition-delay: 0s,0.5s;
 }

@@ -4,8 +4,8 @@ import Select from "react-select";
 import { parse } from "papaparse";
 import { useForm, useFieldArray } from "react-hook-form";
 import Plot from "react-plotly.js";
-import { Button } from "components";
 import { io } from "socket.io-client";
+import { Button, Card } from "components";
 
 const Models = () => {
   const {
@@ -132,7 +132,7 @@ const Models = () => {
     <div onClick={handleOutsideClick} className="flex gap-[12px]">
       <div>
         <div className="text-[#1c1c1c] font-[14px] font-[600]">Select file</div>
-        <div className="bg-[#e3f5ff]  rounded-[16px] custom-box-shadow p-8">
+        <Card>
           <input
             type="file"
             className="mb-4"
@@ -140,19 +140,21 @@ const Models = () => {
             accept=".csv"
           />
           <Button text="Submit" func={handleCsvSubmission} />
-        </div>
+        </Card>
       </div>
       {csvHeaders.length > 0 && (
-        <div className="bg-[#e5ecf6] h-[50px] rounded-[16px] custom-box-shadow">
-          <label htmlFor="XLabel">X labels</label>
-          <select name="XLabel" id="XLabel" ref={selectXLabelRef}>
-            {csvHeaders.map((csvHeader) => (
-              <option value={csvHeader} key={csvHeader}>
-                {csvHeader}
-              </option>
-            ))}
-          </select>
-          <button onClick={handleXLabel}>Submit XLabel</button>
+        <div>
+          <Card color="blue">
+            <label htmlFor="XLabel">X labels</label>
+            <select name="XLabel" id="XLabel" ref={selectXLabelRef}>
+              {csvHeaders.map((csvHeader) => (
+                <option value={csvHeader} key={csvHeader}>
+                  {csvHeader}
+                </option>
+              ))}
+            </select>
+            <Button text="Submit" color="blue" func={handleXLabel} />
+          </Card>
         </div>
       )}
       <div className="w-[100%] bg-[green] flex flex-row flex-wrap">
