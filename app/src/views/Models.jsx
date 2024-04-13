@@ -238,13 +238,33 @@ const Models = () => {
             setValue("y_feauture", selectedValues);
           }}
         />
-        <label htmlFor="time_step">Time Step</label>
-        <input
-          type="number"
-          id="time_step"
-          name="time_step"
-          {...register(`time_step`)}
-        />
+        <div className="relative w-[300px] mb-[40px]">
+          <input
+            type="number"
+            id="time_step"
+            name="time_step"
+            className="relative w-full p-[10px_0px] bg-[transparent] border-[none] border-b-[2px] border-b-[black] outline-none text-[black] text-[1em] uppercase tracking-[0.05em]
+            focus:border-b-[2px] focus:border-b-[green]
+            valid:border-b-[2px] valid:border-b-[green]
+            input"
+            {...register(`time_step`)}
+            required
+          />
+          <label
+            htmlFor="time_step"
+            className="absolute left-0 p-[10px_0px] pointer-events-none text-[black] uppercase"
+          >
+            {`Time Step`.split("").map((letter, i) => (
+              <span
+                className={`relative inline-flex tracking-[0.05em] transition-[0.2s] ease-in-out
+               `}
+                style={{ transitionDelay: `${i * 0.1}s` }}
+              >
+                {letter === " " ? "\u00A0" : letter}
+              </span>
+            ))}
+          </label>
+        </div>
         <label htmlFor="batch_size">Batch size</label>
         <input
           type="number"

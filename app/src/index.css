@@ -75,3 +75,10 @@
     10px 10px #fff;
     transition-delay: 0s,0.5s;
 }
+
+.input:focus ~ label span, 
+.input:valid ~ label span {
+  color: green;
+  letter-spacing: 0.15em;
+  transform: translateY(-25px);
+}
