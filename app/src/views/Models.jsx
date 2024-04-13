@@ -132,14 +132,14 @@ const Models = () => {
     <div onClick={handleOutsideClick} className="flex gap-[12px]">
       <div>
         <div className="text-[#1c1c1c] font-[14px] font-[600]">Select file</div>
-        <Card>
+        <Card color="green">
           <input
             type="file"
             className="mb-4"
             ref={fileInputRef}
             accept=".csv"
           />
-          <Button text="Submit" func={handleCsvSubmission} />
+          <Button color="green" text="Submit" func={handleCsvSubmission} />
         </Card>
       </div>
       {csvHeaders.length > 0 && (
@@ -157,19 +157,32 @@ const Models = () => {
           </Card>
         </div>
       )}
-      <div className="w-[100%] bg-[green] flex flex-row flex-wrap">
-        {YLabels.length > 0 &&
-          YLabels.map((YLabel, index) => (
-            <motion.div
-              key={YLabel}
-              layoutId={YLabel}
-              onClick={() => setSelectedId(YLabel)}
-              className="bg-[#f7f9fb] h-[50px] rounded-[16px]  w-[20%]"
-            >
-              <motion.div>{YLabel}</motion.div>
-            </motion.div>
-          ))}
-      </div>
+      {YLabels.length > 0 && (
+        <div>
+          <Card>
+            <div className="flex gap-[5px] w-[500px] flex-wrap">
+              {YLabels.map((YLabel, index) => (
+                <motion.div
+                  key={YLabel}
+                  layoutId={YLabel}
+                  onClick={() => setSelectedId(YLabel)}
+                  className={`${
+                    index % 4 === 0
+                      ? "border-[#95A4FC]"
+                      : index % 4 === 1
+                      ? "border-[#BAEDBD]"
+                      : index % 4 === 2
+                      ? "border-[#1C1C1C]"
+                      : "border-[#B1E3FF]"
+                  } border-[2px] mb-[10px] w-[200px] h-[50px] rounded-[16px] flex justify-center items-center cursor-pointer`}
+                >
+                  <motion.div>{YLabel}</motion.div>
+                </motion.div>
+              ))}
+            </div>
+          </Card>
+        </div>
+      )}
       <AnimatePresence onClick={(event) => event.stopPropagation()}>
         {selectedId && (
           <motion.div className="animate-presence" layoutId={selectedId}>
