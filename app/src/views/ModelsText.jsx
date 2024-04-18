@@ -1,7 +1,10 @@
 import React, { useRef, useState, useEffect } from "react";
+import { FaTimes, FaPlus } from "react-icons/fa";
 import { parse } from "papaparse";
 import { useForm, useFieldArray } from "react-hook-form";
 import { io } from "socket.io-client";
+import { Card, Input, Button } from "components";
+import { inputFieldModelsText } from "constants";
 
 const ModelsText = () => {
   const {
@@ -27,6 +30,7 @@ const ModelsText = () => {
   const [text, setText] = useState();
   const [epochsHistory, setEpochsHistory] = useState([]);
   const [downloadLink, setDownloadLink] = useState(null);
+  const [numberSlider, setNumberSlider] = useState(0);
 
   useEffect(() => {
     socket.current = io("http://127.0.0.1:5000");
@@ -99,113 +103,185 @@ const ModelsText = () => {
       document.body.removeChild(a);
     }
   };
-
+  console.log(csvData);
+  console.log(numberSlider);
+  console.log(category);
   return (
     <div className="flex gap-[12px]">
-      <div>
-        <div className="text-[#1c1c1c] font-[14px] font-[600]">Select file</div>
-        <div className="bg-[#e3f5ff]  rounded-[16px] custom-box-shadow p-8">
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="grid lg:grid-cols-2 grid-cols-1 gap-4 ml-4 mt-12 h-max-content"
+      >
+        <Card color="green" classStyle="min-h-[150px]">
+          <div className="text-[#1c1c1c] font-[14px] font-[600]">
+            Select file
+          </div>
           <input
             type="file"
             className="mb-4"
             ref={fileInputRef}
             accept=".csv"
           />
-          <button
-            className="relative uppercase spacing tracking-widest font-[400] text-base py-[10px] duration-500 w-[150px] rounded-[16px] border-[2px] border-[#A1E3CB] text-[#1c1c1c] group
-            hover:bg-[#A1E3CB] hover:tracking-[0.25em] before:content-[''] before:absolute before:inset-[2px]"
-            onClick={handleCsvSubmission}
-          >
-            <span className="relative z-10 flex justify-center">Submit</span>
-            <i
-              className="box-shadow-button group-hover:before:w-[8px] group-hover:before:left-[calc(50%)]  group-hover:before:delay-[0.5s]
-              before:content-[''] before:absolute  before:w-[10px] before:h-[6px] before:bg-[white] before:border-[2px] before:border-[#A1E3CB] before:top-[-3.5px] before:left-[80%] before:translate-x-[-50%] before:duration-500 before:delay-[0.5s]
-              group-hover:after:w-[8px]  group-hover:after:left-[calc(50%)]  group-hover:after:delay-[0.5s]
-              after:content-[''] after:absolute after:w-[10px] after:h-[6px] after:bg-[white] after:border-[2px] after:border-[#A1E3CB] after:bottom-[-3.5px] after:left-[20%] after:translate-x-[-50%] after:duration-500 after:delay-[0.5s]"
-            ></i>
-          </button>
-        </div>
-      </div>
-      {csvHeaders.length > 0 && (
-        <div className="bg-[#e5ecf6] h-[50px] rounded-[16px] custom-box-shadow">
-          <label htmlFor="Category">Category Label</label>
-          <select name="Category" id="Category" ref={selectCategoryRef}>
-            {csvHeaders.map((csvHeader) => (
-              <option value={csvHeader} key={csvHeader}>
-                {csvHeader}
-              </option>
-            ))}
-          </select>
-          <button onClick={handleCategory}>Submit Category</button>
-        </div>
-      )}
-
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <label htmlFor="num_words">Num Words</label>
-        <input
-          type="number"
-          id="num_words"
-          name="num_words"
-          {...register(`num_words`)}
-        />
-        <label htmlFor="max_text_len">Max text len</label>
-        <input
-          type="number"
-          id="max_text_len"
-          name="max_text_len"
-          {...register(`max_text_len`)}
-        />
-        <label htmlFor="batch_size">Batch size</label>
-        <input
-          type="number"
-          id="batch_size"
-          name="batch_size"
-          {...register(`batch_size`)}
-        />
-        <label htmlFor="epochs">Epochs</label>
-        <input
-          type="number"
-          id="epochs"
-          name="epochs"
-          {...register(`epochs`)}
-        />
-        {fields.map(({ id }, index) => (
-          <div key={id}>
-            <label htmlFor="layers">Layers</label>
-            <select
-              id="layers"
-              name="layers"
-              {...register(`models[${index}].layers`)}
-              defaultValue="RNN"
-            >
-              <option value="RNN">RNN</option>
-              <option value="LSTM">LSTM</option>
-              <option value="GRU">GRU</option>
+          <Button
+            color="green"
+            text="Submit"
+            type="button"
+            func={handleCsvSubmission}
+          />
+        </Card>
+        {csvHeaders.length > 0 && (
+          <Card color="blue" classStyle="min-h-[150px]">
+            <label htmlFor="Category">Category Label</label>
+            <select name="Category" id="Category" ref={selectCategoryRef}>
+              {csvHeaders.map((csvHeader) => (
+                <option value={csvHeader} key={csvHeader}>
+                  {csvHeader}
+                </option>
+              ))}
             </select>
-            <label htmlFor="units">Units</label>
-            <input
-              type="number"
-              id="units"
-              name="units"
-              {...register(`models[${index}].units`)}
+            <Button
+              color="blue"
+              text="Submit"
+              type="button"
+              func={handleCategory}
             />
-            <label htmlFor="returnSequences">Return_sequences</label>
-            <input
-              type="checkbox"
-              id="returnSequences"
-              name="returnSequences"
-              {...register(`models[${index}].returnSequences`)}
-              defaultChecked={true}
-            />
-            <button type="button" onClick={() => remove(index)}>
-              Remove
+          </Card>
+        )}
+        {csvHeaders.length > 0 && (
+          <Card classStyle={`min-h-[200px]`}>
+            <div className="relative">
+              <Input
+                type="number"
+                name="numberSlider"
+                label="Number"
+                register={register}
+                onChange={(value) => {
+                  console.log(value);
+                  isNaN(value) || csvData.length - 1 < value
+                    ? setNumberSlider(null)
+                    : value === ""
+                    ? setNumberSlider(Number(0))
+                    : setNumberSlider(Number(value));
+                }}
+                value={numberSlider == null ? "" : Number(numberSlider)}
+                min={`0`}
+                max={`${csvData.length - 1}`}
+              />
+            </div>
+            {numberSlider != null && (
+              <>
+                <div>Category: {csvData[numberSlider][category]}</div>
+                <div>Message: {csvData[numberSlider][text]}</div>
+                <Button
+                  color="grey"
+                  type="button"
+                  text="Prev"
+                  func={() =>
+                    setNumberSlider((prev) =>
+                      prev === 0 ? csvData.length - 1 : prev - 1
+                    )
+                  }
+                />
+                <Button
+                  color="grey"
+                  type="button"
+                  text="Next"
+                  func={() =>
+                    setNumberSlider((prev) =>
+                      prev === csvData.length - 1 ? 0 : prev + 1
+                    )
+                  }
+                />
+              </>
+            )}
+          </Card>
+        )}
+        <Card color="blue" classStyle="min-h-[150px]">
+          {inputFieldModelsText.map(({ type, name, label, color }) => (
+            <div className="relative w-[300px] mt-[40px]">
+              <Input
+                type={type}
+                name={name}
+                label={label}
+                color={color}
+                register={register}
+              />
+            </div>
+          ))}
+        </Card>
+        <Card>
+          <div className="flex justify-center items-center flex-wrap w-full h-full">
+            {fields.map(({ id }, index) => (
+              <div key={id} className="flex flex-row mb-12">
+                <div className="relative flex flex-col mr-4">
+                  <label
+                    className={"font-semibold uppercase text-[#1c1c1c]"}
+                    htmlFor="layers"
+                  >
+                    <span
+                      className={`relative inline-flex tracking-[0.15em] transition-[0.2s] ease-in-out -translate-y-[15px]`}
+                    >
+                      Layers
+                    </span>
+                  </label>
+                  <select
+                    id="layers"
+                    name="layers"
+                    {...register(`models[${index}].layers`)}
+                    defaultValue="RNN"
+                  >
+                    <option value="RNN">RNN</option>
+                    <option value="LSTM">LSTM</option>
+                    <option value="GRU">GRU</option>
+                  </select>
+                </div>
+                <div className="relative ">
+                  <Input
+                    type="number"
+                    name={`models[${index}].units`}
+                    label="Units"
+                    color="grey"
+                    register={register}
+                  />
+                </div>
+                <div className="relative flex flex-col ml-4">
+                  <label
+                    className={"font-semibold uppercase text-[#1c1c1c]"}
+                    htmlFor={`models[${index}].layers`}
+                  >
+                    <span
+                      className={`-translate-y-[15px] relative inline-flex tracking-[0.15em] transition-[0.2s] ease-in-out`}
+                    >
+                      Return sequences
+                    </span>
+                  </label>
+                  <input
+                    type="checkbox"
+                    id="returnSequences"
+                    name="returnSequences"
+                    {...register(`models[${index}].returnSequences`)}
+                    defaultChecked={true}
+                  />
+                </div>
+                <button
+                  className="text-[#95A4FC]"
+                  type="button"
+                  onClick={() => remove(index)}
+                >
+                  <FaTimes />
+                </button>
+              </div>
+            ))}
+            <button
+              type="button"
+              className="text-[#95A4FC]"
+              onClick={() => append({})}
+            >
+              <FaPlus />
             </button>
+            <Button text="Submit" color="blue" type="submit" />
           </div>
-        ))}
-        <button type="button" onClick={() => append({})}>
-          Add model
-        </button>
-        <input type="submit" />
+        </Card>
       </form>
       {epochsHistory.length != 0 &&
         epochsHistory.map((props, index) => (

@@ -7,7 +7,7 @@ import { useForm, useFieldArray } from "react-hook-form";
 import Plot from "react-plotly.js";
 import { io } from "socket.io-client";
 import { Button, Card, Input } from "components";
-import { inputFieldModels } from "constants";
+import { inputFieldModelsTimeSeries } from "constants";
 
 const customStyles = {
   control: (provided, state) => ({
@@ -320,29 +320,31 @@ const Models = () => {
                   placeholder={null}
                 />
               </div>
-              {inputFieldModels.map(({ type, name, label, color }) => (
-                <div className="relative w-[300px] mt-[40px]">
-                  <Input
-                    type={type}
-                    name={name}
-                    label={label}
-                    color={color}
-                    register={register}
-                  />
-                </div>
-              ))}
+              {inputFieldModelsTimeSeries.map(
+                ({ type, name, label, color }) => (
+                  <div className="relative w-[300px] mt-[40px]">
+                    <Input
+                      type={type}
+                      name={name}
+                      label={label}
+                      color={color}
+                      register={register}
+                    />
+                  </div>
+                )
+              )}
             </Card>
             <Card>
               <div className="flex justify-center items-center flex-wrap w-full h-full">
                 {fields.map(({ id }, index) => (
-                  <div key={id} className="flex flex-row  mb-12 ">
-                    <div className="relative  flex flex-col mr-4">
+                  <div key={id} className="flex flex-row mb-12">
+                    <div className="relative flex flex-col mr-4">
                       <label
-                        className={"font-semibold uppercase "}
+                        className={"font-semibold uppercase text-[#1c1c1c]"}
                         htmlFor={`models[${index}].layers`}
                       >
                         <span
-                          className={`-translate-y-4 relative inline-flex tracking-[0.15em] transition-[0.2s] ease-in-out`}
+                          className={`-translate-y-[15px] relative inline-flex tracking-[0.15em] transition-[0.2s] ease-in-out`}
                         >
                           Layers
                         </span>
@@ -369,11 +371,11 @@ const Models = () => {
                     </div>
                     <div className="relative flex flex-col ml-4">
                       <label
-                        className={"font-semibold uppercase "}
+                        className={"font-semibold uppercase text-[#1c1c1c]"}
                         htmlFor={`models[${index}].layers`}
                       >
                         <span
-                          className={`-translate-y-4 relative inline-flex tracking-[0.15em] transition-[0.2s] ease-in-out`}
+                          className={`-translate-y-[15px] relative inline-flex tracking-[0.15em] transition-[0.2s] ease-in-out`}
                         >
                           Return sequences
                         </span>

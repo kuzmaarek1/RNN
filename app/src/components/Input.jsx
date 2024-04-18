@@ -1,6 +1,12 @@
 import React from "react";
 
-const Input = ({ type, name, label, register, color }) => {
+const Input = ({ type, name, label, register, color, onChange, ...props }) => {
+  const handleChange = (event) => {
+    console.log(parseInt(event.target.value, 10));
+    if (onChange) {
+      onChange(parseInt(event.target.value, 10));
+    }
+  };
   return (
     <>
       <input
@@ -18,6 +24,8 @@ const Input = ({ type, name, label, register, color }) => {
             input`}
         {...register(name)}
         required
+        onChange={handleChange}
+        {...props}
       />
       <label
         htmlFor={name}
@@ -25,8 +33,7 @@ const Input = ({ type, name, label, register, color }) => {
       >
         {label.split("").map((letter, i) => (
           <span
-            className={`relative inline-flex tracking-[0.05em] transition-[0.2s] ease-in-out
-               `}
+            className={`relative inline-flex tracking-[0.05em] transition-[0.2s] ease-in-out`}
             style={{ transitionDelay: `${i * 0.1}s` }}
           >
             {letter === " " ? "\u00A0" : letter}

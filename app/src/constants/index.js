@@ -8,7 +8,7 @@ export const circleCoordinates = [
   { cx: "795", cy: "91.07000000000002" },
 ];
 
-export const inputFieldModels = [
+export const inputFieldModelsTimeSeries = [
   {
     type: "number",
     name: "time_step",
@@ -26,5 +26,32 @@ export const inputFieldModels = [
     name: "epochs",
     label: "Epochs",
     color: "green",
+  },
+];
+
+export const inputFieldModelsText = [
+  {
+    type: "number",
+    name: "num_words",
+    label: "Num words",
+    color: "blue",
+  },
+  {
+    type: "number",
+    name: "max_text_len",
+    label: "Max text len",
+    color: "blue",
+  },
+  {
+    type: "number",
+    name: "batch_size",
+    label: "Batch size",
+    color: "blue",
+  },
+  {
+    type: "number",
+    name: "epochs",
+    label: "Epochs",
+    color: "blue",
   },
 ];
