@@ -7,3 +7,24 @@ export const circleCoordinates = [
   { cx: "663.3333333333333", cy: "98.62" },
   { cx: "795", cy: "91.07000000000002" },
 ];
+
+export const inputFieldModels = [
+  {
+    type: "number",
+    name: "time_step",
+    label: "Time Step",
+    color: "green",
+  },
+  {
+    type: "number",
+    name: "batch_size",
+    label: "Batch size",
+    color: "green",
+  },
+  {
+    type: "number",
+    name: "epochs",
+    label: "Epochs",
+    color: "green",
+  },
+];

@@ -78,7 +78,8 @@
 
 .input:focus ~ label span, 
 .input:valid ~ label span {
-  color: green;
+  color: #1c1c1c;
+  font-weight: 600;
   letter-spacing: 0.15em;
   transform: translateY(-25px);
 }

@@ -5,7 +5,8 @@ import { parse } from "papaparse";
 import { useForm, useFieldArray } from "react-hook-form";
 import Plot from "react-plotly.js";
 import { io } from "socket.io-client";
-import { Button, Card } from "components";
+import { Button, Card, Input } from "components";
+import { inputFieldModels } from "constants";
 
 const Models = () => {
   const {
@@ -237,63 +238,33 @@ const Models = () => {
         )}
       </AnimatePresence>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <label htmlFor="y_feauture">Y Feauture</label>
-        <Select
-          id="y_feauture"
-          name="y_feauture"
-          options={options}
-          value={selectedOptions}
-          onChange={handleChange}
-          isMulti
-          onChange={(selectedOptions) => {
-            handleChange(selectedOptions);
-            const selectedValues = selectedOptions.map(
-              (option) => option.value
-            );
-            setValue("y_feauture", selectedValues);
-          }}
-        />
-        <div className="relative w-[300px] mb-[40px]">
-          <input
-            type="number"
-            id="time_step"
-            name="time_step"
-            className="relative w-full p-[10px_0px] bg-[transparent] border-[none] border-b-[2px] border-b-[black] outline-none text-[black] text-[1em] uppercase tracking-[0.05em]
-            focus:border-b-[2px] focus:border-b-[green]
-            valid:border-b-[2px] valid:border-b-[green]
-            input"
-            {...register(`time_step`)}
-            required
+        <Card color="green">
+          <label htmlFor="y_feauture">Y Feauture</label>
+          <Select
+            id="y_feauture"
+            name="y_feauture"
+            options={options}
+            value={selectedOptions}
+            onChange={handleChange}
+            isMulti
+            onChange={(selectedOptions) => {
+              handleChange(selectedOptions);
+              const selectedValues = selectedOptions.map(
+                (option) => option.value
+              );
+              setValue("y_feauture", selectedValues);
+            }}
           />
-          <label
-            htmlFor="time_step"
-            className="absolute left-0 p-[10px_0px] pointer-events-none text-[black] uppercase"
-          >
-            {`Time Step`.split("").map((letter, i) => (
-              <span
-                className={`relative inline-flex tracking-[0.05em] transition-[0.2s] ease-in-out
-               `}
-                style={{ transitionDelay: `${i * 0.1}s` }}
-              >
-                {letter === " " ? "\u00A0" : letter}
-              </span>
-            ))}
-          </label>
-        </div>
-        <label htmlFor="batch_size">Batch size</label>
-        <input
-          type="number"
-          id="batch_size"
-          name="batch_size"
-          {...register(`batch_size`)}
-        />
-        <label htmlFor="epochs">Epochs</label>
-        <input
-          type="number"
-          id="epochs"
-          name="epochs"
-          {...register(`epochs`)}
-        />
+          {inputFieldModels.map(({ type, name, label, color }) => (
+            <Input
+              type={type}
+              name={name}
+              label={label}
+              color={color}
+              register={register}
+            />
+          ))}
+        </Card>
         {fields.map(({ id }, index) => (
           <div key={id}>
             <label htmlFor="layers">Layers</label>
