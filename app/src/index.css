@@ -82,3 +82,7 @@
   letter-spacing: 0.15em;
   transform: translateY(-25px);
 }
+
+.h-max-content {
+    height: max-content;
+}

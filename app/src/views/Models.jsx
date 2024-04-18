@@ -129,10 +129,15 @@ const Models = () => {
   };
 
   return (
-    <div onClick={handleOutsideClick} className="flex gap-[12px]">
+    <div
+      onClick={handleOutsideClick}
+      className="grid lg:grid-cols-2 grid-cols-1 gap-4 ml-4 mt-12 h-max-content"
+    >
       <div>
-        <div className="text-[#1c1c1c] font-[14px] font-[600]">Select file</div>
         <Card color="green">
+          <div className="text-[#1c1c1c] font-[14px] font-[600]">
+            Select file
+          </div>
           <input
             type="file"
             className="mb-4"
@@ -185,7 +190,7 @@ const Models = () => {
       )}
       <AnimatePresence onClick={(event) => event.stopPropagation()}>
         {selectedId && (
-          <motion.div className="animate-presence" layoutId={selectedId}>
+          <Card layoutId={selectedId} setSelectedId={setSelectedId}>
             <Plot
               data={[
                 {
@@ -228,10 +233,7 @@ const Models = () => {
                 //legend: { orientation: 'h' },
               }}
             />
-            <motion.button onClick={() => setSelectedId(null)}>
-              Close
-            </motion.button>
-          </motion.div>
+          </Card>
         )}
       </AnimatePresence>
       <form onSubmit={handleSubmit(onSubmit)}>
