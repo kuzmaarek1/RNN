@@ -2,7 +2,7 @@ import React from "react";
 
 const Input = ({ type, name, label, register, color }) => {
   return (
-    <div className="relative w-[300px] mt-[40px]">
+    <>
       <input
         type={type}
         id={name}
@@ -33,7 +33,7 @@ const Input = ({ type, name, label, register, color }) => {
           </span>
         ))}
       </label>
-    </div>
+    </>
   );
 };
 

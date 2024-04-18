@@ -2,9 +2,11 @@ import React from "react";
 import { FaTimes } from "react-icons/fa";
 import { motion } from "framer-motion";
 
-const Card = ({ color, layoutId, setSelectedId, children }) => {
+const Card = ({ color, layoutId, setSelectedId, classStyle, children }) => {
   return layoutId ? (
-    <div className="fixed inset-0 flex justify-center items-center z-50 bg-black bg-opacity-50">
+    <div
+      className={`${classStyle} fixed inset-0 flex justify-center items-center z-50 bg-black bg-opacity-50`}
+    >
       <motion.div
         className={`${
           color === "green"
@@ -19,6 +21,7 @@ const Card = ({ color, layoutId, setSelectedId, children }) => {
         <motion.button
           className="absolute top-0 right-0 m-5 text-[#95A4FC]"
           onClick={() => setSelectedId(null)}
+          type="button"
         >
           <FaTimes />
         </motion.button>
@@ -26,7 +29,7 @@ const Card = ({ color, layoutId, setSelectedId, children }) => {
     </div>
   ) : (
     <div
-      className={`${
+      className={`${classStyle} ${
         color === "green"
           ? "bg-[#e3f5ff]"
           : color === "blue"

@@ -1,6 +1,6 @@
 import React from "react";
 
-const Button = ({ text, func, color }) => {
+const Button = ({ text, func, color, type }) => {
   return (
     <button
       className={`button relative uppercase spacing tracking-widest font-[400] text-base py-[10px] duration-500 w-[150px] rounded-[16px] border-[2px]
@@ -14,6 +14,7 @@ const Button = ({ text, func, color }) => {
          text-[#1c1c1c] group
          hover:tracking-[0.25em] before:content-[''] before:absolute before:inset-[2px]`}
       onClick={func}
+      type={type}
     >
       <span className="relative z-10 flex justify-center">{text}</span>
       <i
