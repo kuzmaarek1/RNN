@@ -67,6 +67,7 @@ const Models = () => {
   const [selectedId, setSelectedId] = useState(null);
   const [downloadLink, setDownloadLink] = useState(null);
   const [epochsHistory, setEpochsHistory] = useState([]);
+  const [displayPlot, setDisplayPlot] = useState(null);
 
   const options = YLabels.map((YLabel) => ({
     value: YLabel,
@@ -121,8 +122,12 @@ const Models = () => {
   };
   const handleOutsideClick = (event) => {
     console.log(event);
-    if (selectedId && !event.target.closest(".animate-presence")) {
-      setSelectedId(null);
+    if (
+      (selectedId || displayPlot) &&
+      !event.target.closest(".animate-presence")
+    ) {
+      if (selectedId) setSelectedId(null);
+      else setDisplayPlot(null);
     }
   };
 
@@ -410,62 +415,99 @@ const Models = () => {
           </>
         )}
       </form>
-      {epochsHistory.length != 0 &&
-        epochsHistory.map((props, index) => (
-          <div key={index}>
-            <div>{props.epoch}</div>
-            <div>{props.loss}</div>
-          </div>
-        ))}
-      {downloadLink && (
-        <Plot
-          data={[
-            {
-              x: epochsHistory.map((epochHistory) => epochHistory.epoch),
-              y: epochsHistory.map((epochHistory) => epochHistory.loss),
-              type: "scatter",
-              mode: "lines",
-              marker: { color: "#82ca9d" },
-            },
-          ]}
-          layout={{
-            width: "5vw",
-            height: "500px",
-            // width: 800,
-            // height: 400,
-            title: {
-              text: "Time Series",
-            },
-            xaxis: {
-              title: {
-                text: "Index",
-                font: {
-                  size: 14,
+      <div className="grid lg:grid-cols-2 grid-cols-1 gap-4 ml-4 mt-4 h-max-content">
+        {epochsHistory.length != 0 && (
+          <Card color="grey" classStyle="w-full col-span-2">
+            <div className="flex overflow-auto gap-2">
+              <div>
+                <div className="flex justify-center items-center border-[2px] border-[#A8C5DA] mb-1 p-1 rounded-[16px]">
+                  Epochs
+                </div>
+                <div className="flex justify-center items-center border-[2px] border-[#A8C5DA] mb-1 p-1 rounded-[16px]">
+                  Loss
+                </div>
+              </div>
+              {epochsHistory.map((props, index) => (
+                <div key={index}>
+                  <div className="flex justify-center items-center border-[2px] border-[#A8C5DA] mb-1 p-1 rounded-[16px]">
+                    {props.epoch + 1}
+                  </div>
+                  <div className="flex justify-center items-center border-[2px] border-[#A8C5DA] p-1 rounded-[16px]">
+                    {props.loss.toFixed(5)}
+                  </div>
+                </div>
+              ))}
+            </div>
+            {downloadLink && (
+              <div className="w-full flex justify-center items-center gap-6">
+                <motion.div
+                  layoutId={1}
+                  onClick={() => setDisplayPlot(1)}
+                  className="border-[2px] border-[#A8C5DA] w-[150px] h-[45px] rounded-[16px] flex justify-center items-center cursor-pointer"
+                >
+                  Display Plot
+                </motion.div>
+                <Button
+                  type="button"
+                  color="grey"
+                  text="Download"
+                  func={handleDownload}
+                />
+              </div>
+            )}
+          </Card>
+        )}
+      </div>
+      <AnimatePresence onClick={(event) => event.stopPropagation()}>
+        {displayPlot && (
+          <Card layoutId={displayPlot} setSelectedId={setDisplayPlot}>
+            <Plot
+              data={[
+                {
+                  x: epochsHistory.map(
+                    (epochHistory) => epochHistory.epoch + 1
+                  ),
+                  y: epochsHistory.map((epochHistory) => epochHistory.loss),
+                  type: "scatter",
+                  mode: "lines",
+                  marker: { color: "#82ca9d" },
                 },
-                standoff: 8,
-              },
-              zeroline: false,
-            },
-            yaxis: {
-              title: {
-                text: "Value",
-                font: {
-                  size: 14,
+              ]}
+              layout={{
+                width: "5vw",
+                height: "500px",
+                // width: 800,
+                // height: 400,
+                title: {
+                  text: "Time Series",
                 },
-                standoff: 3,
-              },
-              zeroline: false,
-            },
-            margin: { t: 30, r: 30 },
-            //legend: { orientation: 'h' },
-          }}
-        />
-      )}
-      {downloadLink && (
-        <div>
-          <button onClick={handleDownload}>Download Results</button>
-        </div>
-      )}
+                xaxis: {
+                  title: {
+                    text: "Index",
+                    font: {
+                      size: 14,
+                    },
+                    standoff: 8,
+                  },
+                  zeroline: false,
+                },
+                yaxis: {
+                  title: {
+                    text: "Value",
+                    font: {
+                      size: 14,
+                    },
+                    standoff: 3,
+                  },
+                  zeroline: false,
+                },
+                margin: { t: 30, r: 30 },
+                //legend: { orientation: 'h' },
+              }}
+            />
+          </Card>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
