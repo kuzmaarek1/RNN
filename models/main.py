@@ -230,7 +230,7 @@ def train_model_text_classification(message):
                 "max_text_len": max_text_len,
                 "category": category,
                 "text": text,
-                "texts": texts.tolist(),
+                "texts": texts,
                 "y_labels": category_to_number[1].tolist(),
             }
         ),

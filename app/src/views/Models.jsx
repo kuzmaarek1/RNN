@@ -34,7 +34,6 @@ const customStyles = {
     boxShadow: state.isFocused ? "none" : "none",
     className: "input",
   }),
-  // inne style według potrzeb...
 };
 
 const Models = () => {
@@ -207,7 +206,7 @@ const Models = () => {
         {YLabels.length > 0 && (
           <div className="lg:col-span-2">
             <Card>
-              <div className="flex gap-[5px]  flex-wrap">
+              <div className="flex gap-[5px] flex-wrap">
                 {YLabels.map((YLabel, index) => (
                   <motion.div
                     key={YLabel}

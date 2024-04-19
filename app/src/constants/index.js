@@ -8,6 +8,20 @@ export const circleCoordinates = [
   { cx: "795", cy: "91.07000000000002" },
 ];
 
+export const navbarTitle = ["models", "evaluate", "compare", "predict"];
+
+export const navbarItems = [
+  { title: "Time series", link: "time_series" },
+  { title: "Text", link: "text" },
+];
+export const metricsErrorTimeSeries = [
+  { name: "mean_absolute_error", title: "Mean Absolute" },
+  { name: "mean_percentage_error", title: "Mean Percentage" },
+  { name: "mean_squared_error", title: "Mean Squared" },
+  { name: "r2_score", title: "R2" },
+  { name: "root_mean_squared_error", title: "Root mean squared" },
+];
+
 export const inputFieldModelsTimeSeries = [
   {
     type: "number",

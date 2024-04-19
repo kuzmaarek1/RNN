@@ -87,3 +87,23 @@
 .h-max-content {
     height: max-content;
 }
+
+.active-link {
+    background-color: #1c1c1c0d;
+}
+
+.box-shadow-blue::before {
+    box-shadow:50px 0 #fff, 
+    -50px 0 #95A4FC,
+    -50px 0 4px white,
+    10px -10px #95A4FC,
+    -10px -10px #fff;
+}
+
+.box-shadow-blue::after {
+    box-shadow:-50px 0 #fff, 
+    50px 0 #95A4FC,
+    50px 0 4px white,
+    -10px 10px #95A4FC,
+    10px 10px #fff;
+}
