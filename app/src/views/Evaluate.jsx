@@ -197,6 +197,63 @@ const Evaluate = () => {
         {selectedId !== null && (
           <Card layoutId={selectedId} setSelectedId={setSelectedId}>
             <motion.div>
+              <Plot
+                data={[
+                  {
+                    x: responseState?.results[selectedId - 1]?.y_test?.map(
+                      (value, index) => index
+                    ),
+                    y: responseState?.results[selectedId - 1]?.y_test?.map(
+                      (value, index) => value
+                    ),
+                    type: "scatter",
+                    mode: "lines",
+                    name: "y_test",
+                  },
+                  {
+                    x: responseState?.results[selectedId - 1]?.predictions?.map(
+                      (value, index) => index
+                    ),
+                    y: responseState?.results[selectedId - 1]?.predictions?.map(
+                      (value, index) => value
+                    ),
+                    type: "scatter",
+                    mode: "lines",
+                    name: "predictions",
+                  },
+                ]}
+                layout={{
+                  width: "5vw",
+                  height: "500px",
+                  // width: 800,
+                  // height: 400,
+                  title: {
+                    text: "Time Series",
+                  },
+                  xaxis: {
+                    title: {
+                      text: "Index",
+                      font: {
+                        size: 14,
+                      },
+                      standoff: 8,
+                    },
+                    zeroline: false,
+                  },
+                  yaxis: {
+                    title: {
+                      text: "Value",
+                      font: {
+                        size: 14,
+                      },
+                      standoff: 3,
+                    },
+                    zeroline: false,
+                  },
+                  margin: { t: 30, r: 30 },
+                  //legend: { orientation: 'h' },
+                }}
+              />
               <div className="w-full flex justify-center items-center font-semibold uppercase mb-4">
                 Metrics errors {responseState?.results[selectedId - 1].feature}
               </div>
