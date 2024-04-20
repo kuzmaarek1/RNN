@@ -94,7 +94,7 @@ def train_model_time_series(message):
 
     model.compile(optimizer="adam", loss="mean_squared_error", metrics=["accuracy"])
 
-    model.fit(
+    history = model.fit(
         x_train,
         y_train,
         # validation_data=(x_test, y_test),
@@ -108,11 +108,17 @@ def train_model_time_series(message):
     path_to_save = f"../files/models/{model_name}.keras"
     model.save(path_to_save)
 
+    history_data = history.history
+    serialized_history = {}
+    for key, value in history_data.items():
+        serialized_history[key] = [float(val) for val in value]
+
     emit(
         "training_completed",
         json.dumps(
             {
                 "path": model_name,
+                "history": serialized_history,
                 "filter": filter,
                 "time_step": time_step,
                 "data_min": scaler.data_min_.tolist(),

@@ -163,6 +163,24 @@ const Models = () => {
   };
   console.log(watch("y_feauture")?.length === 0);
   console.log(watch("y_feauture"));
+  const lowestLossIndex = epochsHistory.reduce(
+    (lowestIndex, currentValue, currentIndex) => {
+      return currentValue.loss < epochsHistory[lowestIndex].loss
+        ? currentIndex
+        : lowestIndex;
+    },
+    0
+  );
+
+  const highestLossIndex = epochsHistory.reduce(
+    (highestIndex, currentValue, currentIndex) => {
+      return currentValue.loss > epochsHistory[highestIndex].loss
+        ? currentIndex
+        : highestIndex;
+    },
+    0
+  );
+
   return (
     <div onClick={handleOutsideClick}>
       <form
@@ -432,7 +450,15 @@ const Models = () => {
                   <div className="flex justify-center items-center border-[2px] border-[#A8C5DA] mb-1 p-1 rounded-[16px]">
                     {props.epoch + 1}
                   </div>
-                  <div className="flex justify-center items-center border-[2px] border-[#A8C5DA] p-1 rounded-[16px]">
+                  <div
+                    className={`flex justify-center items-center border-[2px] border-[#A8C5DA] p-1 rounded-[16px] ${
+                      index === highestLossIndex
+                        ? "bg-red-200"
+                        : index === lowestLossIndex
+                        ? "bg-green-200"
+                        : ""
+                    }`}
+                  >
                     {props.loss.toFixed(5)}
                   </div>
                 </div>

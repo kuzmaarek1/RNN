@@ -8,7 +8,13 @@ export const circleCoordinates = [
   { cx: "795", cy: "91.07000000000002" },
 ];
 
-export const navbarTitle = ["models", "evaluate", "compare", "predict"];
+export const navbarTitle = [
+  "models",
+  "training",
+  "evaluate",
+  "compare",
+  "predict",
+];
 
 export const navbarItems = [
   { title: "Time series", link: "time_series" },
