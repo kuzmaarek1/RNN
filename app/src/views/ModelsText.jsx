@@ -1,5 +1,6 @@
 import React, { useRef, useState, useEffect } from "react";
 import { FaTimes, FaPlus } from "react-icons/fa";
+import { AnimatePresence, motion } from "framer-motion";
 import { parse } from "papaparse";
 import { useForm, useFieldArray } from "react-hook-form";
 import { io } from "socket.io-client";
@@ -170,8 +171,22 @@ const ModelsText = () => {
             </div>
             {numberSlider != null && (
               <>
-                <div>Category: {csvData[numberSlider][category]}</div>
-                <div>Message: {csvData[numberSlider][text]}</div>
+                <motion.div
+                  key={numberSlider ? numberSlider : "empty"}
+                  initial={{ y: 10, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  exit={{ y: -10, opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <motion.div className="h-[100px] overflow-auto">
+                    <motion.div>
+                      Category: {csvData[numberSlider][category]}
+                    </motion.div>
+                    <motion.div>
+                      Message: {csvData[numberSlider][text]}
+                    </motion.div>
+                  </motion.div>
+                </motion.div>
                 <Button
                   color="grey"
                   type="button"
