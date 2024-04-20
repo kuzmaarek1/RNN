@@ -22,7 +22,7 @@ const Input = ({ type, name, label, register, color, onChange, ...props }) => {
                 : "border-[#A8C5DA]"
             } 
             input`}
-        {...register(name)}
+        {...(register ? register(name) : {})}
         required
         onChange={handleChange}
         {...props}

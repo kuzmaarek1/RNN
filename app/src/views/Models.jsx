@@ -137,6 +137,7 @@ const Models = () => {
       datset: csvData,
       // y_feauture: ["close", "high"],
     }); // Wyświetlenie danych w konsoli
+    setEpochsHistory([]);
     socket.current.emit(
       "train/time_series",
       JSON.stringify({
@@ -154,7 +155,7 @@ const Models = () => {
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = "models.txt";
+      a.download = `${watch("name_file")}.txt`;
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
@@ -466,6 +467,15 @@ const Models = () => {
             </div>
             {downloadLink && (
               <div className="w-full flex justify-center items-center gap-6">
+                <div className="relative w-[300px] mt-[20px]">
+                  <Input
+                    type="text"
+                    name="name_file"
+                    label="Name File"
+                    color="grey"
+                    register={register}
+                  />
+                </div>
                 <motion.div
                   layoutId={1}
                   onClick={() => setDisplayPlot(1)}

@@ -11,9 +11,9 @@ export const circleCoordinates = [
 export const navbarTitle = [
   "models",
   "training",
+  "predict",
   "evaluate",
   "compare",
-  "predict",
 ];
 
 export const navbarItems = [

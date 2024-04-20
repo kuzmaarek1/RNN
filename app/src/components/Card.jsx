@@ -3,7 +3,7 @@ import { FaTimes } from "react-icons/fa";
 import { motion } from "framer-motion";
 
 const Card = ({ color, layoutId, setSelectedId, classStyle, children }) => {
-  return layoutId ? (
+  return layoutId || layoutId === 0 ? (
     <div
       className={`${classStyle} fixed inset-0 flex justify-center items-center z-50 bg-black bg-opacity-50`}
     >
