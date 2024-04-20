@@ -197,13 +197,24 @@ const Evaluate = () => {
         {selectedId !== null && (
           <Card layoutId={selectedId} setSelectedId={setSelectedId}>
             <motion.div>
+              <div className="w-full flex justify-center items-center font-semibold uppercase mb-4">
+                Metrics errors {responseState?.results[selectedId - 1].feature}
+              </div>
               {Object.entries(responseState?.results[selectedId - 1]).map(
                 ([key, value]) =>
                   key !== "predictions" &&
                   key !== "feature" &&
                   key !== "y_test" && (
-                    <div key={key}>
-                      {key}: {value}
+                    <div className="flex overflow-auto gap-2" key={key}>
+                      <div className="flex w-[300px] p-2 justify-center items-center border-[2px] border-[#A8C5DA] mb-1 p-1 rounded-[16px]">
+                        {key
+                          .replace(/error/gi, "")
+                          .replace(/_/g, " ")
+                          .toUpperCase()}
+                      </div>
+                      <div className="flex w-[50%] p-2 justify-center items-center border-[2px] border-[#A8C5DA] mb-1 p-1 rounded-[16px]">
+                        {value.toFixed(3)}
+                      </div>
                     </div>
                   )
               )}
