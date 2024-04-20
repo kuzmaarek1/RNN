@@ -9,7 +9,6 @@ const Compare = () => {
   const [selectedFiles, setSelectedFiles] = useState([]);
   const fileInputRef = useRef();
   const [selectedId, setSelectedId] = useState(null);
-  const [selectedIdPlotLine, setSelectedIdPlotLine] = useState(null);
   const [selectedTab, setSelectedTab] = useState("mean_absolute_error");
   const {
     register,
@@ -61,7 +60,15 @@ const Compare = () => {
   };
   console.log(selectedFiles);
   console.log(selectedId);
-
+  console.log(
+    selectedFiles.map(({ content: { results } }) => {
+      const findFeatured = results?.find(
+        ({ feature, mean_absolute_error }) =>
+          String(selectedId) == String(feature)
+      );
+      return findFeatured ? findFeatured.mean_absolute_error : 0;
+    })
+  );
   console.log(watch(`y_labels_${`responseState.txt`}`));
 
   console.log(
@@ -134,9 +141,6 @@ const Compare = () => {
   //);
   console.log(yLabels);
   console.log(watch("y_labels"));
-
-  console.log(selectedIdPlotLine);
-
   const onSubmit = ({ y_labels, legends, ...props }) => {
     setYLabels(y_labels);
     setLegends(legends);
@@ -145,16 +149,10 @@ const Compare = () => {
   };
   const handleOutsideClick = (event) => {
     console.log(event);
-    if (
-      (selectedId || selectedIdPlotLine) &&
-      !event.target.closest(".animate-presence")
-    ) {
+    if (selectedId && !event.target.closest(".animate-presence")) {
       setSelectedId(null);
-      setSelectedIdPlotLine(null);
     }
   };
-
-  console.log(selectedFiles);
   return (
     <div onClick={handleOutsideClick}>
       <form
@@ -348,97 +346,6 @@ const Compare = () => {
                   </div>
                 </motion.div>
               </AnimatePresence>
-            </Card>
-          )}
-        </AnimatePresence>
-        <Card color="blue" classStyle="min-h-[150px]">
-          <h4>Selected Featured:</h4>
-          <div className="flex gap-[5px] flex-wrap">
-            {selectedFiles[0]?.content?.results?.map(({ feature }, index) => (
-              <motion.div
-                key={index}
-                onClick={() => setSelectedIdPlotLine(index + 1)}
-                layoutId={index + 1}
-                className={`${
-                  index % 4 === 0
-                    ? "border-[#95A4FC]"
-                    : index % 4 === 1
-                    ? "border-[#BAEDBD]"
-                    : index % 4 === 2
-                    ? "border-[#1C1C1C]"
-                    : "border-[#B1E3FF]"
-                } border-[2px] mb-[10px] w-[200px] h-[50px] rounded-[16px] flex justify-center items-center cursor-pointer`}
-              >
-                <motion.div>{feature}</motion.div>
-              </motion.div>
-            ))}
-          </div>
-        </Card>
-        <AnimatePresence onClick={(event) => event.stopPropagation()}>
-          {selectedIdPlotLine !== null && (
-            <Card
-              color="blue"
-              layoutId={selectedIdPlotLine}
-              setSelectedId={setSelectedIdPlotLine}
-            >
-              <Plot
-                data={[
-                  {
-                    x: selectedFiles[0]?.content?.results[
-                      selectedIdPlotLine - 1
-                    ]?.y_test?.map((value, index) => index),
-                    y: selectedFiles[0]?.content?.results[
-                      selectedIdPlotLine - 1
-                    ]?.y_test?.map((value, index) => value),
-                    type: "scatter",
-                    mode: "lines",
-                    name: "y_test",
-                  },
-                  ...selectedFiles.map(({ content }, index) => {
-                    const selectedValue = content.results[
-                      selectedIdPlotLine - 1
-                    ].predictions.map((value, index) => value);
-                    return {
-                      x: selectedValue.map((_, index) => index),
-                      y: selectedValue,
-                      type: "scatter",
-                      mode: "lines",
-                      name: selectedFiles[index].name.replace(/.txt/gi, ""),
-                    };
-                  }),
-                ]}
-                layout={{
-                  width: "5vw",
-                  height: "500px",
-                  // width: 800,
-                  // height: 400,
-                  title: {
-                    text: "Time Series",
-                  },
-                  xaxis: {
-                    title: {
-                      text: "Index",
-                      font: {
-                        size: 14,
-                      },
-                      standoff: 8,
-                    },
-                    zeroline: false,
-                  },
-                  yaxis: {
-                    title: {
-                      text: "Value",
-                      font: {
-                        size: 14,
-                      },
-                      standoff: 3,
-                    },
-                    zeroline: false,
-                  },
-                  margin: { t: 30, r: 30 },
-                  //legend: { orientation: 'h' },
-                }}
-              />
             </Card>
           )}
         </AnimatePresence>
