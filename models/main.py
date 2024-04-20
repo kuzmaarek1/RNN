@@ -347,7 +347,8 @@ def predict_time_series():
     scaled_data = scaled_data[-time_step:, :]  # do komentarza
 
     # to pasowało by dać do zmiennej
-    next_time_steps = 10
+    # next_time_steps = 10
+    next_time_steps = int(request_data["next_time_steps"])
     predictions = []
     current_data = []
     current_data.append(scaled_data)

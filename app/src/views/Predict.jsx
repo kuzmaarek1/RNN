@@ -5,6 +5,7 @@ import { useForm, useFieldArray } from "react-hook-form";
 import Plot from "react-plotly.js";
 import { io } from "socket.io-client";
 import axios from "axios";
+import { Card, Button, Input } from "components";
 
 const Predict = () => {
   const {
@@ -26,6 +27,7 @@ const Predict = () => {
   const [txtData, setTxtData] = useState(null);
   const [txtHeaders, setTxtHeaders] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
+  const [feature, setFeature] = useState();
 
   const [csvData, setCsvData] = useState(null);
   const [csvHeaders, setCsvHeaders] = useState([]);
@@ -95,14 +97,17 @@ const Predict = () => {
       setCsvData(data);
     }
   };
-  console.log(csvData);
 
   const handlePredict = async () => {
     try {
       console.log({ ...txtData, y_test: csvData });
       const response = await axios.post(
         "http://127.0.0.1:5000/predict/time_series",
-        { ...txtData, y_test: csvData }
+        {
+          ...txtData,
+          y_test: csvData,
+          next_time_steps: watch("next_time_steps"),
+        }
       );
       console.log(response.data);
       setResponseState(response.data);
@@ -110,74 +115,167 @@ const Predict = () => {
       console.error("Błąd podczas wysyłania zapytania POST:", error);
     }
   };
+  //console.log(csvData.map((value) => value[feature]));
   console.log(responseState?.results[selectedId]);
 
   return (
-    <div onClick={handleOutsideClick} className="flex gap-[12px]">
-      <div>
+    <div
+      onClick={handleOutsideClick}
+      className="grid lg:grid-cols-2 grid-cols-1 gap-4 ml-4 mt-12 h-max-content"
+    >
+      <Card color="green" classStyle="min-h-[150px]">
         <div className="text-[#1c1c1c] font-[14px] font-[600]">Select file</div>
-        <div className="bg-[#e3f5ff]  rounded-[16px] custom-box-shadow p-8">
-          <input
-            type="file"
-            className="mb-4"
-            ref={fileInputTxtRef}
-            accept=".txt"
-          />
-          <button
-            className="relative uppercase spacing tracking-widest font-[400] text-base py-[10px] duration-500 w-[150px] rounded-[16px] border-[2px] border-[#A1E3CB] text-[#1c1c1c] group
-            hover:bg-[#A1E3CB] hover:tracking-[0.25em] before:content-[''] before:absolute before:inset-[2px]"
-            onClick={handleTxtSubmission}
-          >
-            <span className="relative z-10 flex justify-center">Submit</span>
-            <i
-              className="box-shadow-button group-hover:before:w-[8px] group-hover:before:left-[calc(50%)]  group-hover:before:delay-[0.5s]
-              before:content-[''] before:absolute  before:w-[10px] before:h-[6px] before:bg-[white] before:border-[2px] before:border-[#A1E3CB] before:top-[-3.5px] before:left-[80%] before:translate-x-[-50%] before:duration-500 before:delay-[0.5s]
-              group-hover:after:w-[8px]  group-hover:after:left-[calc(50%)]  group-hover:after:delay-[0.5s]
-              after:content-[''] after:absolute after:w-[10px] after:h-[6px] after:bg-[white] after:border-[2px] after:border-[#A1E3CB] after:bottom-[-3.5px] after:left-[20%] after:translate-x-[-50%] after:duration-500 after:delay-[0.5s]"
-            ></i>
-          </button>
-        </div>
-      </div>
+        <input
+          type="file"
+          className="mb-4"
+          ref={fileInputTxtRef}
+          accept=".txt"
+        />
+        <Button
+          color="green"
+          text="Submit"
+          type="button"
+          func={handleTxtSubmission}
+        />
+      </Card>
       {txtData && (
-        <div>
+        <Card color="blue">
           <div className="text-[#1c1c1c] font-[14px] font-[600]">
             Select file
           </div>
-          <div className="bg-[#e3f5ff]  rounded-[16px] custom-box-shadow p-8">
-            <input
-              type="file"
-              className="mb-4"
-              ref={fileInputCsvRef}
-              accept=".csv"
+          <input
+            type="file"
+            className="mb-4"
+            ref={fileInputCsvRef}
+            accept=".csv"
+          />
+
+          <Button
+            type="button"
+            text="Submit"
+            color="blue"
+            func={handleCsvSubmission}
+          />
+        </Card>
+      )}
+      {csvData && (
+        <Card color="grey">
+          <div className="relative mb-4">
+            <Input
+              type="number"
+              name="next_time_steps"
+              label="Next time steps"
+              color="blue"
+              register={register}
             />
-            <button
-              className="relative uppercase spacing tracking-widest font-[400] text-base py-[10px] duration-500 w-[150px] rounded-[16px] border-[2px] border-[#A1E3CB] text-[#1c1c1c] group
-            hover:bg-[#A1E3CB] hover:tracking-[0.25em] before:content-[''] before:absolute before:inset-[2px]"
-              onClick={handleCsvSubmission}
-            >
-              <span className="relative z-10 flex justify-center">Submit</span>
-              <i
-                className="box-shadow-button group-hover:before:w-[8px] group-hover:before:left-[calc(50%)]  group-hover:before:delay-[0.5s]
-              before:content-[''] before:absolute  before:w-[10px] before:h-[6px] before:bg-[white] before:border-[2px] before:border-[#A1E3CB] before:top-[-3.5px] before:left-[80%] before:translate-x-[-50%] before:duration-500 before:delay-[0.5s]
-              group-hover:after:w-[8px]  group-hover:after:left-[calc(50%)]  group-hover:after:delay-[0.5s]
-              after:content-[''] after:absolute after:w-[10px] after:h-[6px] after:bg-[white] after:border-[2px] after:border-[#A1E3CB] after:bottom-[-3.5px] after:left-[20%] after:translate-x-[-50%] after:duration-500 after:delay-[0.5s]"
-              ></i>
-            </button>
           </div>
-        </div>
+          <Button
+            type="button"
+            text="Submit"
+            color="blue"
+            func={handlePredict}
+          />
+        </Card>
       )}
-      {txtData && <button onClick={handlePredict}>Submit</button>}
-      {responseState &&
-        responseState?.results.map((state, index) => (
-          <div key={state.feature} onClick={() => setSelectedId(index)}>
-            {state.feature}
+      {responseState && (
+        <Card>
+          <div className="flex gap-[5px] flex-wrap">
+            {responseState?.results.map((state, index) => (
+              <motion.div
+                key={index + 1}
+                layoutId={index + 1}
+                onClick={() => {
+                  setSelectedId(index + 1);
+                  setFeature(state.feature);
+                }}
+                className={`${
+                  index % 4 === 0
+                    ? "border-[#95A4FC]"
+                    : index % 4 === 1
+                    ? "border-[#BAEDBD]"
+                    : index % 4 === 2
+                    ? "border-[#1C1C1C]"
+                    : "border-[#B1E3FF]"
+                } border-[2px] mb-[10px] w-[200px] h-[50px] rounded-[16px] flex justify-center items-center cursor-pointer`}
+              >
+                <motion.div>{state.feature}</motion.div>
+              </motion.div>
+            ))}
           </div>
-        ))}
-      {selectedId !== null && (
-        <motion.div className="animate-presence" layoutId={selectedId}>
-          <div>{responseState?.results[selectedId].predictions}</div>
-        </motion.div>
+        </Card>
       )}
+      <AnimatePresence onClick={(event) => event.stopPropagation()}>
+        {selectedId !== null && (
+          <Card layoutId={selectedId} setSelectedId={setSelectedId}>
+            <motion.div>
+              <motion.div>
+                <Plot
+                  data={[
+                    {
+                      x: csvData.map((value, index) => index),
+                      y: csvData.map((value) => value[feature]),
+                      type: "scatter",
+                      mode: "lines",
+                      name: "testing",
+                      marker: { color: "#82ca9d" },
+                    },
+                    {
+                      x: [
+                        csvData.length,
+                        ...responseState?.results[
+                          selectedId - 1
+                        ].predictions.map(
+                          (value, index) => csvData.length + index
+                        ),
+                      ],
+                      y: [
+                        csvData[csvData.length - 1][feature],
+                        ...responseState?.results[
+                          selectedId - 1
+                        ].predictions.map((value) => value),
+                      ],
+                      type: "scatter",
+                      mode: "lines",
+                      name: "predictions",
+                    },
+                  ]}
+                  layout={{
+                    width: "5vw",
+                    height: "500px",
+                    // width: 800,
+                    // height: 400,
+                    title: {
+                      text: "Time Series",
+                    },
+                    xaxis: {
+                      title: {
+                        text: "Index",
+                        font: {
+                          size: 14,
+                        },
+                        standoff: 8,
+                      },
+                      zeroline: false,
+                    },
+                    yaxis: {
+                      title: {
+                        text: "Value",
+                        font: {
+                          size: 14,
+                        },
+                        standoff: 3,
+                      },
+                      zeroline: false,
+                    },
+                    margin: { t: 30, r: 30 },
+                    //legend: { orientation: 'h' },
+                  }}
+                />
+              </motion.div>
+            </motion.div>
+          </Card>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
