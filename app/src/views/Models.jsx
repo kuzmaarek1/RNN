@@ -68,6 +68,7 @@ const Models = () => {
   const [downloadLink, setDownloadLink] = useState(null);
   const [epochsHistory, setEpochsHistory] = useState([]);
   const [displayPlot, setDisplayPlot] = useState(null);
+  const [selectedTab, setSelectedTab] = useState("loss");
 
   const options = YLabels.map((YLabel) => ({
     value: YLabel,
@@ -542,50 +543,103 @@ const Models = () => {
       <AnimatePresence onClick={(event) => event.stopPropagation()}>
         {displayPlot && (
           <Card layoutId={displayPlot} setSelectedId={setDisplayPlot}>
-            <Plot
-              data={[
-                {
-                  x: epochsHistory.map(
-                    (epochHistory) => epochHistory.epoch + 1
-                  ),
-                  y: epochsHistory.map((epochHistory) => epochHistory.loss),
-                  type: "scatter",
-                  mode: "lines",
-                  marker: { color: "#82ca9d" },
-                },
-              ]}
-              layout={{
-                width: "5vw",
-                height: "500px",
-                // width: 800,
-                // height: 400,
-                title: {
-                  text: "Time Series",
-                },
-                xaxis: {
-                  title: {
-                    text: "Index",
-                    font: {
-                      size: 14,
-                    },
-                    standoff: 8,
-                  },
-                  zeroline: false,
-                },
-                yaxis: {
-                  title: {
-                    text: "Value",
-                    font: {
-                      size: 14,
-                    },
-                    standoff: 3,
-                  },
-                  zeroline: false,
-                },
-                margin: { t: 30, r: 30 },
-                //legend: { orientation: 'h' },
-              }}
-            />
+            <div className="flex mb-8 gap-4 justify-center">
+              {epochsHistory.length > 0 &&
+                Object.entries(epochsHistory[0]).map(
+                  ([key, value], index) =>
+                    key !== "epoch" &&
+                    !key.includes("val") && (
+                      <div key={index} onClick={() => setSelectedTab(key)}>
+                        <div
+                          className={`${
+                            key === selectedTab ? "relative" : ""
+                          } border-[#95A4FC] border-[2px] w-[150px] h-[50px] rounded-[16px] flex justify-center items-center cursor-pointer`}
+                        >
+                          {key.charAt(0).toUpperCase() +
+                            key.slice(1).replace(/_/g, " ")}
+                          {key === selectedTab ? (
+                            <motion.div
+                              className="before:content-[''] before:absolute before:w-[10px] before:h-[6px] before:bottom-0 before:bg-[white] before:border-[2px] before:top-[-3.5px] before:left-[50%] before:translate-x-[-50%] before:border-[#95A4FC] before:translate-x-[-50%] box-shadow-blue
+                          after:content-[''] after:absolute after:w-[10px] after:h-[6px] after:bottom-0 after:bg-[white] after:border-[2px] after:bottom-[-4px] after:left-[50%] after:translate-x-[-50%] after:border-[#95A4FC] after:translate-x-[-50%]"
+                              layoutId={selectedTab}
+                            />
+                          ) : null}
+                        </div>
+                      </div>
+                    )
+                )}
+            </div>
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={selectedTab ? selectedTab : "empty"}
+                initial={{ y: 10, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ y: -10, opacity: 0 }}
+                transition={{ duration: 0.2 }}
+              >
+                <div className="bg-[white] border-[2px] border-[#95A4FC] rounded-[16px] flex justify-center items-center p-2">
+                  <Plot
+                    data={[
+                      {
+                        x: epochsHistory.map(
+                          (epochHistory) => epochHistory.epoch + 1
+                        ),
+                        y: epochsHistory.map(
+                          (epochHistory) => epochHistory[selectedTab]
+                        ),
+                        type: "scatter",
+                        mode: "lines",
+                        name: "training",
+                        // marker: { color: "#82ca9d" },
+                      },
+                      epochsHistory[0][`val_${selectedTab}`] !== undefined && {
+                        x: epochsHistory.map(
+                          (epochHistory) => epochHistory.epoch + 1
+                        ),
+                        y: epochsHistory.map(
+                          (epochHistory) => epochHistory[`val_${selectedTab}`]
+                        ),
+                        type: "scatter",
+                        mode: "lines",
+                        name: "val",
+                        //  marker: { color: "#82ca9d" },
+                      },
+                    ].filter(Boolean)}
+                    layout={{
+                      width: "5vw",
+                      height: "500px",
+                      // width: 800,
+                      // height: 400,
+                      title: {
+                        text: "Time Series",
+                      },
+                      xaxis: {
+                        title: {
+                          text: "Index",
+                          font: {
+                            size: 14,
+                          },
+                          standoff: 8,
+                        },
+                        zeroline: false,
+                      },
+                      yaxis: {
+                        title: {
+                          text: "Value",
+                          font: {
+                            size: 14,
+                          },
+                          standoff: 3,
+                        },
+                        zeroline: false,
+                      },
+                      margin: { t: 30, r: 30 },
+                      //legend: { orientation: 'h' },
+                    }}
+                  />
+                </div>
+              </motion.div>
+            </AnimatePresence>
           </Card>
         )}
       </AnimatePresence>
