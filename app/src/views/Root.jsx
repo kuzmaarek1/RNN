@@ -16,6 +16,7 @@ const Root = () => {
     <Routes>
       <Route path="/models/time_series" element={<Models />} />
       <Route path="/training/time_series" element={<Training />} />
+      <Route path="/training/text" element={<Training />} />
       <Route path="/evaluate/time_series" element={<Evaluate />} />
       <Route path="/predict/time_series" element={<Predict />} />
       <Route path="/compare/time_series" element={<Compare />} />
