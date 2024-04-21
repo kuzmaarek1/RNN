@@ -46,6 +46,31 @@ const ModelsText = () => {
     });
   }, []);
 
+  const findExtremeIndex = (epochsHistory, index, compareFunc) => {
+    return epochsHistory.reduce((extremeIndex, currentValue, currentIndex) => {
+      return compareFunc(
+        currentValue[index],
+        epochsHistory[extremeIndex][index]
+      )
+        ? currentIndex
+        : extremeIndex;
+    }, 0);
+  };
+
+  const lowestIndex = (index) =>
+    findExtremeIndex(
+      epochsHistory,
+      index,
+      (currentValue, minValue) => currentValue < minValue
+    );
+
+  const highestIndex = (index) =>
+    findExtremeIndex(
+      epochsHistory,
+      index,
+      (currentValue, maxValue) => currentValue > maxValue
+    );
+
   const handleCsvSubmission = async () => {
     const file = fileInputRef.current.files[0];
     if (file) {
@@ -77,6 +102,7 @@ const ModelsText = () => {
       text: text,
       datset: csvData,
     });
+    setEpochsHistory([]);
     socket.current.emit(
       "train/text_classification",
       JSON.stringify({
@@ -97,7 +123,7 @@ const ModelsText = () => {
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = "models.txt";
+      a.download = `${watch("name_file")}.txt`;
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
@@ -107,8 +133,26 @@ const ModelsText = () => {
   console.log(csvData);
   console.log(numberSlider);
   console.log(category);
+  console.log();
+
+  const lowestAndHighestIndex =
+    epochsHistory.length > 0
+      ? Object.entries(epochsHistory[0]).map(([key]) =>
+          key != "epoch"
+            ? {
+                key: key,
+                lowestIndex: lowestIndex(key),
+                highestIndex: highestIndex(key),
+              }
+            : {
+                key: key,
+              }
+        )
+      : null;
+
+  console.log(lowestAndHighestIndex);
   return (
-    <div className="flex gap-[12px]">
+    <div>
       <form
         onSubmit={handleSubmit(onSubmit)}
         className="grid lg:grid-cols-2 grid-cols-1 gap-4 ml-4 mt-12 h-max-content"
@@ -297,19 +341,83 @@ const ModelsText = () => {
             <Button text="Submit" color="blue" type="submit" />
           </div>
         </Card>
+        <Card></Card>
       </form>
-      {epochsHistory.length != 0 &&
-        epochsHistory.map((props, index) => (
-          <div key={index}>
-            <div>{props.epoch}</div>
-            <div>{props.loss}</div>
-          </div>
-        ))}
-      {downloadLink && (
-        <div>
-          <button onClick={handleDownload}>Download Results</button>
-        </div>
-      )}
+      <div className="grid lg:grid-cols-2 grid-cols-1 gap-4 ml-4 mt-4 h-max-content">
+        {epochsHistory.length != 0 && (
+          <Card color="grey" classStyle="w-full col-span-4">
+            <div className="flex overflow-auto gap-2">
+              <div>
+                {Object.entries(epochsHistory[0]).map(([key, value]) => (
+                  <div>
+                    <div className="flex w-[150px] flex-nowrap justify-center items-center border-[2px] border-[#A8C5DA] mb-1 p-1 rounded-[16px]">
+                      {key.charAt(0).toUpperCase() +
+                        key.slice(1).replace(/_/g, " ")}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {epochsHistory.length > 0 &&
+                epochsHistory.map((props, index) => (
+                  <div key={index}>
+                    {Object.entries(props).map(([key, value]) =>
+                      key === "epoch" ? (
+                        <div
+                          key={`${key}-${index}`}
+                          className="flex justify-center items-center border-[2px] border-[#A8C5DA] mb-1 p-1 rounded-[16px]"
+                        >
+                          {props.epoch + 1}
+                        </div>
+                      ) : (
+                        <div
+                          key={`${key}-${index}`}
+                          className={`flex justify-center items-center border-[2px] border-[#A8C5DA] mb-1 p-1 rounded-[16px] ${
+                            index ===
+                            lowestAndHighestIndex.find(
+                              (metrics) => key === metrics.key
+                            )?.lowestIndex
+                              ? key.includes("loss")
+                                ? "bg-green-200"
+                                : "bg-red-200"
+                              : index ===
+                                lowestAndHighestIndex.find(
+                                  (metrics) => key === metrics.key
+                                )?.highestIndex
+                              ? key.includes("loss")
+                                ? "bg-red-200"
+                                : "bg-green-200"
+                              : ""
+                          }`}
+                        >
+                          {value.toFixed(5)}
+                        </div>
+                      )
+                    )}
+                  </div>
+                ))}
+            </div>
+            {downloadLink && (
+              <div className="w-full flex justify-center items-center gap-6">
+                <div className="relative w-[300px] mt-[20px]">
+                  <Input
+                    type="text"
+                    name="name_file"
+                    label="Name File"
+                    color="grey"
+                    register={register}
+                  />
+                </div>
+                <Button
+                  type="button"
+                  color="grey"
+                  text="Download"
+                  func={handleDownload}
+                />
+              </div>
+            )}
+          </Card>
+        )}
+      </div>
     </div>
   );
 };

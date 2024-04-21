@@ -164,23 +164,46 @@ const Models = () => {
   };
   console.log(watch("y_feauture")?.length === 0);
   console.log(watch("y_feauture"));
-  const lowestLossIndex = epochsHistory.reduce(
-    (lowestIndex, currentValue, currentIndex) => {
-      return currentValue.loss < epochsHistory[lowestIndex].loss
-        ? currentIndex
-        : lowestIndex;
-    },
-    0
-  );
 
-  const highestLossIndex = epochsHistory.reduce(
-    (highestIndex, currentValue, currentIndex) => {
-      return currentValue.loss > epochsHistory[highestIndex].loss
+  const findExtremeIndex = (epochsHistory, index, compareFunc) => {
+    return epochsHistory.reduce((extremeIndex, currentValue, currentIndex) => {
+      return compareFunc(
+        currentValue[index],
+        epochsHistory[extremeIndex][index]
+      )
         ? currentIndex
-        : highestIndex;
-    },
-    0
-  );
+        : extremeIndex;
+    }, 0);
+  };
+
+  const lowestIndex = (index) =>
+    findExtremeIndex(
+      epochsHistory,
+      index,
+      (currentValue, minValue) => currentValue < minValue
+    );
+
+  const highestIndex = (index) =>
+    findExtremeIndex(
+      epochsHistory,
+      index,
+      (currentValue, maxValue) => currentValue > maxValue
+    );
+
+  const lowestAndHighestIndex =
+    epochsHistory.length > 0
+      ? Object.entries(epochsHistory[0]).map(([key]) =>
+          key != "epoch"
+            ? {
+                key: key,
+                lowestIndex: lowestIndex(key),
+                highestIndex: highestIndex(key),
+              }
+            : {
+                key: key,
+              }
+        )
+      : null;
 
   return (
     <div onClick={handleOutsideClick}>
@@ -439,31 +462,53 @@ const Models = () => {
           <Card color="grey" classStyle="w-full col-span-2">
             <div className="flex overflow-auto gap-2">
               <div>
-                <div className="flex justify-center items-center border-[2px] border-[#A8C5DA] mb-1 p-1 rounded-[16px]">
-                  Epochs
-                </div>
-                <div className="flex justify-center items-center border-[2px] border-[#A8C5DA] mb-1 p-1 rounded-[16px]">
-                  Loss
-                </div>
+                {Object.entries(epochsHistory[0]).map(([key, value]) => (
+                  <div>
+                    <div className="flex w-[150px] flex-nowrap justify-center items-center border-[2px] border-[#A8C5DA] mb-1 p-1 rounded-[16px]">
+                      {key.charAt(0).toUpperCase() +
+                        key.slice(1).replace(/_/g, " ")}
+                    </div>
+                  </div>
+                ))}
               </div>
-              {epochsHistory.map((props, index) => (
-                <div key={index}>
-                  <div className="flex justify-center items-center border-[2px] border-[#A8C5DA] mb-1 p-1 rounded-[16px]">
-                    {props.epoch + 1}
+              {epochsHistory.length > 0 &&
+                epochsHistory.map((props, index) => (
+                  <div key={index}>
+                    {Object.entries(props).map(([key, value]) =>
+                      key === "epoch" ? (
+                        <div
+                          key={`${key}-${index}`}
+                          className="flex justify-center items-center border-[2px] border-[#A8C5DA] mb-1 p-1 rounded-[16px]"
+                        >
+                          {props.epoch + 1}
+                        </div>
+                      ) : (
+                        <div
+                          key={`${key}-${index}`}
+                          className={`flex justify-center items-center border-[2px] border-[#A8C5DA] mb-1 p-1 rounded-[16px] ${
+                            index ===
+                            lowestAndHighestIndex.find(
+                              (metrics) => key === metrics.key
+                            )?.lowestIndex
+                              ? key.includes("loss")
+                                ? "bg-green-200"
+                                : "bg-red-200"
+                              : index ===
+                                lowestAndHighestIndex.find(
+                                  (metrics) => key === metrics.key
+                                )?.highestIndex
+                              ? key.includes("loss")
+                                ? "bg-red-200"
+                                : "bg-green-200"
+                              : ""
+                          }`}
+                        >
+                          {value.toFixed(5)}
+                        </div>
+                      )
+                    )}
                   </div>
-                  <div
-                    className={`flex justify-center items-center border-[2px] border-[#A8C5DA] p-1 rounded-[16px] ${
-                      index === highestLossIndex
-                        ? "bg-red-200"
-                        : index === lowestLossIndex
-                        ? "bg-green-200"
-                        : ""
-                    }`}
-                  >
-                    {props.loss.toFixed(5)}
-                  </div>
-                </div>
-              ))}
+                ))}
             </div>
             {downloadLink && (
               <div className="w-full flex justify-center items-center gap-6">

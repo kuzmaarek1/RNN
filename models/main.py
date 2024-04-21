@@ -209,12 +209,14 @@ def train_model_text_classification(message):
                 "epoch": epoch,
                 "loss": logs["loss"],
                 "accuracy": logs["Accuracy"],
+                "val_loss": logs["val_loss"],
+                "val_accuracy": logs["val_Accuracy"],
             }
             emit("epoch_update/text_classification", json.dumps(epoch_info))
 
     model.compile(metrics=["Accuracy"], loss="binary_crossentropy", optimizer="Adam")
 
-    model.fit(
+    history = model.fit(
         X,
         y,
         batch_size=batch_size,
@@ -227,11 +229,17 @@ def train_model_text_classification(message):
     path_to_save = f"../files/models/{model_name}.keras"
     model.save(path_to_save)
 
+    history_data = history.history
+    serialized_history = {}
+    for key, value in history_data.items():
+        serialized_history[key] = [float(val) for val in value]
+
     emit(
         "training_completed/text_classification",
         json.dumps(
             {
                 "path": model_name,
+                "history": serialized_history,
                 "num_words": num_words,
                 "max_text_len": max_text_len,
                 "category": category,
