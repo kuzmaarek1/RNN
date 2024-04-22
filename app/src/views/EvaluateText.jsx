@@ -1,8 +1,19 @@
 import React, { useState, useRef, useEffect } from "react";
 import { parse } from "papaparse";
 import axios from "axios";
+import { AnimatePresence, motion } from "framer-motion";
+import { useForm, useFieldArray } from "react-hook-form";
+import { Card, Button, Input, MetricsBox } from "components";
 
 const EvaluateText = () => {
+  const {
+    register,
+    handleSubmit,
+    control,
+    watch,
+    formState: { errors },
+  } = useForm();
+
   const fileInputTxtRef = useRef(null);
   const fileInputCsvRef = useRef(null);
   const [txtData, setTxtData] = useState(null);
@@ -10,6 +21,7 @@ const EvaluateText = () => {
   const [csvData, setCsvData] = useState(null);
   const [csvHeaders, setCsvHeaders] = useState([]);
   const [responseState, setResponseState] = useState(null);
+  const [selectedId, setSelectedId] = useState(null);
 
   const handleTxtSubmission = async () => {
     const file = fileInputTxtRef.current.files[0];
@@ -37,30 +49,24 @@ const EvaluateText = () => {
     }
   };
 */
-  const handleCsvSubmission = async () => {
+  const handleCsvSubmissionAndEvaluate = async () => {
     const file = fileInputCsvRef.current.files[0];
     if (file) {
       const text = await file.text();
       const { data } = parse(text, { header: true });
       setCsvHeaders(Object.keys(data[0]));
       setCsvData(data);
-    }
-  };
-  console.log(csvData);
-
-  const handleEvaluate = async () => {
-    console.log({ ...txtData, dataset: csvData });
-
-    try {
-      console.log({ ...txtData, dataset: csvData });
-      const response = await axios.post(
-        "http://127.0.0.1:5000/evaluate/text_classification",
-        { ...txtData, dataset: csvData }
-      );
-      console.log(response.data);
-      setResponseState(response.data);
-    } catch (error) {
-      console.error("Błąd podczas wysyłania zapytania POST:", error);
+      try {
+        console.log({ ...txtData, dataset: data });
+        const response = await axios.post(
+          "http://127.0.0.1:5000/evaluate/text_classification",
+          { ...txtData, dataset: data }
+        );
+        console.log(response.data);
+        setResponseState(response.data);
+      } catch (error) {
+        console.error("Błąd podczas wysyłania zapytania POST:", error);
+      }
     }
   };
 
@@ -71,69 +77,127 @@ const EvaluateText = () => {
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = "responseState.txt";
+      a.download = `${watch("name_file")}.txt`;
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
     }
   };
+
+  const handleOutsideClick = (event) => {
+    console.log(event);
+    if (selectedId && !event.target.closest(".animate-presence")) {
+      setSelectedId(null);
+    }
+  };
+
+  console.log(responseState);
+
+  const excludedKeys = ["accuracy", "macro avg", "weighted avg"];
+  let filteredEntries = [];
+  let otherEntries = [];
+
+  if (responseState?.report) {
+    filteredEntries = Object.entries(responseState.report).filter(
+      ([key]) => key === "macro avg" || key === "weighted avg"
+    );
+
+    otherEntries = Object.entries(responseState.report).filter(
+      ([key]) => !excludedKeys.includes(key)
+    );
+  }
+
+  const allEntries = otherEntries.concat(filteredEntries);
+  console.log(allEntries);
+
   return (
-    <div className="flex gap-[12px]">
-      <div>
+    <div onClick={handleOutsideClick} className="flex flex-col gap-8">
+      <Card color="green" classStyle="min-h-[150px]">
         <div className="text-[#1c1c1c] font-[14px] font-[600]">Select file</div>
-        <div className="bg-[#e3f5ff]  rounded-[16px] custom-box-shadow p-8">
-          <input
-            type="file"
-            className="mb-4"
-            ref={fileInputTxtRef}
-            accept=".txt"
-          />
-          <button
-            className="relative uppercase spacing tracking-widest font-[400] text-base py-[10px] duration-500 w-[150px] rounded-[16px] border-[2px] border-[#A1E3CB] text-[#1c1c1c] group
-            hover:bg-[#A1E3CB] hover:tracking-[0.25em] before:content-[''] before:absolute before:inset-[2px]"
-            onClick={handleTxtSubmission}
-          >
-            <span className="relative z-10 flex justify-center">Submit</span>
-            <i
-              className="box-shadow-button group-hover:before:w-[8px] group-hover:before:left-[calc(50%)]  group-hover:before:delay-[0.5s]
-              before:content-[''] before:absolute  before:w-[10px] before:h-[6px] before:bg-[white] before:border-[2px] before:border-[#A1E3CB] before:top-[-3.5px] before:left-[80%] before:translate-x-[-50%] before:duration-500 before:delay-[0.5s]
-              group-hover:after:w-[8px]  group-hover:after:left-[calc(50%)]  group-hover:after:delay-[0.5s]
-              after:content-[''] after:absolute after:w-[10px] after:h-[6px] after:bg-[white] after:border-[2px] after:border-[#A1E3CB] after:bottom-[-3.5px] after:left-[20%] after:translate-x-[-50%] after:duration-500 after:delay-[0.5s]"
-            ></i>
-          </button>
-        </div>
-      </div>
+        <input
+          type="file"
+          className="mb-4"
+          ref={fileInputTxtRef}
+          accept=".txt"
+        />
+        <Button
+          color="green"
+          text="Submit"
+          type="button"
+          func={handleTxtSubmission}
+        />
+      </Card>
       {txtData && (
-        <div>
+        <Card color="blue">
           <div className="text-[#1c1c1c] font-[14px] font-[600]">
             Select file
           </div>
-          <div className="bg-[#e3f5ff]  rounded-[16px] custom-box-shadow p-8">
-            <input
-              type="file"
-              className="mb-4"
-              ref={fileInputCsvRef}
-              accept=".csv"
-            />
-            <button
-              className="relative uppercase spacing tracking-widest font-[400] text-base py-[10px] duration-500 w-[150px] rounded-[16px] border-[2px] border-[#A1E3CB] text-[#1c1c1c] group
-            hover:bg-[#A1E3CB] hover:tracking-[0.25em] before:content-[''] before:absolute before:inset-[2px]"
-              onClick={handleCsvSubmission}
-            >
-              <span className="relative z-10 flex justify-center">Submit</span>
-              <i
-                className="box-shadow-button group-hover:before:w-[8px] group-hover:before:left-[calc(50%)]  group-hover:before:delay-[0.5s]
-              before:content-[''] before:absolute  before:w-[10px] before:h-[6px] before:bg-[white] before:border-[2px] before:border-[#A1E3CB] before:top-[-3.5px] before:left-[80%] before:translate-x-[-50%] before:duration-500 before:delay-[0.5s]
-              group-hover:after:w-[8px]  group-hover:after:left-[calc(50%)]  group-hover:after:delay-[0.5s]
-              after:content-[''] after:absolute after:w-[10px] after:h-[6px] after:bg-[white] after:border-[2px] after:border-[#A1E3CB] after:bottom-[-3.5px] after:left-[20%] after:translate-x-[-50%] after:duration-500 after:delay-[0.5s]"
-              ></i>
-            </button>
-          </div>
-        </div>
+          <input
+            type="file"
+            className="mb-4"
+            ref={fileInputCsvRef}
+            accept=".csv"
+          />
+          <Button
+            type="button"
+            text="Submit"
+            color="blue"
+            func={handleCsvSubmissionAndEvaluate}
+          />
+        </Card>
       )}
-      {txtData && <button onClick={handleEvaluate}>Submit</button>}
-      {responseState && <button onClick={handleDownloadTxt}>Download</button>}
+      {allEntries.length > 0 && (
+        <Card>
+          <div className="grid grid-cols-5 gap-2">
+            <MetricsBox text="Category" />
+            {allEntries.map((props, index) => (
+              <>
+                {index == 0 &&
+                  Object.entries(props[1]).map(([key, value]) => (
+                    <MetricsBox
+                      text={key.charAt(0).toUpperCase() + key.slice(1)}
+                    />
+                  ))}
+
+                <MetricsBox
+                  text={props[0].charAt(0).toUpperCase() + props[0].slice(1)}
+                />
+                {Object.entries(allEntries[0][1]).map(([key, value]) => (
+                  <MetricsBox
+                    text={
+                      key !== "support"
+                        ? props[1][key].toFixed(3)
+                        : props[1][key]
+                    }
+                  />
+                ))}
+              </>
+            ))}
+            <MetricsBox text="Accuracy" />
+            <MetricsBox text={responseState?.report["accuracy"].toFixed(3)} />
+          </div>
+        </Card>
+      )}
+      {responseState && (
+        <Card color="green">
+          <div className="relative flex flex-col gap-4">
+            <Input
+              type="text"
+              name="name_file"
+              label="Name File"
+              color="green"
+              register={register}
+            />
+            <Button
+              text="Download"
+              color="green"
+              type="button"
+              func={handleDownloadTxt}
+            />
+          </div>
+        </Card>
+      )}
     </div>
   );
 };
