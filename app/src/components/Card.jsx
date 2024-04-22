@@ -28,17 +28,25 @@ const Card = ({ color, layoutId, setSelectedId, classStyle, children }) => {
       </motion.div>
     </div>
   ) : (
-    <div
-      className={`${classStyle} ${
-        color === "green"
-          ? "bg-[#e3f5ff]"
-          : color === "blue"
-          ? "bg-[#e5ecf6]"
-          : "bg-[#F7F9FB]"
-      } rounded-[16px] custom-box-shadow p-8`}
+    <motion.div
+      initial={{ opacity: 0, scale: 0 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{
+        duration: 0.3,
+      }}
     >
-      {children}
-    </div>
+      <div
+        className={`${classStyle} ${
+          color === "green"
+            ? "bg-[#e3f5ff]"
+            : color === "blue"
+            ? "bg-[#e5ecf6]"
+            : "bg-[#F7F9FB]"
+        } rounded-[16px] custom-box-shadow p-8`}
+      >
+        {children}
+      </div>
+    </motion.div>
   );
 };
 
