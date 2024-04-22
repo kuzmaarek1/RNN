@@ -3,6 +3,7 @@ import { parse } from "papaparse";
 import axios from "axios";
 import { AnimatePresence, motion } from "framer-motion";
 import { useForm, useFieldArray } from "react-hook-form";
+import Plot from "react-plotly.js";
 import { Card, Button, Input, MetricsBox } from "components";
 
 const EvaluateText = () => {
@@ -110,6 +111,36 @@ const EvaluateText = () => {
 
   const allEntries = otherEntries.concat(filteredEntries);
   console.log(allEntries);
+  console.log(responseState?.confusion_matrix);
+  console.log(responseState?.labels);
+
+  const generateAnnotations = (xValues, yValues, zValues) => {
+    var annotations = [];
+    for (var i = 0; i < yValues.length; i++) {
+      for (var j = 0; j < xValues.length; j++) {
+        var currentValue = zValues[i][j];
+        var textColor = currentValue !== 0.0 ? "white" : "black";
+        var result = {
+          xref: "x1",
+          yref: "y1",
+          x: xValues[j],
+          y: yValues[i],
+          text: currentValue,
+          font: {
+            family: "Arial",
+            size: 12,
+            color: "rgb(50, 171, 96)",
+          },
+          showarrow: false,
+          font: {
+            color: textColor,
+          },
+        };
+        annotations.push(result);
+      }
+    }
+    return annotations;
+  };
 
   return (
     <div onClick={handleOutsideClick} className="flex flex-col gap-8">
@@ -177,6 +208,61 @@ const EvaluateText = () => {
             <MetricsBox text="Accuracy" />
             <MetricsBox text={responseState?.report["accuracy"].toFixed(3)} />
           </div>
+        </Card>
+      )}
+      {responseState && (
+        <Card color="green">
+          <Plot
+            data={[
+              {
+                type: "heatmap",
+                x: responseState?.labels,
+                y: responseState?.labels.slice().reverse(),
+                z: responseState?.confusion_matrix.slice().reverse(),
+                colorscale: [
+                  [0, "#3D9970"],
+                  [1, "#001f3f"],
+                ],
+              },
+            ]}
+            layout={{
+              width: "5vw",
+              height: "500px",
+              // width: 800,
+              // height: 400,
+              annotations: generateAnnotations(
+                responseState?.labels,
+                responseState?.labels.slice().reverse(),
+                responseState?.confusion_matrix.slice().reverse()
+              ),
+
+              title: {
+                text: "Confusion Matrix",
+              },
+              xaxis: {
+                title: {
+                  text: "Predicted Label",
+                  font: {
+                    size: 14,
+                  },
+                  standoff: 8,
+                },
+                zeroline: false,
+              },
+              yaxis: {
+                title: {
+                  text: "True Label",
+                  font: {
+                    size: 14,
+                  },
+                  standoff: 3,
+                },
+                zeroline: false,
+              },
+              margin: { t: 30, r: 30 },
+              //legend: { orientation: 'h' },
+            }}
+          />
         </Card>
       )}
       {responseState && (
