@@ -7,13 +7,8 @@ const Input = ({ type, name, label, register, color, onChange, ...props }) => {
       onChange(parseInt(event.target.value, 10));
     }
   };
-  return (
-    <>
-      <input
-        type={type}
-        id={name}
-        name={name}
-        className={`relative w-full p-[10px_0px] bg-[transparent] border-[none] outline-none text-[black] text-[1em] uppercase tracking-[0.05em]
+
+  const classStyle = `relative w-full p-[10px_0px] bg-[transparent] border-[none] outline-none text-[black] text-[1em] uppercase tracking-[0.05em]
             border-b-[2px] ${
               color === "green"
                 ? "border-[#A1E3CB]"
@@ -21,12 +16,39 @@ const Input = ({ type, name, label, register, color, onChange, ...props }) => {
                 ? "border-[#95A4FC]"
                 : "border-[#A8C5DA]"
             } 
-            input`}
-        {...(register ? register(name) : {})}
-        required
-        onChange={handleChange}
-        {...props}
-      />
+            input`;
+
+  const InputField = ({ props }) =>
+    type === "textarea" ? (
+      <textarea className={classStyle} {...props} />
+    ) : (
+      <input className={classStyle} {...props} />
+    );
+
+  return (
+    <>
+      {type === "textarea" ? (
+        <textarea
+          id={name}
+          name={name}
+          {...(register ? register(name) : {})}
+          required
+          onChange={handleChange}
+          className={classStyle}
+          {...props}
+        />
+      ) : (
+        <input
+          type={type}
+          id={name}
+          name={name}
+          {...(register ? register(name) : {})}
+          required
+          onChange={handleChange}
+          className={classStyle}
+          {...props}
+        />
+      )}
       <label
         htmlFor={name}
         className="absolute left-0 p-[10px_0px] pointer-events-none text-[black] uppercase"
