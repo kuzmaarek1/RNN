@@ -28,6 +28,21 @@ export const metricsErrorTimeSeries = [
   { name: "root_mean_squared_error", title: "Root mean squared" },
 ];
 
+export const metricsTextClassification = [
+  {
+    name: "recall",
+    title: "Recall",
+  },
+  {
+    name: "precision",
+    title: "Precision",
+  },
+  {
+    name: "f1-score",
+    title: "F1-score",
+  },
+];
+
 export const inputFieldModelsTimeSeries = [
   {
     type: "number",

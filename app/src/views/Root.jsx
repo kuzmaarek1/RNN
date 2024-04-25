@@ -9,6 +9,7 @@ import {
   PredictText,
   EvaluateText,
   Training,
+  CompareText,
 } from "views";
 
 const Root = () => {
@@ -24,6 +25,7 @@ const Root = () => {
       <Route path="/models/text" element={<ModelsText />} />
       <Route path="/predict/text" element={<PredictText />} />
       <Route path="/evaluate/text" element={<EvaluateText />} />
+      <Route path="/compare/text" element={<CompareText />} />
     </Routes>
   );
 };
