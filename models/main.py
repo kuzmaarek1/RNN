@@ -57,6 +57,10 @@ def train_model_time_series(message):
 
     x_train, y_train = np.array(x_train), np.array(y_train)
 
+    split_index = int(len(x_train) * 0.8)
+    x_train, x_val = x_train[:split_index], x_train[split_index:]
+    y_train, y_val = y_train[:split_index], y_train[split_index:]
+
     model = Sequential()
 
     for idx, config in enumerate(layers_config):
@@ -88,7 +92,11 @@ def train_model_time_series(message):
 
     class EpochLogger(keras.callbacks.Callback):
         def on_epoch_end(self, epoch, logs=None):
-            epoch_info = {"epoch": epoch, "loss": logs["loss"]}
+            epoch_info = {
+                "epoch": epoch,
+                "loss": logs["loss"],
+                "val_loss": logs["val_loss"],
+            }
             print("TAK")
             emit("epoch_update", json.dumps(epoch_info))
 
@@ -97,7 +105,7 @@ def train_model_time_series(message):
     history = model.fit(
         x_train,
         y_train,
-        # validation_data=(x_test, y_test),
+        validation_data=(x_val, y_val),
         batch_size=batch_size,
         epochs=epochs,
         callbacks=[EpochLogger()],
@@ -275,16 +283,22 @@ def evaluate_time_series():
     print(scalar_data_min_max)
 
     scaled_data = scaler.transform(dataset)
-    scaled_data = scaled_data[1220:1258, :]  # do komentarza
+    # scaled_data = scaled_data[1220:1258, :]  # do komentarza
 
     time_step = request_data["time_step"]  # to pasowało by dać do zmiennej
-    x_test = []
-    y_test = []
-    for i in range(time_step, len(scaled_data)):
-        x_test.append(scaled_data[i - time_step : i, :])
-        y_test.append(scaled_data[i, :])
+    x_train = []
+    y_train = []
 
-    x_test, y_test = np.array(x_test), np.array(y_test)
+    for i in range(time_step, len(scaled_data)):
+        x_train.append(scaled_data[i - time_step : i, :])
+        y_train.append(scaled_data[i, :])
+
+    x_train, y_train = np.array(x_train), np.array(y_train)
+
+    split_index = int(len(x_train) * 0.8)
+    x_train, x_test = x_train[:split_index], x_train[split_index:]
+    y_train, y_test = y_train[:split_index], y_train[split_index:]
+
     print(x_test)
     predictions = model.predict(x_test)
     print(predictions)
@@ -352,7 +366,7 @@ def predict_time_series():
 
     time_step = request_data["time_step"]
     scaled_data = scaler.transform(dataset)
-    scaled_data = scaled_data[-time_step:, :]  # do komentarza
+    scaled_data = scaled_data[-time_step:, :]
 
     # to pasowało by dać do zmiennej
     # next_time_steps = 10
