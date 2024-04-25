@@ -68,7 +68,7 @@ const PredictText = () => {
           <div className="relative">
             <Input
               type="textarea"
-              name="text"
+              name="text_predict"
               label="Text"
               color="blue"
               register={register}

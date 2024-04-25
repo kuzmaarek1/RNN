@@ -3,6 +3,7 @@ import React from "react";
 const Input = ({ type, name, label, register, color, onChange, ...props }) => {
   const handleChange = (event) => {
     console.log(parseInt(event.target.value, 10));
+    console.log(event.target.value);
     if (onChange) {
       onChange(parseInt(event.target.value, 10));
     }
@@ -17,13 +18,6 @@ const Input = ({ type, name, label, register, color, onChange, ...props }) => {
                 : "border-[#A8C5DA]"
             } 
             input`;
-
-  const InputField = ({ props }) =>
-    type === "textarea" ? (
-      <textarea className={classStyle} {...props} />
-    ) : (
-      <input className={classStyle} {...props} />
-    );
 
   return (
     <>

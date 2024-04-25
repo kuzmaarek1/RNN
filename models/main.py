@@ -184,6 +184,10 @@ def train_model_text_classification(message):
     print(X)
     print(y)
 
+    split_index = int(len(X) * 0.8)
+    X_train, X_val = X[:split_index], X[split_index:]
+    y_train, y_val = y[:split_index], y[split_index:]
+
     num_categories = df[category].nunique()
     print("Liczba kategorii:", num_categories)
 
@@ -225,11 +229,12 @@ def train_model_text_classification(message):
     model.compile(metrics=["Accuracy"], loss="binary_crossentropy", optimizer="Adam")
 
     history = model.fit(
-        X,
-        y,
+        X_train,
+        y_train,
+        validation_data=(X_val, y_val),
         batch_size=batch_size,
         epochs=epochs,
-        validation_split=0.2,
+        # validation_split=0.2,
         callbacks=[EpochLogger()],
     )
 
@@ -286,18 +291,18 @@ def evaluate_time_series():
     # scaled_data = scaled_data[1220:1258, :]  # do komentarza
 
     time_step = request_data["time_step"]  # to pasowało by dać do zmiennej
-    x_train = []
-    y_train = []
+    x_test = []
+    y_test = []
 
     for i in range(time_step, len(scaled_data)):
-        x_train.append(scaled_data[i - time_step : i, :])
-        y_train.append(scaled_data[i, :])
+        x_test.append(scaled_data[i - time_step : i, :])
+        y_test.append(scaled_data[i, :])
 
-    x_train, y_train = np.array(x_train), np.array(y_train)
+    x_test, y_test = np.array(x_test), np.array(y_test)
 
-    split_index = int(len(x_train) * 0.8)
-    x_train, x_test = x_train[:split_index], x_train[split_index:]
-    y_train, y_test = y_train[:split_index], y_train[split_index:]
+    split_index = int(len(x_test) * 0.8)
+    x_test = x_test[split_index:]
+    y_test = y_test[split_index:]
 
     print(x_test)
     predictions = model.predict(x_test)
@@ -464,6 +469,11 @@ def evaluate_text_classification():
 
     sequences = tokenizer.texts_to_sequences(texts)
     X = pad_sequences(sequences, maxlen=max_text_len)
+
+    split_index = int(len(X) * 0.8)
+    X = X[split_index:]
+    y_true = y_true[split_index:]
+
     print(X)
     y_pred = model.predict(X)
     # flattened_results = np.ravel(y_pred).tolist()
