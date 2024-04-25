@@ -9,6 +9,7 @@ export const circleCoordinates = [
 ];
 
 export const navbarTitle = [
+  "preparation",
   "models",
   "training",
   "predict",

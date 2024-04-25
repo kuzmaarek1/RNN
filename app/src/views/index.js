@@ -7,3 +7,4 @@ export { default as ModelsText } from "views/ModelsText";
 export { default as PredictText } from "views/PredictText";
 export { default as EvaluateText } from "views/EvaluateText";
 export { default as CompareText } from "views/CompareText";
+export { default as DataPreparation } from "views/DataPreparation";

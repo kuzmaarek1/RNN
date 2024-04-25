@@ -14,18 +14,24 @@ const Navbar = () => {
       {navbarItems.map(({ title, link }) => (
         <>
           <div className="text-[#1c1c1c66] text-[14px] font-[400]">{title}</div>
-          {navbarTitle.map((props, index) => (
-            <NavLink
-              key={index}
-              to={`${props}/${link}`}
-              className={({ isActive }) =>
-                isActive ? `bg-[#1c1c1c0d] ${NavLinkStyle}` : `${NavLinkStyle}`
-              }
-            >
-              {props[0].toUpperCase()}
-              {props.slice(1)}
-            </NavLink>
-          ))}
+          {navbarTitle.map(
+            (props, index) =>
+              (props !== "preparation" ||
+                (props == "preparation" && title === "Text")) && (
+                <NavLink
+                  key={index}
+                  to={`${props}/${link}`}
+                  className={({ isActive }) =>
+                    isActive
+                      ? `bg-[#1c1c1c0d] ${NavLinkStyle}`
+                      : `${NavLinkStyle}`
+                  }
+                >
+                  {props[0].toUpperCase()}
+                  {props.slice(1)}
+                </NavLink>
+              )
+          )}
         </>
       ))}
     </div>
