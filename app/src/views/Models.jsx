@@ -76,7 +76,13 @@ const Models = () => {
   }));
 
   useEffect(() => {
-    socket.current = io("http://127.0.0.1:5000");
+    socket.current = io("http://127.0.0.1:5000", {
+      transports: ["websocket"],
+      upgrade: false,
+      reconnection: true,
+      maxHttpBufferSize: 1e8,
+      maxChunkedMessageSize: 1e8,
+    });
     socket.current.on("epoch_update", (epochs) => {
       console.log(epochs);
       setEpochsHistory((prev) => [...prev, JSON.parse(epochs)]);

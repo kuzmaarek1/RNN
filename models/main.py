@@ -25,7 +25,12 @@ import uuid
 import time
 
 app = Flask(__name__)
-socketio = SocketIO(app, cors_allowed_origins="*")
+socketio = SocketIO(
+    app,
+    cors_allowed_origins="*",
+    max_http_buffer_size=1e8,  # Maksymalny rozmiar bufora HTTP
+    max_websocket_data_size=1e8,
+)
 CORS(app)
 
 
@@ -150,7 +155,7 @@ def train_model_text_classification(message):
     text = json.loads(message).get("text")
     num_words = int(json.loads(message).get("num_words"))
     max_text_len = int(json.loads(message).get("max_text_len"))
-    print(data)
+    # print(data)
     layers_config = json.loads(message).get("models")
 
     batch_size = int(json.loads(message).get("batch_size"))  # 64
@@ -163,17 +168,17 @@ def train_model_text_classification(message):
 
     # Pierwszy element krotki to zmapowane wartości numeryczne: [0, 1, 2, 0, 1].
     # Drugi element to indeks pandasowy Index(['A', 'B', 'C'], dtype='object'), który zawiera unikalne etykiety z kolumny 'category'.
-    print(pd.factorize(df[category])[1])
+    # print(pd.factorize(df[category])[1])
 
     texts = df[text]
     labels = df[category]
-    print(texts)
+    # print(texts)
     texts = [str(text) for text in texts]
     tokenizer = Tokenizer(
         num_words=num_words
     )  # Przetwarzanie tekstu na sekwencję liczb
     tokenizer.fit_on_texts(texts)  # słownik słów
-    print(tokenizer)
+    # print(tokenizer)
     sequences = tokenizer.texts_to_sequences(
         texts
     )  # konwersaja tekstu na sekwencje czasową
@@ -181,8 +186,8 @@ def train_model_text_classification(message):
     X = pad_sequences(sequences, maxlen=max_text_len)  # stała wartośc sekwencji
     y = to_categorical(labels.copy())
 
-    print(X)
-    print(y)
+    # print(X)
+    # print(y)
 
     split_index = int(len(X) * 0.8)
     X_train, X_val = X[:split_index], X[split_index:]
@@ -449,9 +454,9 @@ def evaluate_text_classification():
     data = request_data["dataset"]
     category = request_data["category"]
     text = request_data["text"]
-    print(data)
+    # print(data)
     df = pd.DataFrame(data)
-    print(df[text])
+    # print(df[text])
     df[text] = df[text].astype(str)
     df[category] = df[category].astype(str)
     df[text] = df[text].apply(cleanText)
@@ -462,7 +467,7 @@ def evaluate_text_classification():
     tokenizer.fit_on_texts(texts)
     texts = df[text]
     category_mapping = {v: i for i, v in enumerate(y_labels)}
-    print(category_mapping)
+    # print(category_mapping)
     df[category] = df[category].map(category_mapping)
     y_true = df[category].to_numpy()
     print("Labels")
@@ -474,31 +479,31 @@ def evaluate_text_classification():
     X = X[split_index:]
     y_true = y_true[split_index:]
 
-    print(X)
+    # print(X)
     y_pred = model.predict(X)
     # flattened_results = np.ravel(y_pred).tolist()
     # print(flattened_results)
     # print(np.argmax(y_pred, axis=1))
     # results = y_labels[np.argmax(y_pred, axis=1)[0]]
 
-    print(y_true)
+    # print(y_true)
     predicted_classes = np.argmax(y_pred, axis=1)
-    print(predicted_classes)
+    # print(predicted_classes)
 
     category_mapping = {i: v for i, v in enumerate(y_labels)}
     y_true_categories = [category_mapping[label] for label in y_true]
     y_pred_categories = [category_mapping[label] for label in predicted_classes]
 
-    print(y_true_categories)
-    print(y_pred_categories)
+    # print(y_true_categories)
+    # print(y_pred_categories)
 
     cm = confusion_matrix(y_true_categories, y_pred_categories, labels=y_labels)
     report = classification_report(
         y_true_categories, y_pred_categories, labels=y_labels, output_dict=True
     )
 
-    print(cm)
-    print(report)
+    # print(cm)
+    # print(report)
 
     return jsonify(
         {

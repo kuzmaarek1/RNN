@@ -37,7 +37,14 @@ const ModelsText = () => {
   const [selectedTab, setSelectedTab] = useState("loss");
 
   useEffect(() => {
-    socket.current = io("http://127.0.0.1:5000");
+    socket.current = io("http://127.0.0.1:5000", {
+      transports: ["websocket"],
+      upgrade: false,
+      reconnection: true,
+      maxHttpBufferSize: 1e8,
+      maxChunkedMessageSize: 1e8,
+    });
+
     socket.current.on("epoch_update/text_classification", (epochs) => {
       console.log(epochs);
       setEpochsHistory((prev) => [...prev, JSON.parse(epochs)]);
@@ -99,11 +106,12 @@ const ModelsText = () => {
   console.log(csvHeaders);
 
   const onSubmit = (data) => {
+    console.log("dd");
     console.log({
       ...data,
       category: category,
       text: text,
-      datset: csvData,
+      datset: csvData.slice(0, 2),
     });
     setEpochsHistory([]);
     socket.current.emit(
@@ -112,7 +120,7 @@ const ModelsText = () => {
         ...data,
         category: category,
         text: text,
-        dataset: csvData,
+        dataset: csvData, //.slice(0, 400),
       })
     );
   };
