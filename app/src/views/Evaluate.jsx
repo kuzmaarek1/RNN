@@ -51,6 +51,7 @@ const Evaluate = () => {
   }, []);
 
   const handleTxtSubmission = async () => {
+    setResponseState(null);
     const file = fileInputTxtRef.current.files[0];
     if (file) {
       const text = await file.text();
@@ -92,6 +93,7 @@ const Evaluate = () => {
 
   const handleCsvSubmissionAndEvaluate = async () => {
     const file = fileInputCsvRef.current.files[0];
+
     if (file) {
       const text = await file.text();
       const { data } = parse(text, { header: true });

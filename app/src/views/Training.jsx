@@ -193,7 +193,7 @@ const Training = () => {
                   <div
                     className={`${
                       key === selectedTab ? "relative" : ""
-                    } border-[#95A4FC] border-[2px] w-[150px] h-[50px] rounded-[16px] flex justify-center items-center cursor-pointer`}
+                    } border-[#95A4FC] border-[2px] w-[150px] text-center p-[8px] h-[50px] rounded-[16px] flex justify-center items-center cursor-pointer`}
                   >
                     {key.charAt(0).toUpperCase() +
                       key.slice(1).replace(/_/g, " ")}

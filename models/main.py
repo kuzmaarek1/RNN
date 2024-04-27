@@ -5,7 +5,7 @@ import pandas as pd
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 from keras.models import Sequential
-from keras.layers import Dense, LSTM, GRU, SimpleRNN
+from keras.layers import Dense, LSTM, GRU, SimpleRNN, Bidirectional
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import confusion_matrix, classification_report
 import keras
@@ -73,19 +73,22 @@ def train_model_time_series(message):
         return_sequences = config["returnSequences"]
 
         layer_mapping = {"GRU": GRU, "LSTM": LSTM, "RNN": SimpleRNN}
-
         layer_type = layer_mapping.get(config["layers"])
 
+        layer = layer_type(units, return_sequences=return_sequences)
+
         if idx == 0:
-            model.add(
-                layer_type(
-                    units,
-                    return_sequences=return_sequences,
-                    input_shape=(x_train.shape[1], len(filter)),
-                )
+            layer = layer_type(
+                units,
+                return_sequences=return_sequences,
+                input_shape=(x_train.shape[1], len(filter)),
             )
-        else:
-            model.add(layer_type(units, return_sequences=return_sequences))
+
+        if config["bidirectional"]:
+            layer = Bidirectional(layer)
+
+        model.add(layer)
+
     """
     model.add(
         GRU(128, return_sequences=True, input_shape=(x_train.shape[1], len(filter)))
@@ -105,7 +108,9 @@ def train_model_time_series(message):
             print("TAK")
             emit("epoch_update", json.dumps(epoch_info))
 
-    model.compile(optimizer="adam", loss="mean_squared_error", metrics=["accuracy"])
+    model.compile(
+        optimizer="adam", loss="mean_squared_error", metrics=["mean_absolute_error"]
+    )
 
     history = model.fit(
         x_train,
@@ -204,10 +209,14 @@ def train_model_text_classification(message):
         return_sequences = config["returnSequences"]
 
         layer_mapping = {"GRU": GRU, "LSTM": LSTM, "RNN": SimpleRNN}
-
         layer_type = layer_mapping.get(config["layers"])
 
-        model.add(layer_type(units, return_sequences=return_sequences))
+        if config["bidirectional"] == True:
+            model.add(
+                Bidirectional(layer_type(units, return_sequences=return_sequences))
+            )
+        else:
+            model.add(layer_type(units, return_sequences=return_sequences))
 
     """
     model.add(LSTM(3, return_sequences=True))

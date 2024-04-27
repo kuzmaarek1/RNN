@@ -330,7 +330,7 @@ const ModelsText = () => {
                     <span
                       className={`-translate-y-[15px] relative inline-flex tracking-[0.15em] transition-[0.2s] ease-in-out`}
                     >
-                      Return sequences
+                      Sequences
                     </span>
                   </label>
                   <input
@@ -339,6 +339,25 @@ const ModelsText = () => {
                     name="returnSequences"
                     {...register(`models[${index}].returnSequences`)}
                     defaultChecked={true}
+                  />
+                </div>
+                <div className="relative flex flex-col ml-4">
+                  <label
+                    className={"font-semibold uppercase text-[#1c1c1c]"}
+                    htmlFor={`models[${index}].layers`}
+                  >
+                    <span
+                      className={`-translate-y-[15px] relative inline-flex tracking-[0.15em] transition-[0.2s] ease-in-out`}
+                    >
+                      Bidirectional
+                    </span>
+                  </label>
+                  <input
+                    type="checkbox"
+                    id="bidirectional"
+                    name="bidirectional"
+                    {...register(`models[${index}].bidirectional`)}
+                    defaultChecked={false}
                   />
                 </div>
                 <button
