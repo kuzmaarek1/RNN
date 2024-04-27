@@ -411,6 +411,7 @@ const Models = () => {
                         <option value="RNN">RNN</option>
                         <option value="LSTM">LSTM</option>
                         <option value="GRU">GRU</option>
+                        <option value="ConvLSTM2D">ConvLSTM2D</option>
                       </select>
                     </div>
                     <div className="relative">

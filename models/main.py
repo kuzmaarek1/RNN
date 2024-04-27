@@ -5,7 +5,7 @@ import pandas as pd
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 from keras.models import Sequential
-from keras.layers import Dense, LSTM, GRU, SimpleRNN, Bidirectional
+from keras.layers import Dense, LSTM, GRU, SimpleRNN, Bidirectional, ConvLSTM2D, Flatten
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import confusion_matrix, classification_report
 import keras
@@ -66,23 +66,51 @@ def train_model_time_series(message):
     x_train, x_val = x_train[:split_index], x_train[split_index:]
     y_train, y_val = y_train[:split_index], y_train[split_index:]
 
+    is_convLSTM2D = False
     model = Sequential()
+    print(x_train)
 
     for idx, config in enumerate(layers_config):
         units = int(config["units"])
         return_sequences = config["returnSequences"]
 
-        layer_mapping = {"GRU": GRU, "LSTM": LSTM, "RNN": SimpleRNN}
+        layer_mapping = {
+            "GRU": GRU,
+            "LSTM": LSTM,
+            "RNN": SimpleRNN,
+            "ConvLSTM2D": ConvLSTM2D,
+        }
+
         layer_type = layer_mapping.get(config["layers"])
 
-        layer = layer_type(units, return_sequences=return_sequences)
+        if config["layers"] != "ConvLSTM2D":
+            layer = layer_type(units, return_sequences=return_sequences)
+            if idx == 0:
+                layer = layer_type(
+                    units,
+                    return_sequences=return_sequences,
+                    input_shape=(x_train.shape[1], len(filter)),
+                )
 
-        if idx == 0:
+        else:
+            is_convLSTM2D = True
+            x_train = x_train.reshape((x_train.shape[0], time_step, 1, len(filter), 1))
+            x_val = x_val.reshape((x_val.shape[0], time_step, 1, len(filter), 1))
+
             layer = layer_type(
-                units,
+                filters=units,
+                padding="same",
+                kernel_size=(1, len(filter)),
                 return_sequences=return_sequences,
-                input_shape=(x_train.shape[1], len(filter)),
             )
+            if idx == 0:
+                layer = layer_type(
+                    filters=units,
+                    padding="same",
+                    kernel_size=(1, len(filter)),
+                    return_sequences=return_sequences,
+                    input_shape=(time_step, 1, len(filter), 1),
+                )
 
         if config["bidirectional"]:
             layer = Bidirectional(layer)
@@ -96,7 +124,11 @@ def train_model_time_series(message):
     model.add(GRU(64, return_sequences=False))  # przy true jest błąd
     """
     # model.add(Dense(25))
+    if is_convLSTM2D == True:
+        model.add(Flatten())
+
     model.add(Dense(len(filter)))
+    print(x_train.shape[1])
 
     class EpochLogger(keras.callbacks.Callback):
         def on_epoch_end(self, epoch, logs=None):
@@ -141,6 +173,7 @@ def train_model_time_series(message):
                 "time_step": time_step,
                 "data_min": scaler.data_min_.tolist(),
                 "data_max": scaler.data_max_.tolist(),
+                "is_convLSTM2D": is_convLSTM2D,
             }
         ),
     )
@@ -286,6 +319,9 @@ def evaluate_time_series():
     # y_test = request_data["y_test"]
     filter = request_data["filter"]
     data = request_data["y_test"]
+    is_convLSTM2D = False
+    if "is_convLSTM2D" in request_data:
+        is_convLSTM2D = request_data["is_convLSTM2D"]
 
     # path_to_save = "./model.keras"
     model = tf.keras.models.load_model(f"../files/models/{path}.keras")
@@ -317,6 +353,9 @@ def evaluate_time_series():
     split_index = int(len(x_test) * 0.8)
     x_test = x_test[split_index:]
     y_test = y_test[split_index:]
+
+    if is_convLSTM2D:
+        x_test = x_test.reshape((x_test.shape[0], time_step, 1, len(filter), 1))
 
     print(x_test)
     predictions = model.predict(x_test)
@@ -376,7 +415,11 @@ def predict_time_series():
     data = df[filter]
 
     dataTrainMax = request_data["data_max"]
+    print(dataTrainMax)
     dataTrainMin = request_data["data_min"]
+    is_convLSTM2D = False
+    if "is_convLSTM2D" in request_data:
+        is_convLSTM2D = request_data["is_convLSTM2D"]
 
     dataset = data.values
     scaler = MinMaxScaler(feature_range=(0, 1))
@@ -394,13 +437,33 @@ def predict_time_series():
     current_data = []
     current_data.append(scaled_data)
     current_data = np.array(current_data)
+    if is_convLSTM2D:
+        current_data = current_data.reshape(
+            (current_data.shape[0], time_step, 1, len(filter), 1)
+        )
     print(current_data)
-    for _ in range(next_time_steps):
+
+    for i in range(next_time_steps):
         prediction = model.predict(current_data)
+        print(prediction)
         predictions.append(prediction[0])
         # Aktualizacja danych wejściowych dla kolejnego kroku czasowego
         current_data = np.roll(current_data, -1, axis=1)
-        current_data[0, -1, :] = prediction[0]
+        # current_data[0, -1, :] = prediction[0]
+
+        if is_convLSTM2D:
+            prediction = np.expand_dims(prediction, axis=1)
+            current_data[:, -1, :, :, :] = np.expand_dims(prediction, axis=-1)
+        else:
+            # Generowanie szumu
+            scale = np.abs(prediction) * 0.2  # Skala zależna od amplitudy przewidywań
+            loc = np.sign(prediction) * 0.1  # Średnia zależna od kierunku przewidywań
+            noise = np.random.normal(loc=loc, scale=scale, size=prediction.shape)
+            # print(noise)
+            current_data[0, -1, :] = prediction[0] + noise
+            # current_data[0, -5, :] = prediction[0]
+            # current_data[0, -8, :] = prediction[0]
+
         print("---")
         print(current_data)
 
