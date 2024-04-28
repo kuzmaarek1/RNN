@@ -79,11 +79,17 @@ def train_model_time_series(message):
             "LSTM": LSTM,
             "RNN": SimpleRNN,
             "ConvLSTM2D": ConvLSTM2D,
+            "Dense": Dense,
         }
 
         layer_type = layer_mapping.get(config["layers"])
 
-        if config["layers"] != "ConvLSTM2D":
+        if config["layers"] == "Dense":
+            if idx == 0:
+                model.add(Flatten())
+            layer = Dense(units)
+
+        elif config["layers"] != "ConvLSTM2D":
             layer = layer_type(units, return_sequences=return_sequences)
             if idx == 0:
                 layer = layer_type(
