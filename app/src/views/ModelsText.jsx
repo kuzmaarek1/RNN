@@ -311,6 +311,8 @@ const ModelsText = () => {
                     <option value="RNN">RNN</option>
                     <option value="LSTM">LSTM</option>
                     <option value="GRU">GRU</option>
+                    <option value="Dense">Dense</option>
+                    <option value="RepeatVector">RepeatVector</option>
                   </select>
                 </div>
                 <div className="relative ">

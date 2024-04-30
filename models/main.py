@@ -5,7 +5,17 @@ import pandas as pd
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 from keras.models import Sequential
-from keras.layers import Dense, LSTM, GRU, SimpleRNN, Bidirectional, ConvLSTM2D, Flatten
+from keras.layers import (
+    Dense,
+    LSTM,
+    GRU,
+    Dropout,
+    SimpleRNN,
+    Bidirectional,
+    ConvLSTM2D,
+    Flatten,
+    RepeatVector,
+)
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import confusion_matrix, classification_report
 import keras
@@ -122,7 +132,7 @@ def train_model_time_series(message):
             layer = Bidirectional(layer)
 
         model.add(layer)
-
+        # model.add(Dropout(0.5))
     """
     model.add(
         GRU(128, return_sequences=True, input_shape=(x_train.shape[1], len(filter)))
@@ -247,10 +257,23 @@ def train_model_text_classification(message):
         units = int(config["units"])
         return_sequences = config["returnSequences"]
 
-        layer_mapping = {"GRU": GRU, "LSTM": LSTM, "RNN": SimpleRNN}
+        layer_mapping = {
+            "GRU": GRU,
+            "LSTM": LSTM,
+            "RNN": SimpleRNN,
+            "Dense": Dense,
+            "RepeatVector": RepeatVector,
+        }
         layer_type = layer_mapping.get(config["layers"])
 
-        if config["bidirectional"] == True:
+        if config["layers"] == "Dense":
+            if idx == 0:
+                model.add(Flatten())
+            layer_type = Dense(units)
+            model.add(layer_type)
+        elif config["layers"] == "RepeatVector":
+            model.add(RepeatVector(units))
+        elif config["bidirectional"] == True:
             model.add(
                 Bidirectional(layer_type(units, return_sequences=return_sequences))
             )
@@ -434,24 +457,41 @@ def predict_time_series():
 
     time_step = request_data["time_step"]
     scaled_data = scaler.transform(dataset)
-    scaled_data = scaled_data[-time_step:, :]
+    # scaled_data = scaled_data[-time_step:, :]
+
+    x_test = []
+    y_test = []
+
+    for i in range(time_step, len(scaled_data)):
+        x_test.append(scaled_data[i - time_step : i, :])
+        y_test.append(scaled_data[i, :])
+
+    scaled_data, y_test = np.array(x_test), np.array(y_test)
+
+    split_index = int(len(x_test) * 0.8)
+    scaled_data = x_test[split_index:]
+    y_test = y_test[split_index:]
 
     # to pasowało by dać do zmiennej
     # next_time_steps = 10
     next_time_steps = int(request_data["next_time_steps"])
     predictions = []
     current_data = []
-    current_data.append(scaled_data)
+    # print(scaled_data)
+    current_data.append(scaled_data[0])
+    # print(scaled_data)
+    print("Current data")
+    # print(current_data)
     current_data = np.array(current_data)
     if is_convLSTM2D:
         current_data = current_data.reshape(
             (current_data.shape[0], time_step, 1, len(filter), 1)
         )
-    print(current_data)
+    # print(current_data)
 
     for i in range(next_time_steps):
         prediction = model.predict(current_data)
-        print(prediction)
+        # print(prediction)
         predictions.append(prediction[0])
         # Aktualizacja danych wejściowych dla kolejnego kroku czasowego
         current_data = np.roll(current_data, -1, axis=1)
@@ -462,16 +502,30 @@ def predict_time_series():
             current_data[:, -1, :, :, :] = np.expand_dims(prediction, axis=-1)
         else:
             # Generowanie szumu
+            """
             scale = np.abs(prediction) * 0.2  # Skala zależna od amplitudy przewidywań
             loc = np.sign(prediction) * 0.1  # Średnia zależna od kierunku przewidywań
             noise = np.random.normal(loc=loc, scale=scale, size=prediction.shape)
-            # print(noise)
             current_data[0, -1, :] = prediction[0] + noise
-            # current_data[0, -5, :] = prediction[0]
-            # current_data[0, -8, :] = prediction[0]
-
+            """
+            print(prediction[0][0])
+            # current_data[:, -1, :] = y_test[i]
+            """
+            if i % 10 == 0:
+                scale = (
+                    np.abs(prediction) * 0.2
+                )  # Skala zależna od amplitudy przewidywań
+                loc = (
+                    np.sign(prediction) * 0.1
+                )  # Średnia zależna od kierunku przewidywań
+                noise = np.random.normal(loc=loc, scale=scale, size=prediction.shape)
+                current_data[0, -1, :] = prediction[0] + noise
+            else:
+            """
+            current_data[:, -1, :] = prediction[0]
+            print(current_data)
         print("---")
-        print(current_data)
+        # print(current_data)
 
     predictions = scaler.inverse_transform(predictions)
     results = []
@@ -480,9 +534,7 @@ def predict_time_series():
         results.append(result)
 
     return jsonify(
-        {
-            "results": results,
-        },
+        {"results": results, "split_index": len(y_test)},
     )
 
 
