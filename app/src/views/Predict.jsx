@@ -116,7 +116,7 @@ const Predict = () => {
     }
   };
   //console.log(csvData.map((value) => value[feature]));
-  console.log(responseState?.results[selectedId]);
+  console.log(responseState?.results[selectedId - 1]);
 
   return (
     <div
@@ -220,20 +220,14 @@ const Predict = () => {
                       marker: { color: "#82ca9d" },
                     },
                     {
-                      x: [
-                        csvData.length,
-                        ...responseState?.results[
-                          selectedId - 1
-                        ].predictions.map(
-                          (value, index) => csvData.length + index
-                        ),
-                      ],
-                      y: [
-                        csvData[csvData.length - 1][feature],
-                        ...responseState?.results[
-                          selectedId - 1
-                        ].predictions.map((value) => value),
-                      ],
+                      x: responseState?.results[selectedId - 1].predictions.map(
+                        (value, index) => responseState.split_index + index
+                      ),
+
+                      y: responseState?.results[selectedId - 1].predictions.map(
+                        (value) => value
+                      ),
+
                       type: "scatter",
                       mode: "lines",
                       name: "predictions",
