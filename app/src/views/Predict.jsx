@@ -117,7 +117,7 @@ const Predict = () => {
   };
   //console.log(csvData.map((value) => value[feature]));
   console.log(responseState?.results[selectedId - 1]);
-
+  console.log(responseState?.results[selectedId]);
   return (
     <div
       onClick={handleOutsideClick}
@@ -227,7 +227,6 @@ const Predict = () => {
                       y: responseState?.results[selectedId - 1].predictions.map(
                         (value) => value
                       ),
-
                       type: "scatter",
                       mode: "lines",
                       name: "predictions",

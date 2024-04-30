@@ -53,6 +53,8 @@ def train_model_time_series(message):
     time_step = int(json.loads(message).get("time_step"))  # 30
     batch_size = int(json.loads(message).get("batch_size"))  # 64
     epochs = int(json.loads(message).get("epochs"))  # 2
+    # forecast_steps = int(json.loads(message).get("forecast_steps"))
+    forecast_steps = 250
 
     print(time_step)
     print(batch_size)
@@ -66,9 +68,9 @@ def train_model_time_series(message):
 
     x_train = []
     y_train = []
-    for i in range(time_step, len(scaled_data)):
+    for i in range(time_step, len(scaled_data) - forecast_steps + 1):
         x_train.append(scaled_data[i - time_step : i, :])
-        y_train.append(scaled_data[i, :])
+        y_train.append(scaled_data[i : i + forecast_steps, :])
 
     x_train, y_train = np.array(x_train), np.array(y_train)
 
@@ -76,10 +78,13 @@ def train_model_time_series(message):
     x_train, x_val = x_train[:split_index], x_train[split_index:]
     y_train, y_val = y_train[:split_index], y_train[split_index:]
 
+    y_train = y_train.reshape(y_train.shape[0], -1)
+    y_val = y_val.reshape(y_val.shape[0], -1)
+
     is_convLSTM2D = False
     model = Sequential()
-    print(x_train)
-
+    print(y_train)
+    print(y_train.reshape(y_train.shape[0], -1))
     for idx, config in enumerate(layers_config):
         units = int(config["units"])
         return_sequences = config["returnSequences"]
@@ -143,8 +148,7 @@ def train_model_time_series(message):
     if is_convLSTM2D == True:
         model.add(Flatten())
 
-    model.add(Dense(len(filter)))
-    print(x_train.shape[1])
+    model.add(Dense(len(filter) * forecast_steps))
 
     class EpochLogger(keras.callbacks.Callback):
         def on_epoch_end(self, epoch, logs=None):
@@ -190,6 +194,7 @@ def train_model_time_series(message):
                 "data_min": scaler.data_min_.tolist(),
                 "data_max": scaler.data_max_.tolist(),
                 "is_convLSTM2D": is_convLSTM2D,
+                "forecast_steps": forecast_steps,
             }
         ),
     )
@@ -368,14 +373,16 @@ def evaluate_time_series():
 
     scaled_data = scaler.transform(dataset)
     # scaled_data = scaled_data[1220:1258, :]  # do komentarza
-
+    print(dataset)
     time_step = request_data["time_step"]  # to pasowało by dać do zmiennej
+    forecast_steps = 250
+    # forecast_steps = request_data["forecast_steps"]
     x_test = []
     y_test = []
 
-    for i in range(time_step, len(scaled_data)):
+    for i in range(time_step, len(scaled_data) - forecast_steps + 1):
         x_test.append(scaled_data[i - time_step : i, :])
-        y_test.append(scaled_data[i, :])
+        y_test.append(scaler.inverse_transform(scaled_data[i : i + forecast_steps, :]))
 
     x_test, y_test = np.array(x_test), np.array(y_test)
 
@@ -383,16 +390,41 @@ def evaluate_time_series():
     x_test = x_test[split_index:]
     y_test = y_test[split_index:]
 
+    y_test = y_test.reshape(y_test.shape[0], -1)
+    # y_test_reshaped = y_test.flatten()
+
+    print(y_test)
+    print("Przeszło skalowanie")
+    # Odwróć transformację skalowania
+    """
+    y_test_scaled = scaler.inverse_transform(y_test_reshaped)
+
+    # Przekształć wynikową tablicę z powrotem do oryginalnego kształtu
+    y_test_rescaled = y_test_scaled.reshape(y_test.shape)
+    """
+    # print(y_test_rescaled)
     if is_convLSTM2D:
         x_test = x_test.reshape((x_test.shape[0], time_step, 1, len(filter), 1))
 
-    print(x_test)
     predictions = model.predict(x_test)
+    print("y_test")
+    scaler = MinMaxScaler(feature_range=(0, 1))
+    scalar_data_min_max = scaler.fit_transform(
+        [
+            np.repeat([dataTrainMax], forecast_steps).flatten(),
+            np.repeat([dataTrainMin], forecast_steps).flatten(),
+        ]
+    )
+    print(scalar_data_min_max)
+    print("predictions przed")
     print(predictions)
-    print(y_test)
     predictions = scaler.inverse_transform(predictions)
-    y_test = scaler.inverse_transform(y_test)
+    print("predictions")
+    print(predictions)
+    print("d")
     results = []
+    print([dataTrainMax, dataTrainMin])
+    print(np.repeat([dataTrainMax], forecast_steps).flatten())
 
     def calculate_errors(y_true, y_pred):
         absolute_errors = np.abs(y_pred - y_true)
@@ -410,12 +442,25 @@ def evaluate_time_series():
             "mean_percentage_error": mean_percentage_error,
         }
 
+    print(y_test)
     for idx, feature_name in enumerate(filter):
-        errors = calculate_errors(y_test[:, idx], predictions[:, idx])
+        errors = calculate_errors(
+            y_test[:, idx : idx + forecast_steps : forecast_steps].flatten(),
+            predictions[:, idx : idx + forecast_steps : forecast_steps].flatten(),
+        )
+        print("Y_test")
+        print(y_test[:, idx : idx + forecast_steps : forecast_steps].flatten())
+        print("predictions")
+        print(predictions[:, idx : idx + forecast_steps : forecast_steps].flatten())
+        # print([predictions, idx])
         result = {
             "feature": feature_name,
-            "y_test": y_test[:, idx].tolist(),
-            "predictions": predictions[:, idx].tolist(),
+            "y_test": y_test[:, idx : idx + forecast_steps : forecast_steps]
+            .flatten()
+            .tolist(),
+            "predictions": predictions[:, idx : idx + forecast_steps : forecast_steps]
+            .flatten()
+            .tolist(),
             "mean_absolute_error": errors["mean_absolute_error"],
             "mean_squared_error": errors["mean_squared_error"],
             "root_mean_squared_error": errors["root_mean_squared_error"],
@@ -458,26 +503,28 @@ def predict_time_series():
     time_step = request_data["time_step"]
     scaled_data = scaler.transform(dataset)
     # scaled_data = scaled_data[-time_step:, :]
-
+    forecast_steps = 250
+    # forecast_steps = request_data["forecast_steps"]
     x_test = []
     y_test = []
 
-    for i in range(time_step, len(scaled_data)):
+    for i in range(time_step, len(scaled_data) - forecast_steps + 1):
         x_test.append(scaled_data[i - time_step : i, :])
-        y_test.append(scaled_data[i, :])
+        y_test.append(scaler.inverse_transform(scaled_data[i : i + forecast_steps, :]))
 
-    scaled_data, y_test = np.array(x_test), np.array(y_test)
+    x_test, y_test = np.array(x_test), np.array(y_test)
 
     split_index = int(len(x_test) * 0.8)
-    scaled_data = x_test[split_index:]
-    y_test = y_test[split_index:]
 
+    scaled_data = x_test[split_index:]
+
+    y_test = y_test.reshape(y_test.shape[0], -1)
     # to pasowało by dać do zmiennej
     # next_time_steps = 10
     next_time_steps = int(request_data["next_time_steps"])
     predictions = []
     current_data = []
-    # print(scaled_data)
+    print(scaled_data[0])
     current_data.append(scaled_data[0])
     # print(scaled_data)
     print("Current data")
@@ -488,10 +535,40 @@ def predict_time_series():
             (current_data.shape[0], time_step, 1, len(filter), 1)
         )
     # print(current_data)
+    # print("---")
+    predictions = [[0] * len(filter) for _ in range(forecast_steps * next_time_steps)]
 
+    print("CCCC")
+    print(current_data)
     for i in range(next_time_steps):
         prediction = model.predict(current_data)
-        # print(prediction)
+        print(prediction)
+
+        for idx, feature_name in enumerate(filter):
+            for j in range(forecast_steps):
+                print(prediction[0, idx * forecast_steps + j])
+                predictions[i * forecast_steps + j][idx] = prediction[
+                    0, idx * forecast_steps + j
+                ]
+
+            print(predictions)
+            print(current_data)
+            # Aktualizacja danych wejściowych dla kolejnego kroku czasowego
+            current_data = np.roll(current_data, -1, axis=1)
+
+            if is_convLSTM2D:
+                prediction = np.expand_dims(prediction, axis=1)
+                current_data[:, -1, :, :, :] = np.expand_dims(prediction, axis=-1)
+            else:
+                current_data[:, -forecast_steps + j, idx] = predictions[
+                    i * forecast_steps + j
+                ][idx]
+    print(current_data)
+    """
+    for i in range(next_time_steps):
+        prediction = model.predict(current_data)
+        print(prediction)
+
         predictions.append(prediction[0])
         # Aktualizacja danych wejściowych dla kolejnego kroku czasowego
         current_data = np.roll(current_data, -1, axis=1)
@@ -501,16 +578,17 @@ def predict_time_series():
             prediction = np.expand_dims(prediction, axis=1)
             current_data[:, -1, :, :, :] = np.expand_dims(prediction, axis=-1)
         else:
-            # Generowanie szumu
-            """
+        """
+    # Generowanie szumu
+    """
             scale = np.abs(prediction) * 0.2  # Skala zależna od amplitudy przewidywań
             loc = np.sign(prediction) * 0.1  # Średnia zależna od kierunku przewidywań
             noise = np.random.normal(loc=loc, scale=scale, size=prediction.shape)
             current_data[0, -1, :] = prediction[0] + noise
-            """
-            print(prediction[0][0])
-            # current_data[:, -1, :] = y_test[i]
-            """
+        """
+    # print(prediction[0][0])
+    # current_data[:, -1, :] = y_test[i]
+    """
             if i % 10 == 0:
                 scale = (
                     np.abs(prediction) * 0.2
@@ -521,11 +599,11 @@ def predict_time_series():
                 noise = np.random.normal(loc=loc, scale=scale, size=prediction.shape)
                 current_data[0, -1, :] = prediction[0] + noise
             else:
-            """
-            current_data[:, -1, :] = prediction[0]
-            print(current_data)
-        print("---")
-        # print(current_data)
+        """
+    # current_data[:, -1, :] = prediction[0]
+    # print(current_data)
+    # print("---")
+    # print(current_data)
 
     predictions = scaler.inverse_transform(predictions)
     results = []
