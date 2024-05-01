@@ -118,6 +118,9 @@ const Predict = () => {
   //console.log(csvData.map((value) => value[feature]));
   console.log(responseState?.results[selectedId - 1]);
   console.log(responseState?.results[selectedId]);
+  //console.log(csvData.length);
+  console.log(responseState?.split_index);
+
   return (
     <div
       onClick={handleOutsideClick}
@@ -221,7 +224,8 @@ const Predict = () => {
                     },
                     {
                       x: responseState?.results[selectedId - 1].predictions.map(
-                        (value, index) => responseState.split_index + index
+                        (value, index) => responseState?.split_index + index
+                        //csvData.length - responseState.split_index + index
                       ),
 
                       y: responseState?.results[selectedId - 1].predictions.map(

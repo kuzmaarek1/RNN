@@ -53,6 +53,12 @@ export const inputFieldModelsTimeSeries = [
   },
   {
     type: "number",
+    name: "forecast_steps",
+    label: "Forecast steps ",
+    color: "green",
+  },
+  {
+    type: "number",
     name: "batch_size",
     label: "Batch size",
     color: "green",

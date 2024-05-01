@@ -53,8 +53,7 @@ def train_model_time_series(message):
     time_step = int(json.loads(message).get("time_step"))  # 30
     batch_size = int(json.loads(message).get("batch_size"))  # 64
     epochs = int(json.loads(message).get("epochs"))  # 2
-    # forecast_steps = int(json.loads(message).get("forecast_steps"))
-    forecast_steps = 250
+    forecast_steps = int(json.loads(message).get("forecast_steps"))
 
     print(time_step)
     print(batch_size)
@@ -375,8 +374,9 @@ def evaluate_time_series():
     # scaled_data = scaled_data[1220:1258, :]  # do komentarza
     print(dataset)
     time_step = request_data["time_step"]  # to pasowało by dać do zmiennej
-    forecast_steps = 250
-    # forecast_steps = request_data["forecast_steps"]
+
+    forecast_steps = request_data.get("forecast_steps", 1)
+    print(forecast_steps)
     x_test = []
     y_test = []
 
@@ -487,7 +487,7 @@ def predict_time_series():
     model = tf.keras.models.load_model(f"../files/models/{path}.keras")
     df = pd.DataFrame(data)
     data = df[filter]
-
+    count_data = len(data)
     dataTrainMax = request_data["data_max"]
     print(dataTrainMax)
     dataTrainMin = request_data["data_min"]
@@ -503,8 +503,8 @@ def predict_time_series():
     time_step = request_data["time_step"]
     scaled_data = scaler.transform(dataset)
     # scaled_data = scaled_data[-time_step:, :]
-    forecast_steps = 250
-    # forecast_steps = request_data["forecast_steps"]
+    forecast_steps = request_data.get("forecast_steps", 1)
+    print(forecast_steps)
     x_test = []
     y_test = []
 
@@ -526,6 +526,7 @@ def predict_time_series():
     current_data = []
     print(scaled_data[0])
     current_data.append(scaled_data[0])
+
     # print(scaled_data)
     print("Current data")
     # print(current_data)
@@ -543,27 +544,21 @@ def predict_time_series():
     for i in range(next_time_steps):
         prediction = model.predict(current_data)
         print(prediction)
-
         for idx, feature_name in enumerate(filter):
             for j in range(forecast_steps):
-                print(prediction[0, idx * forecast_steps + j])
+                # print(prediction[0, idx * forecast_steps + j])
                 predictions[i * forecast_steps + j][idx] = prediction[
                     0, idx * forecast_steps + j
                 ]
+                # Aktualizacja danych wejściowych dla kolejnego kroku czasowego
+                current_data = np.roll(current_data, -1, axis=1)
+                if is_convLSTM2D:
+                    prediction = np.expand_dims(prediction, axis=1)
+                    current_data[:, -1, :, :, :] = np.expand_dims(prediction, axis=-1)
+                else:
+                    current_data[:, -1, idx] = predictions[i * forecast_steps + j][idx]
+        print(current_data)
 
-            print(predictions)
-            print(current_data)
-            # Aktualizacja danych wejściowych dla kolejnego kroku czasowego
-            current_data = np.roll(current_data, -1, axis=1)
-
-            if is_convLSTM2D:
-                prediction = np.expand_dims(prediction, axis=1)
-                current_data[:, -1, :, :, :] = np.expand_dims(prediction, axis=-1)
-            else:
-                current_data[:, -forecast_steps + j, idx] = predictions[
-                    i * forecast_steps + j
-                ][idx]
-    print(current_data)
     """
     for i in range(next_time_steps):
         prediction = model.predict(current_data)
@@ -611,8 +606,21 @@ def predict_time_series():
         result = {"feature": feature_name, "predictions": predictions[:, idx].tolist()}
         results.append(result)
 
+    scaled_dataset = scaler.transform(dataset)
+    start_index = None
+    for idx in range(len(scaled_dataset)):
+        if np.array_equal(
+            scaled_dataset[idx : idx + len(scaled_data[0])], scaled_data[0]
+        ):
+            start_index = idx + len(scaled_data[0]) + 1
+            break
+
+    # print(start_index)
     return jsonify(
-        {"results": results, "split_index": len(y_test)},
+        {
+            "results": results,
+            "split_index": start_index,
+        },
     )
 
 
