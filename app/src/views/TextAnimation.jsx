@@ -10,17 +10,18 @@ const SlidingText = () => {
       }}
       onInit={(typewriter) => {
         typewriter
-          .pauseFor(2500)
-          .typeString("A simple yet powerful native javascript")
           .pauseFor(300)
+          .typeString("Go until jurong point")
+          .pauseFor(2500)
+          .deleteChars(22)
+          .typeString("This is a <strong>ham</strong>")
+          .pauseFor(2500)
+          .deleteChars(13)
+          .typeString("Free entry")
+          .pauseFor(2500)
           .deleteChars(10)
-          .typeString(
-            "<strong>JS</strong> plugin for a cool typewriter effect and "
-          )
-          .typeString(
-            '<strong>only <span style="color: #27ae60;">5kb</span> Gzipped!</strong>'
-          )
-          .pauseFor(1000)
+          .typeString("This is a <strong>spam</strong>")
+          .deleteChars(14)
           .start();
       }}
     />

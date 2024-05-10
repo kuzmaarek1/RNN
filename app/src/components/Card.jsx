@@ -1,6 +1,7 @@
 import React from "react";
 import { FaTimes } from "react-icons/fa";
 import { motion } from "framer-motion";
+import { Animation } from "views";
 
 const Card = ({ color, layoutId, setSelectedId, classStyle, children }) => {
   return layoutId || layoutId === 0 ? (
@@ -14,7 +15,8 @@ const Card = ({ color, layoutId, setSelectedId, classStyle, children }) => {
             : color === "blue"
             ? "bg-[#e5ecf6]"
             : "bg-[#F7F9FB]"
-        }  animate-presence rounded-[16px] custom-box-shadow p-12 relative`}
+        }  animate-presence rounded-[16px] custom-box-shadow p-12 relative
+        `}
         layoutId={layoutId}
       >
         {children}
@@ -38,13 +40,13 @@ const Card = ({ color, layoutId, setSelectedId, classStyle, children }) => {
       <div
         className={`${classStyle} ${
           color === "green"
-            ? "bg-[#e3f5ff]"
+            ? "bg-[#e3f5ff] border-[#A1E3CB]"
             : color === "blue"
-            ? "bg-[#e5ecf6]"
-            : "bg-[#F7F9FB]"
-        } rounded-[16px] custom-box-shadow p-8`}
+            ? "bg-[#e5ecf6] border-[#95A4FC]"
+            : "bg-[#F7F9FB] border-[#A8C5DA]"
+        } rounded-[16px] border-[2px] p-8 relative flex flex-rows`}
       >
-        {children}
+        <div>{children}</div>
       </div>
     </motion.div>
   );

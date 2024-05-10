@@ -275,8 +275,8 @@ const ModelsText = () => {
           </Card>
         )}
         <Card color="blue" classStyle="min-h-[150px]">
-          {inputFieldModelsText.map(({ type, name, label, color }) => (
-            <div className="relative w-[300px] mt-[40px]">
+          {inputFieldModelsText.map(({ type, name, label, color }, index) => (
+            <div className={`relative w-[300px]  ${index != 0 && "mt-[40px]"}`}>
               <Input
                 type={type}
                 name={name}

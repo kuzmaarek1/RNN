@@ -52,7 +52,7 @@ const Animate = () => {
             repeatDelay: 3,
           }}
           stroke="#8884d8"
-          stroke-width="1"
+          stroke-width="2"
           fill="none"
           width="790"
           height="151"

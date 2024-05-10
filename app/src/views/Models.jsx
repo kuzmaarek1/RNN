@@ -374,8 +374,12 @@ const Models = () => {
                 />
               </div>
               {inputFieldModelsTimeSeries.map(
-                ({ type, name, label, color }) => (
-                  <div className="relative w-[300px] mt-[40px]">
+                ({ type, name, label, color }, index) => (
+                  <div
+                    className={`relative w-[300px] ${
+                      index != 0 && "mt-[40px]"
+                    }`}
+                  >
                     <Input
                       type={type}
                       name={name}

@@ -1,6 +1,7 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
 import { navbarItems, navbarTitle } from "constants";
+import { Animation, TextAnimation } from "views";
 
 const Navbar = () => {
   const NavLinkStyle =
@@ -13,7 +14,12 @@ const Navbar = () => {
       </div>
       {navbarItems.map(({ title, link }) => (
         <>
-          <div className="text-[#1c1c1c66] text-[14px] font-[400]">{title}</div>
+          <div className="text-[#1c1c1c66] text-[14px] font-[400] text-center">
+            {title}
+          </div>
+          <div className="h-[30px] w-full">
+            {title == "Time series" ? <Animation /> : <TextAnimation />}
+          </div>
           {navbarTitle.map(
             (props, index) =>
               (props !== "preparation" ||
