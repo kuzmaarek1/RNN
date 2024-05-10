@@ -242,7 +242,7 @@ const Predict = () => {
                     // width: 800,
                     // height: 400,
                     title: {
-                      text: "Time Series",
+                      text: "Predictions",
                     },
                     xaxis: {
                       title: {

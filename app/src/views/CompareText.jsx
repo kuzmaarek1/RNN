@@ -95,6 +95,26 @@ const CompareText = () => {
                 : findFeatured[1][selectedMetric]
               : undefined;
           }),
+        text: selectedFiles
+          .filter(({ content: { report }, name }) => {
+            const findFeatured = Object.entries(report)?.find(
+              ([metric]) => String(selectedId) === String(metric)
+            );
+            return (
+              findFeatured &&
+              String(watch(`legends_${name}`)) === String(legend.name)
+            );
+          })
+          .map(({ content: { report } }) => {
+            const findFeatured = Object.entries(report)?.find(
+              ([metric]) => String(selectedId) === String(metric)
+            );
+            return findFeatured
+              ? selectedId === "accuracy"
+                ? findFeatured[1].toFixed(2)
+                : findFeatured[1][selectedMetric].toFixed(2)
+              : undefined;
+          }),
         type: "bar",
         name: legend.name,
       };
@@ -305,10 +325,10 @@ const CompareText = () => {
                           selectedId.charAt(0).toUpperCase() +
                           selectedId.slice(1)
                         }`,
-                        xaxis: {
+                        yaxis: {
                           title: "Value",
                         },
-                        yaxis: {
+                        xaxis: {
                           title: "Index",
                         },
                       }}

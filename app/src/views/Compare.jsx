@@ -92,7 +92,7 @@ const Compare = () => {
       return {
         x: selectedFiles
           .filter(({ content: { results }, name }) => {
-            const findFeatured = results.find(
+            const findFeatured = results?.find(
               ({ feature }) => String(selectedId) === String(feature)
             );
             return (
@@ -101,14 +101,14 @@ const Compare = () => {
             );
           })
           .map(({ content: { results }, name }) => {
-            const findFeatured = results.find(
+            const findFeatured = results?.find(
               ({ feature }) => String(selectedId) === String(feature)
             );
             return findFeatured ? String(watch(`y_labels_${name}`)) : undefined;
           }),
         y: selectedFiles
           .filter(({ content: { results }, name }) => {
-            const findFeatured = results.find(
+            const findFeatured = results?.find(
               ({ feature }) => String(selectedId) === String(feature)
             );
             return (
@@ -117,10 +117,26 @@ const Compare = () => {
             );
           })
           .map(({ content: { results } }) => {
-            const findFeatured = results.find(
+            const findFeatured = results?.find(
               ({ feature }) => String(selectedId) === String(feature)
             );
             return findFeatured ? findFeatured[error] : undefined;
+          }),
+        text: selectedFiles
+          .filter(({ content: { results }, name }) => {
+            const findFeatured = results?.find(
+              ({ feature }) => String(selectedId) === String(feature)
+            );
+            return (
+              findFeatured &&
+              String(watch(`legends_${name}`)) === String(legend.name)
+            );
+          })
+          .map(({ content: { results } }) => {
+            const findFeatured = results?.find(
+              ({ feature }) => String(selectedId) === String(feature)
+            );
+            return findFeatured ? findFeatured[error].toFixed(2) : undefined;
           }),
         type: "bar",
         name: legend.name,
@@ -336,11 +352,14 @@ const Compare = () => {
                       layout={{
                         width: 800,
                         height: 400,
-                        title: "Bar Chart",
-                        xaxis: {
+                        title: `${
+                          selectedTab.charAt(0).toUpperCase() +
+                          selectedTab.slice(1).toLowerCase().replace(/_/g, " ")
+                        }`,
+                        yaxis: {
                           title: "Value",
                         },
-                        yaxis: {
+                        xaxis: {
                           title: "Index",
                         },
                       }}
@@ -413,7 +432,10 @@ const Compare = () => {
                   // width: 800,
                   // height: 400,
                   title: {
-                    text: "Time Series",
+                    text: `Predictions - ${
+                      selectedFiles[0]?.content?.results[selectedIdPlotLine - 1]
+                        .feature
+                    }`,
                   },
                   xaxis: {
                     title: {

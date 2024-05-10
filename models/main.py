@@ -104,12 +104,18 @@ def train_model_time_series(message):
             layer = Dense(units)
 
         elif config["layers"] != "ConvLSTM2D":
-            layer = layer_type(units, return_sequences=return_sequences)
+            layer = layer_type(
+                units,
+                return_sequences=return_sequences,
+                # stateful=True,
+                # kernel_regularizer="l2",
+            )
             if idx == 0:
                 layer = layer_type(
                     units,
                     return_sequences=return_sequences,
                     input_shape=(x_train.shape[1], len(filter)),
+                    # kernel_regularizer="l2",
                 )
 
         else:
@@ -122,6 +128,7 @@ def train_model_time_series(message):
                 padding="same",
                 kernel_size=(1, len(filter)),
                 return_sequences=return_sequences,
+                # kernel_regularizer="l2",
             )
             if idx == 0:
                 layer = layer_type(
@@ -130,13 +137,14 @@ def train_model_time_series(message):
                     kernel_size=(1, len(filter)),
                     return_sequences=return_sequences,
                     input_shape=(time_step, 1, len(filter), 1),
+                    # kernel_regularizer="l2",
                 )
 
         if config["bidirectional"]:
             layer = Bidirectional(layer)
 
         model.add(layer)
-        # model.add(Dropout(0.5))
+
     """
     model.add(
         GRU(128, return_sequences=True, input_shape=(x_train.shape[1], len(filter)))

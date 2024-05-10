@@ -226,7 +226,10 @@ const Training = () => {
                   // width: 800,
                   // height: 400,
                   title: {
-                    text: "Time Series",
+                    text: `${
+                      selectedTab.charAt(0).toUpperCase() +
+                      selectedTab.slice(1).toLowerCase().replace(/_/g, " ")
+                    }`,
                   },
                   xaxis: {
                     title: {
