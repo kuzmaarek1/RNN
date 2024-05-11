@@ -1,7 +1,8 @@
 import React, { useState, useRef } from "react";
-import { Card, Button } from "components";
+import { Card, Button, InputFile } from "components";
 import Plot from "react-plotly.js";
 import { AnimatePresence, motion } from "framer-motion";
+import { BiSolidFileTxt } from "react-icons/bi";
 
 const Training = () => {
   const fileInputRef = useRef();
@@ -9,6 +10,7 @@ const Training = () => {
   const [selectedId, setSelectedId] = useState(null);
   const [selectedTab, setSelectedTab] = useState("loss");
   const [selectedTabFile, setSelectedTabFile] = useState(null);
+  const [fileName, setFileName] = useState("Choose a file…");
 
   const handleFileChange = async (event) => {
     const files = fileInputRef.current.files;
@@ -22,6 +24,15 @@ const Training = () => {
         selectedFilesArray.push({ name: files[i].name, content: data });
       }
     }
+    if (files.length > 0) {
+      const truncatedName =
+        files.length == 1 ? `File selected` : `${files.length} files selected`;
+
+      setFileName(truncatedName);
+    } else {
+      setFileName("Choose a files…");
+    }
+    console.log(fileName);
     setSelectedFiles((prev) => [...prev, ...selectedFilesArray]);
     setSelectedTabFile(files[0] ? 1 : null);
   };
@@ -51,22 +62,28 @@ const Training = () => {
   )*/ console.log(selectedTabFile - 1);
   console.log(selectedFiles);
 
+  const handleCustomBtnClick = () => {
+    fileInputRef.current.click();
+  };
+
   return (
     <div onClick={handleOutsideClick} className="flex flex-col gap-8">
-      <Card color="green" classStyle="min-h-[150px]">
-        <div className="text-[#1c1c1c] font-[14px] font-[600]">Select file</div>
-        <input
-          type="file"
-          multiple
+      <Card
+        color="green"
+        classStyle="min-h-[150px]"
+        classStyleDiv="flex flex-col justify-center items-center w-full gap-4"
+      >
+        <InputFile
           ref={fileInputRef}
-          onChange={handleFileChange}
-          accept=".txt"
+          fileAcept=".txt"
+          multiple={true}
+          color="green"
         />
         <Button
           color="green"
           text="Submit"
           type="button"
-          func={() => fileInputRef.current.click()}
+          func={() => handleFileChange()}
         />
       </Card>
       <Card>

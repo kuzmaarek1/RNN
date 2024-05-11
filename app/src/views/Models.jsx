@@ -6,7 +6,7 @@ import { parse } from "papaparse";
 import { useForm, useFieldArray } from "react-hook-form";
 import Plot from "react-plotly.js";
 import { io } from "socket.io-client";
-import { Button, Card, Input } from "components";
+import { Button, Card, Input, InputFile } from "components";
 import { inputFieldModelsTimeSeries } from "constants";
 
 const customStyles = {
@@ -111,6 +111,7 @@ const Models = () => {
 
   const handleCsvSubmission = async () => {
     const file = fileInputRef.current.files[0];
+    console.log(file);
     if (file) {
       const text = await file.text();
       const { data } = parse(text, { header: true });
@@ -212,22 +213,45 @@ const Models = () => {
         )
       : null;
 
+  const [fileName, setFileName] = useState("Choose a file…");
+
+  const handleFileInputChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const maxLength = 20;
+      const truncatedName =
+        file.name.length > maxLength
+          ? file.name.substring(0, maxLength) + "..."
+          : file.name;
+
+      setFileName(truncatedName);
+      console.log(file.name);
+    } else {
+      setFileName("Choose a file…");
+    }
+  };
+
+  const handleCustomBtnClick = () => {
+    fileInputRef.current.click();
+  };
+
   return (
     <div onClick={handleOutsideClick}>
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="grid lg:grid-cols-2 grid-cols-1 gap-4 ml-4 mt-12 h-max-content"
+        className="sm:w-[83vw] grid lg:grid-cols-2 grid-cols-1 gap-4 ml-4 mt-12 h-max-content"
       >
         <div>
-          <Card color="green" classStyle="min-h-[150px]">
-            <div className="text-[#1c1c1c] font-[14px] font-[600]">
-              Select file
-            </div>
-            <input
-              type="file"
-              className="mb-4"
+          <Card
+            color="green"
+            classStyle="min-h-[150px]"
+            classStyleDiv="flex flex-col justify-center items-center w-full gap-4"
+          >
+            <InputFile
               ref={fileInputRef}
-              accept=".csv"
+              fileAcept=".csv"
+              multiple={false}
+              color="green"
             />
             <Button
               color="green"
@@ -334,7 +358,7 @@ const Models = () => {
         {YLabels.length > 0 && (
           <>
             <Card color="green">
-              <div className="relative w-[300px] mt-[20px]">
+              <div className="relative w-[300px]">
                 <label
                   className={`${
                     watch("y_feauture")?.length === 0 ||
@@ -375,11 +399,7 @@ const Models = () => {
               </div>
               {inputFieldModelsTimeSeries.map(
                 ({ type, name, label, color }, index) => (
-                  <div
-                    className={`relative w-[300px] ${
-                      index != 0 && "mt-[40px]"
-                    }`}
-                  >
+                  <div className={`relative w-[300px] mt-8`}>
                     <Input
                       type={type}
                       name={name}
