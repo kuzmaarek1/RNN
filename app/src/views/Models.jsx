@@ -9,136 +9,6 @@ import { io } from "socket.io-client";
 import { Button, Card, Input, InputFile, SelectInput } from "components";
 import { inputFieldModelsTimeSeries } from "constants";
 
-const customStyles = {
-  control: (provided, state) => ({
-    ...provided,
-    position: "relative",
-    width: "100%",
-    padding: "10px 0px",
-    background: "transparent",
-    border: "none",
-    outline: "none",
-    borderRadius: "0px",
-    color: "black",
-    textTransform: "uppercase",
-    fontSize: "1em",
-    letterSpacing: state.isFocused ? "0em" : "0.05em",
-    borderBottom:
-      "2px solid " +
-      (state.selectProps.color === "green"
-        ? "#A1E3CB"
-        : state.selectProps.color === "blue"
-        ? "#95A4FC"
-        : "#A8C5DA"),
-    "&:hover": {
-      borderBottom:
-        "2px solid " +
-        (state.selectProps.color === "green"
-          ? "#A1E3CB"
-          : state.selectProps.color === "blue"
-          ? "#95A4FC"
-          : "#A8C5DA"),
-    },
-    borderColor: state.isFocused ? "red" : "red",
-    boxShadow: state.isFocused ? "none" : "none",
-    className: "input",
-  }),
-  // indicatorContainer:()
-  indicatorSeparator: (provided, state) => ({
-    ...provided,
-    backgroundColor: "#A1E3CB",
-  }),
-
-  dropdownIndicator: (provided, state) => ({
-    ...provided,
-    color: "#A1E3CB", // kolor wskaźnika rozwijania
-    "&:hover": {
-      cursor: "pointer",
-      color: "#A1E3CB",
-    },
-  }),
-
-  noOptionsMessage: (provided, state) => ({
-    ...provided,
-    color: "black",
-    backgroundColor: "#A1E3CB",
-
-    borderRadius: "15px",
-  }),
-
-  clearIndicator: (provided, state) => ({
-    ...provided,
-    color: "#A1E3CB", // kolor wskaźnika rozwijania
-    "&:hover": {
-      cursor: "pointer",
-      color: "#A1E3CB",
-    },
-  }),
-
-  multiValue: (provided, state) => ({
-    ...provided,
-    backgroundColor: state.isHover ? "green" : "#A1E3CB",
-  }),
-  /*
-  multiValueRemove: (provided, state) => ({
-    ...provided,
-    "&:hover": {
-      backgroundColor: "green",
-    },
-  }),
-  */
-  menu: (provided, state) => ({
-    ...provided,
-    //color: "red",
-    textTransform: "uppercase",
-    letterSpacing: "0.05em",
-    //borderRadius: "15px",
-    fontSize: "0.8em",
-    border:
-      "2px solid " +
-      (state.selectProps.color === "green"
-        ? "#A1E3CB"
-        : state.selectProps.color === "blue"
-        ? "#95A4FC"
-        : "#A8C5DA"),
-    outline: "none",
-    background: "#e3f5ff",
-    boxShadow: "none",
-  }),
-  menuList: (provided, state) => ({
-    ...provided,
-    border: "none",
-    maxHeight: "200px", // Set a maximum height for the menu
-    overflowY: "auto", // Enable vertical scrolling
-    scrollbarWidth: "thin", // Set the width of the scrollbar
-    scrollbarColor: "#A1E3CB transparent",
-    border: "none",
-  }),
-  option: (provided, state) => ({
-    ...provided,
-    backgroundColor: state.isFocused ? "#A1E3CB" : "white",
-    color: state.isSelected ? "grey" : "black",
-    cursor: state.isSelected ? "not-allowed" : "default",
-    borderRadius: "15px",
-    border:
-      "1px solid " +
-      (state.selectProps.color === "green"
-        ? "#A1E3CB"
-        : state.selectProps.color === "blue"
-        ? "#95A4FC"
-        : "#A8C5DA"),
-
-    /*
-    backgroundColor: state.isSelected ? "green" : "white",
-    color: state.isSelected ? "white" : "black",
-    "&:hover": {
-      backgroundColor: "lightblue",
-      color: "black",
-    },
-    */
-  }),
-};
-
 const Models = () => {
   const {
     register,
@@ -153,13 +23,6 @@ const Models = () => {
     control,
     name: "models",
   });
-
-  const [selectedOptions, setSelectedOptions] = useState([]);
-  const [selectedOptionsXLabels, setSelectedOptionsXLabels] = useState([]);
-
-  const handleChange = (selectedOptions) => {
-    setSelectedOptions(selectedOptions);
-  };
 
   const socket = useRef();
   const fileInputRef = useRef(null);
@@ -498,29 +361,17 @@ const Models = () => {
               <div className="flex justify-center items-center flex-wrap w-full h-full">
                 {fields.map(({ id }, index) => (
                   <div key={id} className="flex flex-row mb-12">
-                    <div className="relative flex flex-col mr-4">
-                      <label
-                        className={"font-semibold uppercase text-[#1c1c1c]"}
-                        htmlFor={`models[${index}].layers`}
-                      >
-                        <span
-                          className={`-translate-y-[15px] relative inline-flex tracking-[0.15em] transition-[0.2s] ease-in-out`}
-                        >
-                          Layers
-                        </span>
-                      </label>
-                      <select
-                        id="layers"
-                        name="layers"
-                        {...register(`models[${index}].layers`)}
-                        defaultValue="RNN"
-                      >
-                        <option value="RNN">RNN</option>
-                        <option value="LSTM">LSTM</option>
-                        <option value="GRU">GRU</option>
-                        <option value="ConvLSTM2D">ConvLSTM2D</option>
-                        <option value="Dense">Dense</option>
-                      </select>
+                    <div className="relative ">
+                      <SelectInput
+                        options={["RNN", "LSTM", "GRU", "ConvLSTM2D", "Dense"]}
+                        label="Layers"
+                        name={`models[${index}].layers`}
+                        isMulti={false}
+                        color="grey"
+                        setValue={setValue}
+                        watch={watch(`models[${index}].layers`)}
+                        styled={"w-[200px] mt-[-2px] mr-[8px]"}
+                      />
                     </div>
                     <div className="relative">
                       <Input

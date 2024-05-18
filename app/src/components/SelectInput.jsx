@@ -9,6 +9,7 @@ const SelectInput = ({
   color,
   setValue,
   watch,
+  styled,
 }) => {
   const colorBorder =
     color === "green" ? "#A1E3CB" : color === "blue" ? "#95A4FC" : "#A8C5DA";
@@ -18,7 +19,7 @@ const SelectInput = ({
       ...provided,
       position: "relative",
       width: "100%",
-      padding: "10px 0px",
+      padding: "5px 0px",
       background: "transparent",
       border: "none",
       outline: "none",
@@ -93,8 +94,14 @@ const SelectInput = ({
       backgroundColor: state.isFocused ? colorBorder : "white",
       color: state.isSelected ? "grey" : "black",
       cursor: state.isSelected ? "not-allowed" : "default",
+      display: state.isSelected ? "none" : "",
       borderRadius: "15px",
       border: `1px solid ${colorBorder}`,
+    }),
+    input: (provided, state) => ({
+      ...provided,
+      textTransform: "uppercase",
+      color: "black",
     }),
   };
 
@@ -114,9 +121,14 @@ const SelectInput = ({
   };
 
   return (
-    <div className="relative w-[300px]">
+    <div className={`relative ${styled ? styled : "w-[300px]"}`}>
       <label
-        className="absolute left-0 p-[20px_0px] pointer-events-none text-[black] uppercase"
+        className={`absolute left-0 
+        mt-[-8px] ${
+          styled && (watch?.length === 0 || watch === undefined) && !focused
+            ? "p-[20px_0px]"
+            : "p-[20px_0px]"
+        } pointer-events-none text-[black] uppercase`}
         htmlFor={name}
       >
         {label.split("").map((letter, i) => (
@@ -127,7 +139,7 @@ const SelectInput = ({
                          (watch?.length === 0 || watch === undefined) &&
                          !focused
                        ) &&
-                       "transform font-semibold  uppercase translate-y-[-30px]"
+                       "transform font-semibold  uppercase translate-y-[-22px]"
                      }
                `}
             style={{ transitionDelay: `${i * 0.1}s` }}

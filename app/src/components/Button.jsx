@@ -18,7 +18,7 @@ const Button = ({ text, func, color, type, classStyle, file }) => {
         onClick={func}
         type={type}
       >
-        <span className="relative z-10 flex justify-center">{text}</span>
+        <span className="relative flex justify-center">{text}</span>
         <i
           className={`box-shadow-button group-hover:before:w-[10px] group-hover:before:left-[calc(50%)] 
             before:content-[''] before:absolute before:w-[10px] before:h-[6px] before:bg-[white] before:border-[2px] 
