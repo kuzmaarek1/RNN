@@ -3,7 +3,9 @@ import { GrDocumentCsv, GrDocumentTxt } from "react-icons/gr";
 import Button from "./Button";
 
 const InputFile = forwardRef(({ fileAcept, multiple, color }, ref) => {
-  const [fileName, setFileName] = useState("Choose a file…");
+  const [fileName, setFileName] = useState(
+    multiple ? "Choose a files…" : "Choose a file…"
+  );
 
   const handleCustomBtnClick = () => {
     ref.current.click();
@@ -22,12 +24,14 @@ const InputFile = forwardRef(({ fileAcept, multiple, color }, ref) => {
 
       setFileName(truncatedName);
     } else {
-      setFileName("Choose a file…");
+      setFileName(multiple ? "Choose a files…" : "Choose a file…");
     }
   };
 
   const IconsStyles = `${
-    fileName === "Choose a file…" ? "text-red-500" : "text-black"
+    fileName === "Choose a file…" || fileName === "Choose a files…"
+      ? "text-red-500"
+      : "text-black"
   } w-[30px] h-[30px]`;
 
   return (

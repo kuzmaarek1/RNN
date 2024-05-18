@@ -67,9 +67,11 @@ def train_model_time_series(message):
 
     x_train = []
     y_train = []
+
     for i in range(time_step, len(scaled_data) - forecast_steps + 1):
         x_train.append(scaled_data[i - time_step : i, :])
         y_train.append(scaled_data[i : i + forecast_steps, :])
+        # y_train.append(scaled_data[i - time_step + 1 : i + forecast_steps, :])
 
     x_train, y_train = np.array(x_train), np.array(y_train)
 
@@ -263,7 +265,7 @@ def train_model_text_classification(message):
     print("Liczba kategorii:", num_categories)
 
     model = Sequential()
-    model.add(Embedding(num_words, 64, input_length=max_text_len))
+    model.add(Embedding(num_words, 64, input_length=max_text_len))  # mask_zero=True
 
     for idx, config in enumerate(layers_config):
         units = int(config["units"])
