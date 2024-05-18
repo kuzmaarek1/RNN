@@ -336,6 +336,9 @@ const Models = () => {
     fileInputRef.current.click();
   };
 
+  const [focused, setFocused] = useState(false);
+
+  console.log(focused);
   return (
     <div onClick={handleOutsideClick}>
       <form
@@ -461,17 +464,20 @@ const Models = () => {
             <Card color="green">
               <div className="relative w-[300px]">
                 <label
-                  className={`${
-                    watch("y_feauture")?.length === 0 ||
-                    watch("y_feauture") === undefined
-                      ? "absolute left-0 p-[20px_0px] pointer-events-none text-[black] uppercase"
-                      : "font-semibold uppercase"
-                  }`}
+                  className="absolute left-0 p-[20px_0px] pointer-events-none text-[black] uppercase"
                   htmlFor="y_feauture"
                 >
                   {"Y feature".split("").map((letter, i) => (
                     <span
                       className={`relative inline-flex tracking-[0.05em] transition-[0.2s] ease-in-out
+                     ${
+                       !(
+                         (watch("y_feauture")?.length === 0 ||
+                           watch("y_feauture") === undefined) &&
+                         !focused
+                       ) &&
+                       "transform font-semibold  uppercase translate-y-[-30px]"
+                     }
                `}
                       style={{ transitionDelay: `${i * 0.1}s` }}
                     >
@@ -485,6 +491,8 @@ const Models = () => {
                   options={options}
                   value={selectedOptions}
                   onChange={handleChange}
+                  onFocus={() => setFocused(true)}
+                  onBlur={() => setFocused(false)}
                   isMulti
                   onChange={(selectedOptions) => {
                     handleChange(selectedOptions);
