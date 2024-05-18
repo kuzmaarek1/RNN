@@ -6,7 +6,7 @@ import { parse } from "papaparse";
 import { useForm, useFieldArray } from "react-hook-form";
 import Plot from "react-plotly.js";
 import { io } from "socket.io-client";
-import { Button, Card, Input, InputFile } from "components";
+import { Button, Card, Input, InputFile, SelectInput } from "components";
 import { inputFieldModelsTimeSeries } from "constants";
 
 const customStyles = {
@@ -117,6 +117,8 @@ const customStyles = {
   option: (provided, state) => ({
     ...provided,
     backgroundColor: state.isFocused ? "#A1E3CB" : "white",
+    color: state.isSelected ? "grey" : "black",
+    cursor: state.isSelected ? "not-allowed" : "default",
     borderRadius: "15px",
     border:
       "1px solid " +
@@ -153,6 +155,7 @@ const Models = () => {
   });
 
   const [selectedOptions, setSelectedOptions] = useState([]);
+  const [selectedOptionsXLabels, setSelectedOptionsXLabels] = useState([]);
 
   const handleChange = (selectedOptions) => {
     setSelectedOptions(selectedOptions);
@@ -160,7 +163,6 @@ const Models = () => {
 
   const socket = useRef();
   const fileInputRef = useRef(null);
-  const selectXLabelRef = useRef(null);
   const [csvData, setCsvData] = useState(null);
   const [csvHeaders, setCsvHeaders] = useState([]);
   const [XLabel, setXLabel] = useState(); //sort
@@ -174,6 +176,11 @@ const Models = () => {
   const options = YLabels.map((YLabel) => ({
     value: YLabel,
     label: YLabel,
+  }));
+
+  const optionsXLabel = csvHeaders.map((csvHeader) => ({
+    value: csvHeader,
+    label: csvHeader,
   }));
 
   useEffect(() => {
@@ -222,7 +229,7 @@ const Models = () => {
   };
   console.log(csvData);
   const handleXLabel = () => {
-    const selectedXLabel = selectXLabelRef.current.value;
+    const selectedXLabel = watch("XLabel");
     const YLabels = csvHeaders.filter(
       (csvHeader) => csvHeader !== selectedXLabel
     );
@@ -337,6 +344,7 @@ const Models = () => {
   };
 
   const [focused, setFocused] = useState(false);
+  const [focusedXLabels, setFocusedXLabels] = useState(false);
 
   console.log(focused);
   return (
@@ -368,14 +376,15 @@ const Models = () => {
         {csvHeaders.length > 0 && (
           <div>
             <Card color="blue" classStyle="min-h-[150px]">
-              <label htmlFor="XLabel">X labels</label>
-              <select name="XLabel" id="XLabel" ref={selectXLabelRef}>
-                {csvHeaders.map((csvHeader) => (
-                  <option value={csvHeader} key={csvHeader}>
-                    {csvHeader}
-                  </option>
-                ))}
-              </select>
+              <SelectInput
+                options={csvHeaders}
+                label="X Label"
+                name="XLabel"
+                isMulti={false}
+                color="blue"
+                setValue={setValue}
+                watch={watch("XLabel")}
+              />
               <Button
                 type="button"
                 text="Submit"
@@ -462,50 +471,15 @@ const Models = () => {
         {YLabels.length > 0 && (
           <>
             <Card color="green">
-              <div className="relative w-[300px]">
-                <label
-                  className="absolute left-0 p-[20px_0px] pointer-events-none text-[black] uppercase"
-                  htmlFor="y_feauture"
-                >
-                  {"Y feature".split("").map((letter, i) => (
-                    <span
-                      className={`relative inline-flex tracking-[0.05em] transition-[0.2s] ease-in-out
-                     ${
-                       !(
-                         (watch("y_feauture")?.length === 0 ||
-                           watch("y_feauture") === undefined) &&
-                         !focused
-                       ) &&
-                       "transform font-semibold  uppercase translate-y-[-30px]"
-                     }
-               `}
-                      style={{ transitionDelay: `${i * 0.1}s` }}
-                    >
-                      {letter === " " ? "\u00A0" : letter}
-                    </span>
-                  ))}
-                </label>
-                <Select
-                  id="y_feauture"
-                  name="y_feauture"
-                  options={options}
-                  value={selectedOptions}
-                  onChange={handleChange}
-                  onFocus={() => setFocused(true)}
-                  onBlur={() => setFocused(false)}
-                  isMulti
-                  onChange={(selectedOptions) => {
-                    handleChange(selectedOptions);
-                    const selectedValues = selectedOptions.map(
-                      (option) => option.value
-                    );
-                    setValue("y_feauture", selectedValues);
-                  }}
-                  styles={customStyles}
-                  color="green"
-                  placeholder={null}
-                />
-              </div>
+              <SelectInput
+                options={YLabels}
+                label="y feauture"
+                name="y_feauture"
+                isMulti={true}
+                color="green"
+                setValue={setValue}
+                watch={watch("y_feauture")}
+              />
               {inputFieldModelsTimeSeries.map(
                 ({ type, name, label, color }, index) => (
                   <div className={`relative w-[300px] mt-8`}>
