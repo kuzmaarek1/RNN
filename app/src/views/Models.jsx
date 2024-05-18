@@ -22,17 +22,118 @@ const customStyles = {
     color: "black",
     textTransform: "uppercase",
     fontSize: "1em",
-    letterSpacing: "0.05em",
+    letterSpacing: state.isFocused ? "0em" : "0.05em",
     borderBottom:
-      (!state.isFocused || state.isFocused) &&
       "2px solid " +
+      (state.selectProps.color === "green"
+        ? "#A1E3CB"
+        : state.selectProps.color === "blue"
+        ? "#95A4FC"
+        : "#A8C5DA"),
+    "&:hover": {
+      borderBottom:
+        "2px solid " +
         (state.selectProps.color === "green"
           ? "#A1E3CB"
           : state.selectProps.color === "blue"
           ? "#95A4FC"
           : "#A8C5DA"),
+    },
+    borderColor: state.isFocused ? "red" : "red",
     boxShadow: state.isFocused ? "none" : "none",
     className: "input",
+  }),
+  // indicatorContainer:()
+  indicatorSeparator: (provided, state) => ({
+    ...provided,
+    backgroundColor: "#A1E3CB",
+  }),
+
+  dropdownIndicator: (provided, state) => ({
+    ...provided,
+    color: "#A1E3CB", // kolor wskaźnika rozwijania
+    "&:hover": {
+      cursor: "pointer",
+      color: "#A1E3CB",
+    },
+  }),
+
+  noOptionsMessage: (provided, state) => ({
+    ...provided,
+    color: "black",
+    backgroundColor: "#A1E3CB",
+
+    borderRadius: "15px",
+  }),
+
+  clearIndicator: (provided, state) => ({
+    ...provided,
+    color: "#A1E3CB", // kolor wskaźnika rozwijania
+    "&:hover": {
+      cursor: "pointer",
+      color: "#A1E3CB",
+    },
+  }),
+
+  multiValue: (provided, state) => ({
+    ...provided,
+    backgroundColor: state.isHover ? "green" : "#A1E3CB",
+  }),
+  /*
+  multiValueRemove: (provided, state) => ({
+    ...provided,
+    "&:hover": {
+      backgroundColor: "green",
+    },
+  }),
+  */
+  menu: (provided, state) => ({
+    ...provided,
+    //color: "red",
+    textTransform: "uppercase",
+    letterSpacing: "0.05em",
+    //borderRadius: "15px",
+    fontSize: "0.8em",
+    border:
+      "2px solid " +
+      (state.selectProps.color === "green"
+        ? "#A1E3CB"
+        : state.selectProps.color === "blue"
+        ? "#95A4FC"
+        : "#A8C5DA"),
+    outline: "none",
+    background: "#e3f5ff",
+    boxShadow: "none",
+  }),
+  menuList: (provided, state) => ({
+    ...provided,
+    border: "none",
+    maxHeight: "200px", // Set a maximum height for the menu
+    overflowY: "auto", // Enable vertical scrolling
+    scrollbarWidth: "thin", // Set the width of the scrollbar
+    scrollbarColor: "#A1E3CB transparent",
+    border: "none",
+  }),
+  option: (provided, state) => ({
+    ...provided,
+    backgroundColor: state.isFocused ? "#A1E3CB" : "white",
+    borderRadius: "15px",
+    border:
+      "1px solid " +
+      (state.selectProps.color === "green"
+        ? "#A1E3CB"
+        : state.selectProps.color === "blue"
+        ? "#95A4FC"
+        : "#A8C5DA"),
+
+    /*
+    backgroundColor: state.isSelected ? "green" : "white",
+    color: state.isSelected ? "white" : "black",
+    "&:hover": {
+      backgroundColor: "lightblue",
+      color: "black",
+    },
+    */
   }),
 };
 
