@@ -107,3 +107,37 @@
     -10px 10px #95A4FC,
     10px 10px #fff;
 }
+
+.custom-scrollbar-gray {
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #A8C5DA transparent;
+}
+
+.custom-scrollbar-gray::-webkit-scrollbar {
+  width: 8px;
+}
+
+.custom-scrollbar-gray::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar-gray::-webkit-scrollbar-thumb {
+  background-color: #A8C5DA;
+  border-radius: 10px;
+  border: 2px solid transparent;
+}
+
+*::-webkit-scrollbar {
+  width:12px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: #A8C5DA;
+  border-radius: 10px;
+  border: 2px solid transparent;
+}

@@ -238,7 +238,11 @@ const Models = () => {
         </div>
         {csvHeaders.length > 0 && (
           <div>
-            <Card color="blue" classStyle="min-h-[150px]">
+            <Card
+              color="blue"
+              classStyle="min-h-[150px]"
+              classStyleDiv="flex flex-col justify-center items-center w-full gap-4"
+            >
               <SelectInput
                 options={csvHeaders}
                 label="X Label"
@@ -357,10 +361,20 @@ const Models = () => {
                 )
               )}
             </Card>
-            <Card>
+            <Card
+              classStyle="min-h-[150px]"
+              classStyleDiv="flex flex-col justify-center items-center w-full gap-4"
+            >
               <div className="flex justify-center items-center flex-wrap w-full h-full">
                 {fields.map(({ id }, index) => (
-                  <div key={id} className="flex flex-row mb-12">
+                  <motion.div
+                    initial={{ y: 10, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    exit={{ y: -10, opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                    key={id}
+                    className="flex flex-row mb-12"
+                  >
                     <div className="relative ">
                       <SelectInput
                         options={["RNN", "LSTM", "GRU", "ConvLSTM2D", "Dense"]}
@@ -427,103 +441,115 @@ const Models = () => {
                     >
                       <FaTimes />
                     </button>
-                  </div>
+                  </motion.div>
                 ))}
-
-                <button
-                  type="button"
-                  className="text-[#95A4FC]"
-                  onClick={() => append({})}
-                >
-                  <FaPlus />
-                </button>
-                <Button text="Submit" color="blue" type="submit" />
+                <div className="flex flex-row gap-4">
+                  <Button
+                    type="button"
+                    text={
+                      <div className="text-[#95A4FC]">
+                        <FaPlus />
+                      </div>
+                    }
+                    func={() => append({})}
+                    color="blue"
+                    classStyle="h-[45px]"
+                  />
+                  <Button text="Submit" color="blue" type="submit" />
+                </div>
               </div>
             </Card>
           </>
         )}
       </form>
-      <div className="grid lg:grid-cols-2 grid-cols-1 gap-4 ml-4 mt-4 h-max-content">
-        {epochsHistory.length != 0 && (
-          <Card color="grey" classStyle="w-full col-span-2">
-            <div className="flex overflow-auto gap-2">
-              <div>
-                {Object.entries(epochsHistory[0]).map(([key, value]) => (
-                  <div>
-                    <div className="flex w-[150px] flex-nowrap justify-center items-center border-[2px] border-[#A8C5DA] mb-1 p-1 rounded-[16px]">
-                      {key.charAt(0).toUpperCase() +
-                        key.slice(1).replace(/_/g, " ")}
+      <div className="sm:w-[83vw] grid lg:grid-cols-2 grid-cols-1 gap-4 ml-4 mt-4 h-max-content">
+        <div className="lg:col-span-2">
+          {epochsHistory.length != 0 && (
+            <Card
+              color="grey"
+              classStyle="min-h-[150px]"
+              classStyleDiv="flex flex-col justify-center items-center w-full gap-4"
+            >
+              <div className="custom-scrollbar-gray w-[90%] flex overflow-auto gap-2">
+                <div>
+                  {Object.entries(epochsHistory[0]).map(([key, value]) => (
+                    <div>
+                      <div className="flex w-[150px] flex-nowrap justify-center items-center border-[2px] border-[#A8C5DA] mb-1 p-1 rounded-[16px]">
+                        {key.charAt(0).toUpperCase() +
+                          key.slice(1).replace(/_/g, " ")}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
+                {epochsHistory.length > 0 &&
+                  epochsHistory.map((props, index) => (
+                    <div key={index}>
+                      {Object.entries(props).map(([key, value]) =>
+                        key === "epoch" ? (
+                          <div
+                            key={`${key}-${index}`}
+                            className="flex justify-center items-center border-[2px] border-[#A8C5DA] mb-1 p-1 rounded-[16px]"
+                          >
+                            {props.epoch + 1}
+                          </div>
+                        ) : (
+                          <div
+                            key={`${key}-${index}`}
+                            className={`flex justify-center items-center border-[2px] border-[#A8C5DA] mb-1 p-1 rounded-[16px] ${
+                              index ===
+                              lowestAndHighestIndex.find(
+                                (metrics) => key === metrics.key
+                              )?.lowestIndex
+                                ? key.includes("loss")
+                                  ? "bg-green-200"
+                                  : "bg-red-200"
+                                : index ===
+                                  lowestAndHighestIndex.find(
+                                    (metrics) => key === metrics.key
+                                  )?.highestIndex
+                                ? key.includes("loss")
+                                  ? "bg-red-200"
+                                  : "bg-green-200"
+                                : ""
+                            }`}
+                          >
+                            {value.toFixed(5)}
+                          </div>
+                        )
+                      )}
+                    </div>
+                  ))}
               </div>
-              {epochsHistory.length > 0 &&
-                epochsHistory.map((props, index) => (
-                  <div key={index}>
-                    {Object.entries(props).map(([key, value]) =>
-                      key === "epoch" ? (
-                        <div
-                          key={`${key}-${index}`}
-                          className="flex justify-center items-center border-[2px] border-[#A8C5DA] mb-1 p-1 rounded-[16px]"
-                        >
-                          {props.epoch + 1}
-                        </div>
-                      ) : (
-                        <div
-                          key={`${key}-${index}`}
-                          className={`flex justify-center items-center border-[2px] border-[#A8C5DA] mb-1 p-1 rounded-[16px] ${
-                            index ===
-                            lowestAndHighestIndex.find(
-                              (metrics) => key === metrics.key
-                            )?.lowestIndex
-                              ? key.includes("loss")
-                                ? "bg-green-200"
-                                : "bg-red-200"
-                              : index ===
-                                lowestAndHighestIndex.find(
-                                  (metrics) => key === metrics.key
-                                )?.highestIndex
-                              ? key.includes("loss")
-                                ? "bg-red-200"
-                                : "bg-green-200"
-                              : ""
-                          }`}
-                        >
-                          {value.toFixed(5)}
-                        </div>
-                      )
-                    )}
+
+              {downloadLink && (
+                <div className="w-full flex justify-center items-center gap-6">
+                  <div className="relative w-[300px] mt-[20px]">
+                    <Input
+                      type="text"
+                      name="name_file"
+                      label="Name File"
+                      color="grey"
+                      register={register}
+                    />
                   </div>
-                ))}
-            </div>
-            {downloadLink && (
-              <div className="w-full flex justify-center items-center gap-6">
-                <div className="relative w-[300px] mt-[20px]">
-                  <Input
-                    type="text"
-                    name="name_file"
-                    label="Name File"
+                  <motion.div
+                    layoutId={1}
+                    onClick={() => setDisplayPlot(1)}
+                    className="border-[2px] border-[#A8C5DA] w-[150px] h-[45px] rounded-[16px] flex justify-center items-center cursor-pointer"
+                  >
+                    Display Plot
+                  </motion.div>
+                  <Button
+                    type="button"
                     color="grey"
-                    register={register}
+                    text="Download"
+                    func={handleDownload}
                   />
                 </div>
-                <motion.div
-                  layoutId={1}
-                  onClick={() => setDisplayPlot(1)}
-                  className="border-[2px] border-[#A8C5DA] w-[150px] h-[45px] rounded-[16px] flex justify-center items-center cursor-pointer"
-                >
-                  Display Plot
-                </motion.div>
-                <Button
-                  type="button"
-                  color="grey"
-                  text="Download"
-                  func={handleDownload}
-                />
-              </div>
-            )}
-          </Card>
-        )}
+              )}
+            </Card>
+          )}
+        </div>
       </div>
       <AnimatePresence onClick={(event) => event.stopPropagation()}>
         {displayPlot && (
