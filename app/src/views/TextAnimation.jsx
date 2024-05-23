@@ -11,17 +11,25 @@ const SlidingText = () => {
       onInit={(typewriter) => {
         typewriter
           .pauseFor(300)
-          .typeString("Go until jurong point")
+          .typeString(
+            "Best pizza ever! <strong style='color: green;font-size: 12px;'>Positive</strong>"
+          )
           .pauseFor(2500)
-          .deleteChars(22)
-          .typeString("This is a <strong>ham</strong>")
+          .deleteChars(26)
+          .typeString(
+            "Food was bad. <strong style='color: red;font-size: 12px;'>Negative</strong>"
+          )
           .pauseFor(2500)
-          .deleteChars(13)
-          .typeString("Free entry")
+          .deleteChars(23)
+          .typeString(
+            "Delicious cake! <strong style='color: green;font-size: 12px;'>Positive</strong>"
+          )
           .pauseFor(2500)
-          .deleteChars(10)
-          .typeString("This is a <strong>spam</strong>")
-          .deleteChars(14)
+          .deleteChars(25)
+          .typeString(
+            "Terrible service. <strong style='color: red; font-size: 12px;'>Negative</strong>"
+          )
+          .deleteChars(26)
           .start();
       }}
     />

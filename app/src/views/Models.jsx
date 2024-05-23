@@ -210,6 +210,17 @@ const Models = () => {
   const [focusedXLabels, setFocusedXLabels] = useState(false);
 
   console.log(focused);
+
+  const variants = {
+    hidden: { y: 20, opacity: 0, scale: 0.8 },
+    visible: { y: 0, opacity: 1, scale: 1 },
+    exit: { y: -20, opacity: 0, scale: 0.8 },
+  };
+
+  const transition = {
+    duration: 0.2,
+    ease: [0.42, 0, 0.58, 1],
+  };
   return (
     <div onClick={handleOutsideClick}>
       <form
@@ -366,83 +377,92 @@ const Models = () => {
               classStyleDiv="flex flex-col justify-center items-center w-full gap-4"
             >
               <div className="flex justify-center items-center flex-wrap w-full h-full">
-                {fields.map(({ id }, index) => (
-                  <motion.div
-                    initial={{ y: 10, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    exit={{ y: -10, opacity: 0 }}
-                    transition={{ duration: 0.2 }}
-                    key={id}
-                    className="flex flex-row mb-12"
-                  >
-                    <div className="relative ">
-                      <SelectInput
-                        options={["RNN", "LSTM", "GRU", "ConvLSTM2D", "Dense"]}
-                        label="Layers"
-                        name={`models[${index}].layers`}
-                        isMulti={false}
-                        color="grey"
-                        setValue={setValue}
-                        watch={watch(`models[${index}].layers`)}
-                        styled={"w-[200px] mt-[-2px] mr-[8px]"}
-                      />
-                    </div>
-                    <div className="relative">
-                      <Input
-                        type="number"
-                        name={`models[${index}].units`}
-                        label="Units"
-                        color="grey"
-                        register={register}
-                      />
-                    </div>
-                    <div className="relative flex flex-col ml-4">
-                      <label
-                        className={"font-semibold uppercase text-[#1c1c1c]"}
-                        htmlFor={`models[${index}].layers`}
-                      >
-                        <span
-                          className={`-translate-y-[15px] relative inline-flex tracking-[0.15em] transition-[0.2s] ease-in-out`}
-                        >
-                          Sequences
-                        </span>
-                      </label>
-                      <input
-                        type="checkbox"
-                        id="returnSequences"
-                        name="returnSequences"
-                        {...register(`models[${index}].returnSequences`)}
-                        defaultChecked={true}
-                      />
-                    </div>
-                    <div className="relative flex flex-col ml-4">
-                      <label
-                        className={"font-semibold uppercase text-[#1c1c1c]"}
-                        htmlFor={`models[${index}].layers`}
-                      >
-                        <span
-                          className={`-translate-y-[15px] relative inline-flex tracking-[0.15em] transition-[0.2s] ease-in-out`}
-                        >
-                          Bidirectional
-                        </span>
-                      </label>
-                      <input
-                        type="checkbox"
-                        id="bidirectional"
-                        name="bidirectional"
-                        {...register(`models[${index}].bidirectional`)}
-                        defaultChecked={false}
-                      />
-                    </div>
-                    <button
-                      className="text-[#95A4FC]"
-                      type="button"
-                      onClick={() => remove(index)}
+                <AnimatePresence>
+                  {fields.map(({ id }, index) => (
+                    <motion.div
+                      variants={variants}
+                      initial="hidden"
+                      animate="visible"
+                      exit="exit"
+                      transition={transition}
+                      key={id}
+                      className="flex flex-row mb-12"
                     >
-                      <FaTimes />
-                    </button>
-                  </motion.div>
-                ))}
+                      <div className="relative ">
+                        <SelectInput
+                          options={[
+                            "RNN",
+                            "LSTM",
+                            "GRU",
+                            "ConvLSTM2D",
+                            "Dense",
+                          ]}
+                          label="Layers"
+                          name={`models[${index}].layers`}
+                          isMulti={false}
+                          color="grey"
+                          setValue={setValue}
+                          watch={watch(`models[${index}].layers`)}
+                          styled={"w-[200px] mt-[-2px] mr-[8px]"}
+                        />
+                      </div>
+                      <div className="relative">
+                        <Input
+                          type="number"
+                          name={`models[${index}].units`}
+                          label="Units"
+                          color="grey"
+                          register={register}
+                        />
+                      </div>
+                      <div className="relative flex flex-col ml-4">
+                        <label
+                          className={"font-semibold uppercase text-[#1c1c1c]"}
+                          htmlFor={`models[${index}].layers`}
+                        >
+                          <span
+                            className={`-translate-y-[15px] relative inline-flex tracking-[0.15em] transition-[0.2s] ease-in-out`}
+                          >
+                            Sequences
+                          </span>
+                        </label>
+                        <input
+                          type="checkbox"
+                          id="returnSequences"
+                          name="returnSequences"
+                          {...register(`models[${index}].returnSequences`)}
+                          defaultChecked={true}
+                        />
+                      </div>
+                      <div className="relative flex flex-col ml-4">
+                        <label
+                          className={"font-semibold uppercase text-[#1c1c1c]"}
+                          htmlFor={`models[${index}].layers`}
+                        >
+                          <span
+                            className={`-translate-y-[15px] relative inline-flex tracking-[0.15em] transition-[0.2s] ease-in-out`}
+                          >
+                            Bidirectional
+                          </span>
+                        </label>
+                        <input
+                          type="checkbox"
+                          id="bidirectional"
+                          name="bidirectional"
+                          {...register(`models[${index}].bidirectional`)}
+                          defaultChecked={false}
+                        />
+                      </div>
+                      <button
+                        className="text-[#95A4FC]"
+                        type="button"
+                        onClick={() => remove(index)}
+                      >
+                        <FaTimes />
+                      </button>
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
                 <div className="flex flex-row gap-4">
                   <Button
                     type="button"
