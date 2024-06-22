@@ -40,10 +40,6 @@ const Compare = () => {
 
   const [yLabels, setYLabels] = useState([]);
   const [legends, setLegends] = useState([]);
-  //const yLabels = watch("y_labels");
-
-  // const legends = watch("legends");
-  console.log(legends);
 
   const handleFileChange = async (event) => {
     const files = fileInputRef.current.files;
@@ -52,41 +48,19 @@ const Compare = () => {
     for (let i = 0; i < files.length; i++) {
       if (files[i]) {
         const text = await files[i].text();
-        console.log(text);
         const data = JSON.parse(text);
         selectedFilesArray.push({ name: files[i].name, content: data });
       }
     }
     setSelectedFiles((prev) => [...prev, ...selectedFilesArray]);
   };
-  console.log(selectedFiles);
-  console.log(selectedId);
-
-  console.log(watch(`y_labels_${`responseState.txt`}`));
-
-  console.log(
-    yLabels?.map((yLabel) =>
-      selectedFiles?.filter(
-        ({ name }) => String(watch(`y_labels_${name}`)) === String(yLabel.name)
-      )
-    )
-  );
 
   yLabels?.map((yLabel) =>
     selectedFiles?.filter(
       ({ name }) => String(watch(`y_labels_${name}`)) === String(yLabel.name)
     )
   );
-  console.log(yLabels?.map((yLabel) => yLabel.name));
 
-  const legendsFilter = legends?.map((legend) =>
-    selectedFiles?.filter(
-      ({ name }) => String(watch(`legends_${name}`)) === String(legend.name)
-    )
-  );
-
-  console.log(legendsFilter);
-  console.log(watch(`y_labels_responseState (7)`));
   const fetchData = (error) => {
     const data = legends?.map((legend) => {
       return {
@@ -145,22 +119,11 @@ const Compare = () => {
     return data;
   };
 
-  //(({ content }) =>
-  //content?.results.find(({ feature }) => feature !== String(selectedId))
-  //);
-  console.log(yLabels);
-  console.log(watch("y_labels"));
-
-  console.log(selectedIdPlotLine);
-
   const onSubmit = ({ y_labels, legends, ...props }) => {
     setYLabels(y_labels);
     setLegends(legends);
-    console.log(props);
-    //Object.entries(props).forEach(([key, value]) => setValue(key, value.txt));
   };
   const handleOutsideClick = (event) => {
-    console.log(event);
     if (
       (selectedId || selectedIdPlotLine) &&
       !event.target.closest(".animate-presence")
@@ -170,7 +133,6 @@ const Compare = () => {
     }
   };
 
-  console.log(selectedFiles);
   return (
     <div onClick={handleOutsideClick}>
       <form

@@ -2,7 +2,6 @@ import React, { useState, useRef } from "react";
 import { Card, Button, InputFile } from "components";
 import Plot from "react-plotly.js";
 import { AnimatePresence, motion } from "framer-motion";
-import { BiSolidFileTxt } from "react-icons/bi";
 
 const Training = () => {
   const fileInputRef = useRef();
@@ -19,7 +18,6 @@ const Training = () => {
     for (let i = 0; i < files.length; i++) {
       if (files[i]) {
         const text = await files[i].text();
-        console.log(text);
         const data = JSON.parse(text);
         selectedFilesArray.push({ name: files[i].name, content: data });
       }
@@ -32,11 +30,9 @@ const Training = () => {
     } else {
       setFileName("Choose a files…");
     }
-    console.log(fileName);
     setSelectedFiles((prev) => [...prev, ...selectedFilesArray]);
     setSelectedTabFile(files[0] ? 1 : null);
   };
-  console.log(selectedFiles);
 
   const data = selectedFiles?.map(({ content, name }, index) => ({
     x: content?.history[selectedTab].map((value, index) => index + 1),
@@ -46,24 +42,10 @@ const Training = () => {
     name: name.replace(".txt", ""),
   }));
 
-  console.log(data);
-  console.log();
   const handleOutsideClick = (event) => {
-    console.log(event);
     if (selectedId && !event.target.closest(".animate-presence")) {
       setSelectedId(null);
     }
-  };
-
-  /*console.log(
-    selectedFiles[selectedTabFile - 1]?.content?.history[
-      `val_${selectedId.replace("_chart", "")}`
-    ]
-  )*/ console.log(selectedTabFile - 1);
-  console.log(selectedFiles);
-
-  const handleCustomBtnClick = () => {
-    fileInputRef.current.click();
   };
 
   return (
@@ -192,7 +174,6 @@ const Training = () => {
                         zeroline: false,
                       },
                       margin: { t: 30, r: 30 },
-                      //legend: { orientation: 'h' },
                     }}
                   />
                 </div>
@@ -269,7 +250,6 @@ const Training = () => {
                     zeroline: false,
                   },
                   margin: { t: 30, r: 30 },
-                  //legend: { orientation: 'h' },
                 }}
               />
             </div>

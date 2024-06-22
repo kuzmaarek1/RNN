@@ -2,8 +2,6 @@ import React from "react";
 
 const Input = ({ type, name, label, register, color, onChange, ...props }) => {
   const handleChange = (event) => {
-    console.log(parseInt(event.target.value, 10));
-    console.log(event.target.value);
     if (onChange) {
       onChange(parseInt(event.target.value, 10));
     }

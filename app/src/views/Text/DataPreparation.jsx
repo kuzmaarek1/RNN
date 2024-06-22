@@ -36,8 +36,6 @@ const DataPreparation = () => {
     }
   };
 
-  console.log(shuffledData);
-
   const downloadShuffledData = () => {
     if (shuffledData) {
       const csv = Papa.unparse(shuffledData);
@@ -53,10 +51,7 @@ const DataPreparation = () => {
   };
 
   return (
-    <form
-      //onSubmit={handleSubmit(onSubmit)}
-      className="grid lg:grid-cols-2 grid-cols-1 gap-4 ml-4 mt-12 h-max-content"
-    >
+    <form className="grid lg:grid-cols-2 grid-cols-1 gap-4 ml-4 mt-12 h-max-content">
       <Card color="green">
         <input type="file" accept=".csv" onChange={handleFileInputChange} />
         <Button text="Prepare" color="green" type="button" func={shuffleData} />

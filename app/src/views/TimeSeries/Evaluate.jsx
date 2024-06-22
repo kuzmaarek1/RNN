@@ -34,20 +34,10 @@ const Evaluate = () => {
 
   useEffect(() => {
     socket.current = io("http://127.0.0.1:5000");
-    socket.current.on("epoch_update", (epochs) => {
-      console.log(epochs);
-      //setOnlineUsers(users);
-    });
+    socket.current.on("epoch_update", (epochs) => {});
     socket.current.on("training_completed", (results) => {
-      console.log(results);
       const parsedData = JSON.parse(results);
-      //setDownloadLink(parsedData.path);
-      //setOnlineUsers(users);
     });
-    /*
-    return () => {
-      socket.disconnect(); // Rozłączenie socket.io po zakończeniu komponentu
-    };*/
   }, []);
 
   const handleTxtSubmission = async () => {
@@ -55,16 +45,12 @@ const Evaluate = () => {
     const file = fileInputTxtRef.current.files[0];
     if (file) {
       const text = await file.text();
-      console.log(text);
       const data = JSON.parse(text);
-      //setTxtHeaders(Object.keys(data[0]));
       setTxtData(data);
     }
   };
-  console.log(txtData);
 
   const handleOutsideClick = (event) => {
-    console.log(event);
     if (
       (selectedId || selectedId === 0) &&
       !event.target.closest(".animate-presence")
@@ -72,24 +58,6 @@ const Evaluate = () => {
       setSelectedId(null);
     }
   };
-
-  /*
-  const onSubmit = (data) => {
-    console.log({
-      ...data,
-      datset: csvData,
-      y_feauture: ["close", "high"],
-    }); // Wyświetlenie danych w konsoli
-    socket.current.emit(
-      "train/time_series",
-      JSON.stringify({
-        ...data,
-        dataset: csvData,
-        y_feauture: ["close", "high"],
-      })
-    );
-  };
-*/
 
   const handleCsvSubmissionAndEvaluate = async () => {
     const file = fileInputCsvRef.current.files[0];
@@ -100,20 +68,16 @@ const Evaluate = () => {
       setCsvHeaders(Object.keys(data[0]));
       setCsvData(data);
       try {
-        console.log({ ...txtData, y_test: data });
         const response = await axios.post(
           "http://127.0.0.1:5000/evaluate/time_series",
           { ...txtData, y_test: data }
         );
-        console.log(response.data);
         setResponseState(response.data);
       } catch (error) {
         console.error("Błąd podczas wysyłania zapytania POST:", error);
       }
     }
   };
-
-  console.log(responseState);
 
   const handleDownloadTxt = () => {
     if (responseState) {

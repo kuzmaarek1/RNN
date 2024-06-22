@@ -1,15 +1,16 @@
 import React, { useState, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { useForm, useFieldArray } from "react-hook-form";
 import Plot from "react-plotly.js";
+import { useForm, useFieldArray } from "react-hook-form";
 import { Card, Button } from "components";
-import { metricsErrorTimeSeries } from "constants";
+import { metricsTextClassification } from "constants";
 
 const Compare = () => {
   const [selectedFiles, setSelectedFiles] = useState([]);
-  const fileInputRef = useRef();
   const [selectedId, setSelectedId] = useState(null);
-  const [selectedTab, setSelectedTab] = useState("mean_absolute_error");
+  const [selectedTab, setSelectedTab] = useState("recall");
+  const fileInputRef = useRef();
+
   const {
     register,
     handleSubmit,
@@ -39,10 +40,6 @@ const Compare = () => {
 
   const [yLabels, setYLabels] = useState([]);
   const [legends, setLegends] = useState([]);
-  //const yLabels = watch("y_labels");
-
-  // const legends = watch("legends");
-  console.log(legends);
 
   const handleFileChange = async (event) => {
     const files = fileInputRef.current.files;
@@ -51,83 +48,71 @@ const Compare = () => {
     for (let i = 0; i < files.length; i++) {
       if (files[i]) {
         const text = await files[i].text();
-        console.log(text);
         const data = JSON.parse(text);
         selectedFilesArray.push({ name: files[i].name, content: data });
       }
     }
     setSelectedFiles((prev) => [...prev, ...selectedFilesArray]);
   };
-  console.log(selectedFiles);
-  console.log(selectedId);
-  console.log(
-    selectedFiles.map(({ content: { results } }) => {
-      const findFeatured = results?.find(
-        ({ feature, mean_absolute_error }) =>
-          String(selectedId) == String(feature)
-      );
-      return findFeatured ? findFeatured.mean_absolute_error : 0;
-    })
-  );
-  console.log(watch(`y_labels_${`responseState.txt`}`));
 
-  console.log(
-    yLabels?.map((yLabel) =>
-      selectedFiles?.filter(
-        ({ name }) => String(watch(`y_labels_${name}`)) === String(yLabel.name)
-      )
-    )
-  );
-
-  yLabels?.map((yLabel) =>
-    selectedFiles?.filter(
-      ({ name }) => String(watch(`y_labels_${name}`)) === String(yLabel.name)
-    )
-  );
-  console.log(yLabels?.map((yLabel) => yLabel.name));
-
-  const legendsFilter = legends?.map((legend) =>
-    selectedFiles?.filter(
-      ({ name }) => String(watch(`legends_${name}`)) === String(legend.name)
-    )
-  );
-
-  console.log(legendsFilter);
-  console.log(watch(`y_labels_responseState (7)`));
-  const fetchData = (error) => {
+  const fetchData = (selectedMetric) => {
     const data = legends?.map((legend) => {
       return {
         x: selectedFiles
-          .filter(({ content: { results }, name }) => {
-            const findFeatured = results.find(
-              ({ feature }) => String(selectedId) === String(feature)
+          .filter(({ content: { report }, name }) => {
+            const findFeatured = Object.entries(report)?.find(
+              ([metric]) => String(selectedId) === String(metric)
             );
             return (
               findFeatured &&
               String(watch(`legends_${name}`)) === String(legend.name)
             );
           })
-          .map(({ content: { results }, name }) => {
-            const findFeatured = results.find(
-              ({ feature }) => String(selectedId) === String(feature)
+          .map(({ content: { report }, name }) => {
+            const findFeatured = Object.entries(report)?.find(
+              ([metric]) => String(selectedId) === String(metric)
             );
             return findFeatured ? String(watch(`y_labels_${name}`)) : undefined;
           }),
         y: selectedFiles
-          .filter(({ content: { results }, name }) => {
-            const findFeatured = results.find(
-              ({ feature }) => String(selectedId) === String(feature)
+          .filter(({ content: { report }, name }) => {
+            const findFeatured = Object.entries(report)?.find(
+              ([metric]) => String(selectedId) === String(metric)
             );
             return (
               findFeatured &&
               String(watch(`legends_${name}`)) === String(legend.name)
             );
           })
-          .map(({ content: { results } }) => {
-            const findFeatured = results.find(
-              ({ feature }) => String(selectedId) === String(feature)
+          .map(({ content: { report } }) => {
+            const findFeatured = Object.entries(report)?.find(
+              ([metric]) => String(selectedId) === String(metric)
             );
-            return findFeatured ? findFeatured[error] : undefined;
+            return findFeatured
+              ? selectedId === "accuracy"
+                ? findFeatured[1]
+                : findFeatured[1][selectedMetric]
+              : undefined;
+          }),
+        text: selectedFiles
+          .filter(({ content: { report }, name }) => {
+            const findFeatured = Object.entries(report)?.find(
+              ([metric]) => String(selectedId) === String(metric)
+            );
+            return (
+              findFeatured &&
+              String(watch(`legends_${name}`)) === String(legend.name)
+            );
+          })
+          .map(({ content: { report } }) => {
+            const findFeatured = Object.entries(report)?.find(
+              ([metric]) => String(selectedId) === String(metric)
+            );
+            return findFeatured
+              ? selectedId === "accuracy"
+                ? findFeatured[1].toFixed(2)
+                : findFeatured[1][selectedMetric].toFixed(2)
+              : undefined;
           }),
         type: "bar",
         name: legend.name,
@@ -136,25 +121,13 @@ const Compare = () => {
     return data;
   };
 
-  //(({ content }) =>
-  //content?.results.find(({ feature }) => feature !== String(selectedId))
-  //);
-  console.log(yLabels);
-  console.log(watch("y_labels"));
   const onSubmit = ({ y_labels, legends, ...props }) => {
     setYLabels(y_labels);
     setLegends(legends);
-    console.log(props);
-    //Object.entries(props).forEach(([key, value]) => setValue(key, value.txt));
   };
-  const handleOutsideClick = (event) => {
-    console.log(event);
-    if (selectedId && !event.target.closest(".animate-presence")) {
-      setSelectedId(null);
-    }
-  };
+
   return (
-    <div onClick={handleOutsideClick}>
+    <div onClick={() => {}}>
       <form
         onSubmit={handleSubmit(onSubmit)}
         className="grid lg:grid-cols-2 grid-cols-1 gap-4 ml-4 mt-12 h-max-content"
@@ -180,29 +153,34 @@ const Compare = () => {
           </Card>
         </div>
         <div>
-          <Card color="blue" classStyle="min-h-[150px]">
-            <h4>Selected Featured:</h4>
-            <div className="flex gap-[5px] flex-wrap">
-              {selectedFiles[0]?.content?.results?.map(({ feature }, index) => (
-                <motion.div
-                  key={index}
-                  onClick={() => setSelectedId(feature)}
-                  layoutId={feature}
-                  className={`${
-                    index % 4 === 0
-                      ? "border-[#95A4FC]"
-                      : index % 4 === 1
-                      ? "border-[#BAEDBD]"
-                      : index % 4 === 2
-                      ? "border-[#1C1C1C]"
-                      : "border-[#B1E3FF]"
-                  } border-[2px] mb-[10px] w-[200px] h-[50px] rounded-[16px] flex justify-center items-center cursor-pointer`}
-                >
-                  <motion.div>{feature}</motion.div>
-                </motion.div>
-              ))}
-            </div>
-          </Card>
+          {selectedFiles.length > 0 && (
+            <Card color="blue" classStyle="min-h-[150px]">
+              <h4>Selected Featured:</h4>
+              <div className="flex gap-[5px] flex-wrap">
+                {[
+                  ...selectedFiles[0]?.content?.labels,
+                  ...["macro avg", "weighted avg", "accuracy"],
+                ]?.map((label, index) => (
+                  <motion.div
+                    key={index}
+                    onClick={() => setSelectedId(label)}
+                    layoutId={label}
+                    className={`${
+                      index % 4 === 0
+                        ? "border-[#95A4FC]"
+                        : index % 4 === 1
+                        ? "border-[#BAEDBD]"
+                        : index % 4 === 2
+                        ? "border-[#1C1C1C]"
+                        : "border-[#B1E3FF]"
+                    } border-[2px] mb-[10px] w-[200px] h-[50px] rounded-[16px] flex justify-center items-center cursor-pointer`}
+                  >
+                    <motion.div>{label}</motion.div>
+                  </motion.div>
+                ))}
+              </div>
+            </Card>
+          )}
         </div>
         <Card>
           {selectedFiles?.map(({ name }, index) => (
@@ -265,7 +243,6 @@ const Compare = () => {
         <Card>
           {fieldsLegend.map(({ id }, index) => (
             <div key={id}>
-              {" "}
               <input type="text" {...register(`legends[${index}].name`)} />
               <button
                 type="button"
@@ -291,34 +268,26 @@ const Compare = () => {
               layoutId={selectedId}
               setSelectedId={setSelectedId}
             >
-              <div className="flex flex-row gap-4 mb-8 p-2">
-                {metricsErrorTimeSeries.map(({ name, title }) => (
-                  <div
-                    key={name}
-                    //className={`${
-                    //name === selectedTab
-                    //? "realtive w-[150px] "
-                    //: "w-[150px] flex justify-center"
-                    //}`}
-                    onClick={() => setSelectedTab(name)}
-                  >
-                    <div
-                      className={`${
-                        name === selectedTab ? "relative" : ""
-                      } border-[#95A4FC] border-[2px] w-[150px] h-[50px] rounded-[16px] flex justify-center items-center cursor-pointer`}
-                      //className="flex justify-center"
-                    >
-                      {title}
-                      {name === selectedTab ? (
-                        <motion.div
-                          className="before:content-[''] before:absolute before:w-[10px] before:h-[6px] before:bottom-0 before:bg-[white] before:border-[2px] before:top-[-3.5px] before:left-[50%] before:translate-x-[-50%] before:border-[#95A4FC] before:translate-x-[-50%] box-shadow-blue
+              <div className="flex flex-row justify-center gap-4 mb-8 p-2">
+                {selectedId !== "accuracy" &&
+                  metricsTextClassification.map(({ name, title }) => (
+                    <div key={name} onClick={() => setSelectedTab(name)}>
+                      <div
+                        className={`${
+                          name === selectedTab ? "relative" : ""
+                        } border-[#95A4FC] border-[2px] w-[150px] h-[50px] rounded-[16px] flex justify-center items-center cursor-pointer`}
+                      >
+                        {title}
+                        {name === selectedTab ? (
+                          <motion.div
+                            className="before:content-[''] before:absolute before:w-[10px] before:h-[6px] before:bottom-0 before:bg-[white] before:border-[2px] before:top-[-3.5px] before:left-[50%] before:translate-x-[-50%] before:border-[#95A4FC] before:translate-x-[-50%] box-shadow-blue
                           after:content-[''] after:absolute after:w-[10px] after:h-[6px] after:bottom-0 after:bg-[white] after:border-[2px] after:bottom-[-4px] after:left-[50%] after:translate-x-[-50%] after:border-[#95A4FC] after:translate-x-[-50%]"
-                          layoutId={selectedTab}
-                        />
-                      ) : null}
+                            layoutId={selectedTab}
+                          />
+                        ) : null}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
               </div>
               <AnimatePresence mode="wait">
                 <motion.div
@@ -334,11 +303,19 @@ const Compare = () => {
                       layout={{
                         width: 800,
                         height: 400,
-                        title: "Bar Chart",
-                        xaxis: {
+                        title: `${
+                          selectedId !== "accuracy"
+                            ? selectedTab.charAt(0).toUpperCase() +
+                              selectedTab.slice(1)
+                            : ""
+                        } ${
+                          selectedId.charAt(0).toUpperCase() +
+                          selectedId.slice(1)
+                        }`,
+                        yaxis: {
                           title: "Value",
                         },
-                        yaxis: {
+                        xaxis: {
                           title: "Index",
                         },
                       }}

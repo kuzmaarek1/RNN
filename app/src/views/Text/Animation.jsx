@@ -1,6 +1,6 @@
 import Typewriter from "typewriter-effect";
 
-const SlidingText = () => {
+const Animation = () => {
   return (
     <Typewriter
       options={{
@@ -36,4 +36,4 @@ const SlidingText = () => {
   );
 };
 
-export default SlidingText;
+export default Animation;

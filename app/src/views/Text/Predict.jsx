@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import axios from "axios";
 import { Button, Card, Input } from "components";
 
-const PredictText = () => {
+const Predict = () => {
   const fileInputTxtRef = useRef(null);
   const [txtData, setTxtData] = useState(null);
   const {
@@ -20,22 +20,17 @@ const PredictText = () => {
     const file = fileInputTxtRef.current.files[0];
     if (file) {
       const text = await file.text();
-      console.log(text);
       const data = JSON.parse(text);
-      //setTxtHeaders(Object.keys(data[0]));
       setTxtData(data);
     }
   };
-  console.log(txtData);
 
   const onSubmit = async (data) => {
-    console.log({ ...txtData, ...data });
     try {
       const response = await axios.post(
         "http://127.0.0.1:5000/predict/text_classification",
         { ...txtData, ...data }
       );
-      console.log(response.data);
       setResponseState(response.data);
     } catch (error) {
       console.error("Błąd podczas wysyłania zapytania POST:", error);
@@ -86,4 +81,4 @@ const PredictText = () => {
   );
 };
 
-export default PredictText;
+export default Predict;

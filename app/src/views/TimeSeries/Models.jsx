@@ -55,23 +55,14 @@ const Models = () => {
       maxChunkedMessageSize: 1e8,
     });
     socket.current.on("epoch_update", (epochs) => {
-      console.log(epochs);
       setEpochsHistory((prev) => [...prev, JSON.parse(epochs)]);
-      //setOnlineUsers(users);
     });
     socket.current.on("training_completed", (results) => {
-      console.log(results);
       const parsedData = JSON.parse(results);
       setDownloadLink(parsedData);
-      //setOnlineUsers(users);
     });
-    /*
-    return () => {
-      socket.disconnect(); // Rozłączenie socket.io po zakończeniu komponentu
-    };*/
   }, []);
 
-  console.log(epochsHistory);
   const chartData = csvData?.map((row, index) => {
     const value = parseFloat(row[selectedId]);
     return {
@@ -82,7 +73,6 @@ const Models = () => {
 
   const handleCsvSubmission = async () => {
     const file = fileInputRef.current.files[0];
-    console.log(file);
     if (file) {
       const text = await file.text();
       const { data } = parse(text, { header: true });
@@ -90,7 +80,6 @@ const Models = () => {
       setCsvData(data);
     }
   };
-  console.log(csvData);
   const handleXLabel = () => {
     const selectedXLabel = watch("XLabel");
     const YLabels = csvHeaders.filter(
@@ -100,7 +89,6 @@ const Models = () => {
     setYLabels(YLabels);
   };
   const handleOutsideClick = (event) => {
-    console.log(event);
     if (
       (selectedId || displayPlot) &&
       !event.target.closest(".animate-presence")
@@ -111,18 +99,12 @@ const Models = () => {
   };
 
   const onSubmit = (data) => {
-    console.log({
-      ...data,
-      datset: csvData,
-      // y_feauture: ["close", "high"],
-    }); // Wyświetlenie danych w konsoli
     setEpochsHistory([]);
     socket.current.emit(
       "train/time_series",
       JSON.stringify({
         ...data,
         dataset: csvData,
-        //y_feauture: ["close", "high"],
       })
     );
   };
@@ -141,8 +123,6 @@ const Models = () => {
       document.body.removeChild(a);
     }
   };
-  console.log(watch("y_feauture")?.length === 0);
-  console.log(watch("y_feauture"));
 
   const findExtremeIndex = (epochsHistory, index, compareFunc) => {
     return epochsHistory.reduce((extremeIndex, currentValue, currentIndex) => {
@@ -196,20 +176,13 @@ const Models = () => {
           : file.name;
 
       setFileName(truncatedName);
-      console.log(file.name);
     } else {
       setFileName("Choose a file…");
     }
   };
 
-  const handleCustomBtnClick = () => {
-    fileInputRef.current.click();
-  };
-
   const [focused, setFocused] = useState(false);
   const [focusedXLabels, setFocusedXLabels] = useState(false);
-
-  console.log(focused);
 
   const variants = {
     hidden: { y: 20, opacity: 0, scale: 0.8 },
@@ -317,7 +290,7 @@ const Models = () => {
                   // width: 800,
                   // height: 400,
                   title: {
-                    text: "Time Series",
+                    text: `Feauture - ${selectedId}`,
                   },
                   xaxis: {
                     title: {

@@ -35,58 +35,26 @@ const Predict = () => {
 
   useEffect(() => {
     socket.current = io("http://127.0.0.1:5000");
-    socket.current.on("epoch_update", (epochs) => {
-      console.log(epochs);
-      //setOnlineUsers(users);
-    });
+    socket.current.on("epoch_update", (epochs) => {});
     socket.current.on("training_completed", (results) => {
-      console.log(results);
       const parsedData = JSON.parse(results);
-      //setDownloadLink(parsedData.path);
-      //setOnlineUsers(users);
     });
-    /*
-    return () => {
-      socket.disconnect(); // Rozłączenie socket.io po zakończeniu komponentu
-    };*/
   }, []);
 
   const handleTxtSubmission = async () => {
     const file = fileInputTxtRef.current.files[0];
     if (file) {
       const text = await file.text();
-      console.log(text);
       const data = JSON.parse(text);
-      //setTxtHeaders(Object.keys(data[0]));
       setTxtData(data);
     }
   };
-  console.log(txtData);
 
   const handleOutsideClick = (event) => {
-    console.log(event);
     if (selectedId && !event.target.closest(".animate-presence")) {
       setSelectedId(null);
     }
   };
-
-  /*
-  const onSubmit = (data) => {
-    console.log({
-      ...data,
-      datset: csvData,
-      y_feauture: ["close", "high"],
-    }); // Wyświetlenie danych w konsoli
-    socket.current.emit(
-      "train/time_series",
-      JSON.stringify({
-        ...data,
-        dataset: csvData,
-        y_feauture: ["close", "high"],
-      })
-    );
-  };
-*/
 
   const handleCsvSubmission = async () => {
     const file = fileInputCsvRef.current.files[0];
@@ -100,7 +68,6 @@ const Predict = () => {
 
   const handlePredict = async () => {
     try {
-      console.log({ ...txtData, y_test: csvData });
       const response = await axios.post(
         "http://127.0.0.1:5000/predict/time_series",
         {
@@ -109,17 +76,11 @@ const Predict = () => {
           next_time_steps: watch("next_time_steps"),
         }
       );
-      console.log(response.data);
       setResponseState(response.data);
     } catch (error) {
       console.error("Błąd podczas wysyłania zapytania POST:", error);
     }
   };
-  //console.log(csvData.map((value) => value[feature]));
-  console.log(responseState?.results[selectedId - 1]);
-  console.log(responseState?.results[selectedId]);
-  //console.log(csvData.length);
-  console.log(responseState?.split_index);
 
   return (
     <div

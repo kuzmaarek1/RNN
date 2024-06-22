@@ -8,7 +8,7 @@ import Plot from "react-plotly.js";
 import { Card, Input, Button } from "components";
 import { inputFieldModelsText } from "constants";
 
-const ModelsText = () => {
+const Models = () => {
   const {
     register,
     handleSubmit,
@@ -46,11 +46,9 @@ const ModelsText = () => {
     });
 
     socket.current.on("epoch_update/text_classification", (epochs) => {
-      console.log(epochs);
       setEpochsHistory((prev) => [...prev, JSON.parse(epochs)]);
     });
     socket.current.on("training_completed/text_classification", (results) => {
-      console.log(results);
       const parsedData = JSON.parse(results);
       setDownloadLink(parsedData);
     });
@@ -100,19 +98,7 @@ const ModelsText = () => {
     setText(selectedText);
   };
 
-  console.log(category);
-  console.log(text);
-  console.log(csvData);
-  console.log(csvHeaders);
-
   const onSubmit = (data) => {
-    console.log("dd");
-    console.log({
-      ...data,
-      category: category,
-      text: text,
-      datset: csvData.slice(0, 2),
-    });
     setEpochsHistory([]);
     socket.current.emit(
       "train/text_classification",
@@ -120,12 +106,10 @@ const ModelsText = () => {
         ...data,
         category: category,
         text: text,
-        dataset: csvData, //.slice(0, 400),
+        dataset: csvData,
       })
     );
   };
-
-  console.log(epochsHistory);
 
   const handleDownload = () => {
     if (downloadLink) {
@@ -141,10 +125,6 @@ const ModelsText = () => {
       document.body.removeChild(a);
     }
   };
-  console.log(csvData);
-  console.log(numberSlider);
-  console.log(category);
-  console.log();
 
   const lowestAndHighestIndex =
     epochsHistory.length > 0
@@ -162,14 +142,11 @@ const ModelsText = () => {
       : null;
 
   const handleOutsideClick = (event) => {
-    console.log(event);
     if (displayPlot && !event.target.closest(".animate-presence")) {
       setDisplayPlot(null);
     }
   };
-  console.log(lowestAndHighestIndex);
 
-  // {epochsHistory.length > 0 &&  epochsHistory.find((props, index) => ())}
   return (
     <div onClick={handleOutsideClick}>
       <form
@@ -220,7 +197,6 @@ const ModelsText = () => {
                 label="Number"
                 register={register}
                 onChange={(value) => {
-                  console.log(value);
                   isNaN(value) || csvData.length - 1 < value
                     ? setNumberSlider(null)
                     : value === ""
@@ -572,4 +548,4 @@ const ModelsText = () => {
   );
 };
 
-export default ModelsText;
+export default Models;

@@ -1,12 +1,11 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import { parse } from "papaparse";
 import axios from "axios";
-import { AnimatePresence, motion } from "framer-motion";
-import { useForm, useFieldArray } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import Plot from "react-plotly.js";
 import { Card, Button, Input, MetricsBox } from "components";
 
-const EvaluateText = () => {
+const Evaluate = () => {
   const {
     register,
     handleSubmit,
@@ -28,28 +27,11 @@ const EvaluateText = () => {
     const file = fileInputTxtRef.current.files[0];
     if (file) {
       const text = await file.text();
-      console.log(text);
       const data = JSON.parse(text);
-      //setTxtHeaders(Object.keys(data[0]));
       setTxtData(data);
     }
   };
-  console.log(txtData);
-  /*
-  const onSubmit = async (data) => {
-    console.log({ ...txtData, ...data });
-    try {
-      const response = await axios.post(
-        "http://127.0.0.1:5000/predict/text_classification",
-        { ...txtData, ...data }
-      );
-      console.log(response.data);
-      setResponseState(response.data);
-    } catch (error) {
-      console.error("Błąd podczas wysyłania zapytania POST:", error);
-    }
-  };
-*/
+
   const handleCsvSubmissionAndEvaluate = async () => {
     const file = fileInputCsvRef.current.files[0];
     if (file) {
@@ -58,12 +40,10 @@ const EvaluateText = () => {
       setCsvHeaders(Object.keys(data[0]));
       setCsvData(data);
       try {
-        console.log({ ...txtData, dataset: data });
         const response = await axios.post(
           "http://127.0.0.1:5000/evaluate/text_classification",
           { ...txtData, dataset: data }
         );
-        console.log(response.data);
         setResponseState(response.data);
       } catch (error) {
         console.error("Błąd podczas wysyłania zapytania POST:", error);
@@ -87,13 +67,10 @@ const EvaluateText = () => {
   };
 
   const handleOutsideClick = (event) => {
-    console.log(event);
     if (selectedId && !event.target.closest(".animate-presence")) {
       setSelectedId(null);
     }
   };
-
-  console.log(responseState);
 
   const excludedKeys = ["accuracy", "macro avg", "weighted avg"];
   let filteredEntries = [];
@@ -110,10 +87,6 @@ const EvaluateText = () => {
   }
 
   const allEntries = otherEntries.concat(filteredEntries);
-  console.log(allEntries);
-  console.log(responseState?.confusion_matrix);
-  console.log(responseState?.labels);
-
   const generateAnnotations = (xValues, yValues, zValues) => {
     var annotations = [];
     for (var i = 0; i < yValues.length; i++) {
@@ -143,7 +116,10 @@ const EvaluateText = () => {
   };
 
   return (
-    <div onClick={handleOutsideClick} className="flex flex-col gap-8">
+    <div
+      onClick={handleOutsideClick}
+      className="sm:w-[83vw] grid lg:grid-cols-2 grid-cols-1 gap-4 ml-4 mt-12 h-max-content lg:grid-cols-[1.8fr_1fr]"
+    >
       <Card color="green" classStyle="min-h-[150px]">
         <div className="text-[#1c1c1c] font-[14px] font-[600]">Select file</div>
         <input
@@ -228,8 +204,6 @@ const EvaluateText = () => {
             layout={{
               width: "5vw",
               height: "500px",
-              // width: 800,
-              // height: 400,
               annotations: generateAnnotations(
                 responseState?.labels,
                 responseState?.labels.slice().reverse(),
@@ -288,4 +262,4 @@ const EvaluateText = () => {
   );
 };
 
-export default EvaluateText;
+export default Evaluate;
