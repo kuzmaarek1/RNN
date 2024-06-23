@@ -1,39 +1,25 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import Papa from "papaparse";
 import { useForm } from "react-hook-form";
-import { Button, Card, Input } from "components";
+import { Button, Card, Input, InputFile } from "components";
 
 const DataPreparation = () => {
-  const [fileData, setFileData] = useState(null);
+  const fileInputRef = useRef();
   const [shuffledData, setShuffledData] = useState(null);
-  const {
-    register,
-    handleSubmit,
-    control,
-    watch,
-    setValue,
-    formState: { errors },
-  } = useForm();
-
-  const handleFileInputChange = (event) => {
-    const file = event.target.files[0];
-    setShuffledData(null);
-
-    Papa.parse(file, {
-      header: true,
-      dynamicTyping: true,
-      complete: (result) => {
-        setFileData(result.data);
-      },
-    });
-  };
+  const { register, watch } = useForm();
 
   const shuffleData = () => {
-    if (fileData) {
-      const shuffled = [...fileData];
-      shuffled.sort(() => Math.random() - 0.5);
-      setShuffledData(shuffled);
-    }
+    const file = fileInputRef.current.files[0];
+    if (file)
+      Papa.parse(file, {
+        header: true,
+        dynamicTyping: true,
+        complete: (result) => {
+          const shuffled = [...result.data];
+          shuffled.sort(() => Math.random() - 0.5);
+          setShuffledData(shuffled);
+        },
+      });
   };
 
   const downloadShuffledData = () => {
@@ -51,14 +37,24 @@ const DataPreparation = () => {
   };
 
   return (
-    <form className="grid lg:grid-cols-2 grid-cols-1 gap-4 ml-4 mt-12 h-max-content">
-      <Card color="green">
-        <input type="file" accept=".csv" onChange={handleFileInputChange} />
+    <form className="sm:w-[83vw] flex flex-col gap-4 ml-4 mt-12 mb-12 h-max-content">
+      <Card
+        color="green"
+        classStyleDiv="flex flex-col justify-center items-center w-full gap-4"
+      >
+        <InputFile
+          ref={fileInputRef}
+          fileAcept=".csv"
+          multiple={false}
+          color="green"
+        />
         <Button text="Prepare" color="green" type="button" func={shuffleData} />
       </Card>
       {shuffledData && (
-        <Card color="blue">
-          <h2 className="mb-2">Prepared Data:</h2>
+        <Card
+          color="blue"
+          classStyleDiv="flex flex-rows justify-center items-center w-full gap-4"
+        >
           <div className="relative">
             <Input
               type="text"

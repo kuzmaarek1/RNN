@@ -10,6 +10,7 @@ const Card = ({
   classStyle,
   children,
   classStyleDiv,
+  small,
 }) => {
   return layoutId || layoutId === 0 ? (
     <div
@@ -22,7 +23,9 @@ const Card = ({
             : color === "blue"
             ? "bg-[#e5ecf6] border-[#95A4FC]"
             : "bg-[#F7F9FB] border-[#A8C5DA]"
-        }  animate-presence rounded-[16px] border-[3px] custom-box-shadow p-12 relative
+        } ${
+          small ? "p-6" : "p-12"
+        } animate-presence rounded-[16px] border-[3px] custom-box-shadow relative
         `}
         layoutId={layoutId}
       >

@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { FaTimes, FaPlus } from "react-icons/fa";
-import Select from "react-select";
 import { parse } from "papaparse";
 import { useForm, useFieldArray } from "react-hook-form";
 import Plot from "react-plotly.js";
@@ -10,14 +9,7 @@ import { Button, Card, Input, InputFile, SelectInput } from "components";
 import { inputFieldModelsTimeSeries } from "constants";
 
 const Models = () => {
-  const {
-    register,
-    handleSubmit,
-    control,
-    watch,
-    setValue,
-    formState: { errors },
-  } = useForm();
+  const { register, handleSubmit, control, watch, setValue } = useForm();
 
   const { fields, remove, append } = useFieldArray({
     control,
@@ -28,23 +20,12 @@ const Models = () => {
   const fileInputRef = useRef(null);
   const [csvData, setCsvData] = useState(null);
   const [csvHeaders, setCsvHeaders] = useState([]);
-  const [XLabel, setXLabel] = useState(); //sort
   const [YLabels, setYLabels] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
   const [downloadLink, setDownloadLink] = useState(null);
   const [epochsHistory, setEpochsHistory] = useState([]);
   const [displayPlot, setDisplayPlot] = useState(null);
   const [selectedTab, setSelectedTab] = useState("loss");
-
-  const options = YLabels.map((YLabel) => ({
-    value: YLabel,
-    label: YLabel,
-  }));
-
-  const optionsXLabel = csvHeaders.map((csvHeader) => ({
-    value: csvHeader,
-    label: csvHeader,
-  }));
 
   useEffect(() => {
     socket.current = io("http://127.0.0.1:5000", {
@@ -85,9 +66,9 @@ const Models = () => {
     const YLabels = csvHeaders.filter(
       (csvHeader) => csvHeader !== selectedXLabel
     );
-    setXLabel(selectedXLabel);
     setYLabels(YLabels);
   };
+
   const handleOutsideClick = (event) => {
     if (
       (selectedId || displayPlot) &&
@@ -164,26 +145,6 @@ const Models = () => {
         )
       : null;
 
-  const [fileName, setFileName] = useState("Choose a file…");
-
-  const handleFileInputChange = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      const maxLength = 20;
-      const truncatedName =
-        file.name.length > maxLength
-          ? file.name.substring(0, maxLength) + "..."
-          : file.name;
-
-      setFileName(truncatedName);
-    } else {
-      setFileName("Choose a file…");
-    }
-  };
-
-  const [focused, setFocused] = useState(false);
-  const [focusedXLabels, setFocusedXLabels] = useState(false);
-
   const variants = {
     hidden: { y: 20, opacity: 0, scale: 0.8 },
     visible: { y: 0, opacity: 1, scale: 1 },
@@ -194,6 +155,7 @@ const Models = () => {
     duration: 0.2,
     ease: [0.42, 0, 0.58, 1],
   };
+
   return (
     <div onClick={handleOutsideClick}>
       <form
@@ -361,7 +323,7 @@ const Models = () => {
                       key={id}
                       className="flex flex-row mb-12"
                     >
-                      <div className="relative ">
+                      <div className="relative">
                         <SelectInput
                           options={[
                             "RNN",
@@ -376,7 +338,7 @@ const Models = () => {
                           color="grey"
                           setValue={setValue}
                           watch={watch(`models[${index}].layers`)}
-                          styled={"w-[200px] mt-[-2px] mr-[8px]"}
+                          styled={"w-[140px] mt-[-2px] mr-[8px]"}
                         />
                       </div>
                       <div className="relative">
@@ -455,7 +417,7 @@ const Models = () => {
           </>
         )}
       </form>
-      <div className="sm:w-[83vw] grid lg:grid-cols-2 grid-cols-1 gap-4 ml-4 mt-4 h-max-content">
+      <div className="sm:w-[83vw] mb-12 grid lg:grid-cols-2 grid-cols-1 gap-4 ml-4 mt-4 h-max-content">
         <div className="lg:col-span-2">
           {epochsHistory.length != 0 && (
             <Card
@@ -550,7 +512,7 @@ const Models = () => {
             <div className="flex mb-8 gap-4 justify-center">
               {epochsHistory.length > 0 &&
                 Object.entries(epochsHistory[0]).map(
-                  ([key, value], index) =>
+                  ([key, _], index) =>
                     key !== "epoch" &&
                     !key.includes("val") && (
                       <div key={index} onClick={() => setSelectedTab(key)}>
@@ -581,7 +543,7 @@ const Models = () => {
                 exit={{ y: -10, opacity: 0 }}
                 transition={{ duration: 0.2 }}
               >
-                <div className="bg-[white] border-[2px] border-[#95A4FC] rounded-[16px] flex justify-center items-center p-2">
+                <div className="bg-[white] pt-12 border-[2px] border-[#95A4FC] rounded-[16px] flex justify-center items-center p-2">
                   <Plot
                     data={[
                       {
@@ -594,7 +556,6 @@ const Models = () => {
                         type: "scatter",
                         mode: "lines",
                         name: "training",
-                        // marker: { color: "#82ca9d" },
                       },
                       epochsHistory[0][`val_${selectedTab}`] !== undefined && {
                         x: epochsHistory.map(
@@ -606,14 +567,11 @@ const Models = () => {
                         type: "scatter",
                         mode: "lines",
                         name: "val",
-                        //  marker: { color: "#82ca9d" },
                       },
                     ].filter(Boolean)}
                     layout={{
                       width: "5vw",
                       height: "500px",
-                      // width: 800,
-                      // height: 400,
                       title: {
                         text: "Time Series",
                       },
@@ -638,7 +596,6 @@ const Models = () => {
                         zeroline: false,
                       },
                       margin: { t: 30, r: 30 },
-                      //legend: { orientation: 'h' },
                     }}
                   />
                 </div>

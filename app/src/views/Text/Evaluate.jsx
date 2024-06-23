@@ -3,23 +3,13 @@ import { parse } from "papaparse";
 import axios from "axios";
 import { useForm } from "react-hook-form";
 import Plot from "react-plotly.js";
-import { Card, Button, Input, MetricsBox } from "components";
+import { Card, Button, Input, MetricsBox, InputFile } from "components";
 
 const Evaluate = () => {
-  const {
-    register,
-    handleSubmit,
-    control,
-    watch,
-    formState: { errors },
-  } = useForm();
-
+  const { register, watch } = useForm();
   const fileInputTxtRef = useRef(null);
   const fileInputCsvRef = useRef(null);
   const [txtData, setTxtData] = useState(null);
-
-  const [csvData, setCsvData] = useState(null);
-  const [csvHeaders, setCsvHeaders] = useState([]);
   const [responseState, setResponseState] = useState(null);
   const [selectedId, setSelectedId] = useState(null);
 
@@ -37,8 +27,6 @@ const Evaluate = () => {
     if (file) {
       const text = await file.text();
       const { data } = parse(text, { header: true });
-      setCsvHeaders(Object.keys(data[0]));
-      setCsvData(data);
       try {
         const response = await axios.post(
           "http://127.0.0.1:5000/evaluate/text_classification",
@@ -118,15 +106,18 @@ const Evaluate = () => {
   return (
     <div
       onClick={handleOutsideClick}
-      className="sm:w-[83vw] grid lg:grid-cols-2 grid-cols-1 gap-4 ml-4 mt-12 h-max-content lg:grid-cols-[1.8fr_1fr]"
+      className="sm:w-[83vw] flex flex-col gap-4 ml-4 mt-12 mb-12 h-max-content"
     >
-      <Card color="green" classStyle="min-h-[150px]">
-        <div className="text-[#1c1c1c] font-[14px] font-[600]">Select file</div>
-        <input
-          type="file"
-          className="mb-4"
+      <Card
+        color="green"
+        classStyle="min-h-[150px]"
+        classStyleDiv="flex flex-row flex-wrap justify-center items-center w-full gap-4"
+      >
+        <InputFile
           ref={fileInputTxtRef}
-          accept=".txt"
+          fileAcept=".txt"
+          multiple={false}
+          color="green"
         />
         <Button
           color="green"
@@ -136,15 +127,16 @@ const Evaluate = () => {
         />
       </Card>
       {txtData && (
-        <Card color="blue">
-          <div className="text-[#1c1c1c] font-[14px] font-[600]">
-            Select file
-          </div>
-          <input
-            type="file"
-            className="mb-4"
+        <Card
+          color="blue"
+          classStyle="min-h-[150px]"
+          classStyleDiv="flex flex-row flex-wrap justify-center items-center w-full gap-4"
+        >
+          <InputFile
             ref={fileInputCsvRef}
-            accept=".csv"
+            fileAcept=".csv"
+            multiple={false}
+            color="blue"
           />
           <Button
             type="button"
@@ -155,7 +147,60 @@ const Evaluate = () => {
         </Card>
       )}
       {allEntries.length > 0 && (
-        <Card>
+        <Card
+          classStyle="min-h-[150px]"
+          classStyleDiv="flex flex-row flex-wrap justify-center items-center w-full gap-4"
+        >
+          <div className="bg-[white] pt-12 border-[2px]  border-[#A8C5DA] rounded-[16px] flex justify-center items-center p-2">
+            <Plot
+              data={[
+                {
+                  type: "heatmap",
+                  x: responseState?.labels,
+                  y: responseState?.labels.slice().reverse(),
+                  z: responseState?.confusion_matrix.slice().reverse(),
+                  colorscale: [
+                    [0, "#3D9970"],
+                    [1, "#001f3f"],
+                  ],
+                },
+              ]}
+              layout={{
+                width: "5vw",
+                height: "500px",
+                annotations: generateAnnotations(
+                  responseState?.labels,
+                  responseState?.labels.slice().reverse(),
+                  responseState?.confusion_matrix.slice().reverse()
+                ),
+
+                title: {
+                  text: "Confusion Matrix",
+                },
+                xaxis: {
+                  title: {
+                    text: "Predicted Label",
+                    font: {
+                      size: 14,
+                    },
+                    standoff: 8,
+                  },
+                  zeroline: false,
+                },
+                yaxis: {
+                  title: {
+                    text: "True Label",
+                    font: {
+                      size: 14,
+                    },
+                    standoff: 3,
+                  },
+                  zeroline: false,
+                },
+                margin: { t: 30, r: 30 },
+              }}
+            />
+          </div>
           <div className="grid grid-cols-5 gap-2">
             <MetricsBox text="Category" />
             {allEntries.map((props, index) => (
@@ -187,61 +232,12 @@ const Evaluate = () => {
         </Card>
       )}
       {responseState && (
-        <Card color="green">
-          <Plot
-            data={[
-              {
-                type: "heatmap",
-                x: responseState?.labels,
-                y: responseState?.labels.slice().reverse(),
-                z: responseState?.confusion_matrix.slice().reverse(),
-                colorscale: [
-                  [0, "#3D9970"],
-                  [1, "#001f3f"],
-                ],
-              },
-            ]}
-            layout={{
-              width: "5vw",
-              height: "500px",
-              annotations: generateAnnotations(
-                responseState?.labels,
-                responseState?.labels.slice().reverse(),
-                responseState?.confusion_matrix.slice().reverse()
-              ),
-
-              title: {
-                text: "Confusion Matrix",
-              },
-              xaxis: {
-                title: {
-                  text: "Predicted Label",
-                  font: {
-                    size: 14,
-                  },
-                  standoff: 8,
-                },
-                zeroline: false,
-              },
-              yaxis: {
-                title: {
-                  text: "True Label",
-                  font: {
-                    size: 14,
-                  },
-                  standoff: 3,
-                },
-                zeroline: false,
-              },
-              margin: { t: 30, r: 30 },
-              //legend: { orientation: 'h' },
-            }}
-          />
-        </Card>
-      )}
-      {responseState && (
-        <Card color="green">
-          <div className="relative flex flex-col gap-4">
+        <Card
+          color="green"
+          classStyle="min-h-[150px]"
+          classStyleDiv="flex flex-row flex-wrap justify-center items-center w-full gap-4"
+        >
+          <div className="relative flex flex-row gap-4">
             <Input
               type="text"
               name="name_file"

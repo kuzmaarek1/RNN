@@ -362,67 +362,70 @@ const Compare = () => {
               layoutId={selectedIdPlotLine}
               setSelectedId={setSelectedIdPlotLine}
             >
-              <Plot
-                data={[
-                  {
-                    x: selectedFiles[0]?.content?.results[
-                      selectedIdPlotLine - 1
-                    ]?.y_test?.map((value, index) => index),
-                    y: selectedFiles[0]?.content?.results[
-                      selectedIdPlotLine - 1
-                    ]?.y_test?.map((value, index) => value),
-                    type: "scatter",
-                    mode: "lines",
-                    name: "y_test",
-                  },
-                  ...selectedFiles.map(({ content }, index) => {
-                    const selectedValue = content.results[
-                      selectedIdPlotLine - 1
-                    ].predictions.map((value, index) => value);
-                    return {
-                      x: selectedValue.map((_, index) => index),
-                      y: selectedValue,
+              <div className="bg-[white] pt-12 border-[2px] border-[#95A4FC] rounded-[16px] flex justify-center items-center p-2">
+                <Plot
+                  data={[
+                    {
+                      x: selectedFiles[0]?.content?.results[
+                        selectedIdPlotLine - 1
+                      ]?.y_test?.map((value, index) => index),
+                      y: selectedFiles[0]?.content?.results[
+                        selectedIdPlotLine - 1
+                      ]?.y_test?.map((value, index) => value),
                       type: "scatter",
                       mode: "lines",
-                      name: selectedFiles[index].name.replace(/.txt/gi, ""),
-                    };
-                  }),
-                ]}
-                layout={{
-                  width: "5vw",
-                  height: "500px",
-                  // width: 800,
-                  // height: 400,
-                  title: {
-                    text: `Predictions - ${
-                      selectedFiles[0]?.content?.results[selectedIdPlotLine - 1]
-                        .feature
-                    }`,
-                  },
-                  xaxis: {
-                    title: {
-                      text: "Index",
-                      font: {
-                        size: 14,
-                      },
-                      standoff: 8,
+                      name: "y_test",
                     },
-                    zeroline: false,
-                  },
-                  yaxis: {
+                    ...selectedFiles.map(({ content }, index) => {
+                      const selectedValue = content.results[
+                        selectedIdPlotLine - 1
+                      ].predictions.map((value, index) => value);
+                      return {
+                        x: selectedValue.map((_, index) => index),
+                        y: selectedValue,
+                        type: "scatter",
+                        mode: "lines",
+                        name: selectedFiles[index].name.replace(/.txt/gi, ""),
+                      };
+                    }),
+                  ]}
+                  layout={{
+                    width: "5vw",
+                    height: "500px",
+                    // width: 800,
+                    // height: 400,
                     title: {
-                      text: "Value",
-                      font: {
-                        size: 14,
-                      },
-                      standoff: 3,
+                      text: `Predictions - ${
+                        selectedFiles[0]?.content?.results[
+                          selectedIdPlotLine - 1
+                        ].feature
+                      }`,
                     },
-                    zeroline: false,
-                  },
-                  margin: { t: 30, r: 30 },
-                  //legend: { orientation: 'h' },
-                }}
-              />
+                    xaxis: {
+                      title: {
+                        text: "Index",
+                        font: {
+                          size: 14,
+                        },
+                        standoff: 8,
+                      },
+                      zeroline: false,
+                    },
+                    yaxis: {
+                      title: {
+                        text: "Value",
+                        font: {
+                          size: 14,
+                        },
+                        standoff: 3,
+                      },
+                      zeroline: false,
+                    },
+                    margin: { t: 30, r: 30 },
+                    //legend: { orientation: 'h' },
+                  }}
+                />
+              </div>
             </Card>
           )}
         </AnimatePresence>

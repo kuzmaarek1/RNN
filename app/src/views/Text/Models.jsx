@@ -5,18 +5,11 @@ import { parse } from "papaparse";
 import { useForm, useFieldArray } from "react-hook-form";
 import { io } from "socket.io-client";
 import Plot from "react-plotly.js";
-import { Card, Input, Button } from "components";
+import { Card, Input, Button, InputFile, SelectInput } from "components";
 import { inputFieldModelsText } from "constants";
 
 const Models = () => {
-  const {
-    register,
-    handleSubmit,
-    control,
-    watch,
-    setValue,
-    formState: { errors },
-  } = useForm();
+  const { register, handleSubmit, control, watch, setValue } = useForm();
 
   const { fields, remove, append } = useFieldArray({
     control,
@@ -27,7 +20,6 @@ const Models = () => {
   const fileInputRef = useRef(null);
   const [csvHeaders, setCsvHeaders] = useState([]);
   const [csvData, setCsvData] = useState(null);
-  const selectCategoryRef = useRef(null);
   const [category, setCategory] = useState();
   const [text, setText] = useState();
   const [epochsHistory, setEpochsHistory] = useState([]);
@@ -90,7 +82,7 @@ const Models = () => {
   };
 
   const handleCategory = () => {
-    const selectedCategoryLabel = selectCategoryRef.current.value;
+    const selectedCategoryLabel = watch("Category");
     const selectedText = csvHeaders.find(
       (csvHeader) => csvHeader !== selectedCategoryLabel
     );
@@ -147,21 +139,33 @@ const Models = () => {
     }
   };
 
+  const variants = {
+    hidden: { y: 20, opacity: 0, scale: 0.8 },
+    visible: { y: 0, opacity: 1, scale: 1 },
+    exit: { y: -20, opacity: 0, scale: 0.8 },
+  };
+
+  const transition = {
+    duration: 0.2,
+    ease: [0.42, 0, 0.58, 1],
+  };
+
   return (
     <div onClick={handleOutsideClick}>
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="grid lg:grid-cols-2 grid-cols-1 gap-4 ml-4 mt-12 h-max-content"
+        className="sm:w-[83vw] grid lg:grid-cols-2 grid-cols-1 gap-4 ml-4 mt-12 h-max-content"
       >
-        <Card color="green" classStyle="min-h-[150px]">
-          <div className="text-[#1c1c1c] font-[14px] font-[600]">
-            Select file
-          </div>
-          <input
-            type="file"
-            className="mb-4"
+        <Card
+          color="green"
+          classStyle="min-h-[150px]"
+          classStyleDiv="flex flex-col justify-center items-center w-full gap-4"
+        >
+          <InputFile
             ref={fileInputRef}
-            accept=".csv"
+            fileAcept=".csv"
+            multiple={false}
+            color="green"
           />
           <Button
             color="green"
@@ -171,15 +175,20 @@ const Models = () => {
           />
         </Card>
         {csvHeaders.length > 0 && (
-          <Card color="blue" classStyle="min-h-[150px]">
-            <label htmlFor="Category">Category Label</label>
-            <select name="Category" id="Category" ref={selectCategoryRef}>
-              {csvHeaders.map((csvHeader) => (
-                <option value={csvHeader} key={csvHeader}>
-                  {csvHeader}
-                </option>
-              ))}
-            </select>
+          <Card
+            color="blue"
+            classStyle="min-h-[150px]"
+            classStyleDiv="flex flex-col justify-center items-center w-full gap-4"
+          >
+            <SelectInput
+              options={csvHeaders}
+              label="Category"
+              name="Category"
+              isMulti={false}
+              color="blue"
+              setValue={setValue}
+              watch={watch("Category")}
+            />
             <Button
               color="blue"
               text="Submit"
@@ -188,258 +197,293 @@ const Models = () => {
             />
           </Card>
         )}
-        {csvHeaders.length > 0 && (
-          <Card classStyle={`min-h-[200px]`}>
-            <div className="relative">
-              <Input
-                type="number"
-                name="numberSlider"
-                label="Number"
-                register={register}
-                onChange={(value) => {
-                  isNaN(value) || csvData.length - 1 < value
-                    ? setNumberSlider(null)
-                    : value === ""
-                    ? setNumberSlider(Number(0))
-                    : setNumberSlider(Number(value));
-                }}
-                value={numberSlider == null ? "" : Number(numberSlider)}
-                min={`0`}
-                max={`${csvData.length - 1}`}
-              />
-            </div>
-            {numberSlider != null && (
-              <>
-                <motion.div
-                  key={numberSlider ? numberSlider : "empty"}
-                  initial={{ y: 10, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  exit={{ y: -10, opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <motion.div className="h-[100px] overflow-auto">
-                    <motion.div>
-                      Category: {csvData[numberSlider][category]}
-                    </motion.div>
-                    <motion.div>
-                      Message: {csvData[numberSlider][text]}
+        {category && (
+          <div className="lg:col-span-2">
+            <Card classStyleDiv="flex flex-col justify-center items-center w-full gap-4">
+              <div className="relative sm:w-[400px] w-[200px]">
+                <Input
+                  type="number"
+                  name="numberSlider"
+                  label="Number"
+                  register={register}
+                  onChange={(value) => {
+                    isNaN(value) || csvData.length - 1 < value
+                      ? setNumberSlider(null)
+                      : value === ""
+                      ? setNumberSlider(Number(0))
+                      : setNumberSlider(Number(value));
+                  }}
+                  value={numberSlider == null ? "" : Number(numberSlider)}
+                  min={`0`}
+                  max={`${csvData.length - 1}`}
+                />
+              </div>
+              {numberSlider != null && (
+                <>
+                  <motion.div
+                    key={numberSlider ? numberSlider : "empty"}
+                    initial={{ y: 10, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    exit={{ y: -10, opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <motion.div className="h-[210px] overflow-auto">
+                      <motion.div className="flex flex-row flex-wrap gap-4 mt-2 justify-center items-center">
+                        <motion.div className="flex w-[150px] flex-nowrap justify-center items-center border-[2px] border-[#A8C5DA] mb-1 p-1 rounded-[16px]">
+                          Category
+                        </motion.div>
+                        <motion.div className="flex w-[150px] flex-nowrap justify-center items-center border-[2px] border-[#A8C5DA] mb-1 p-1 rounded-[16px]">
+                          {csvData[numberSlider][category]}
+                        </motion.div>
+                      </motion.div>
+                      <motion.div className="flex flex-row flex-wrap gap-4 mt-2">
+                        <motion.div className="flex w-[100%] flex-nowrap justify-center items-center border-[2px] border-[#A8C5DA] mb-1 p-1 rounded-[16px]">
+                          {csvData[numberSlider][text]}
+                        </motion.div>
+                      </motion.div>
                     </motion.div>
                   </motion.div>
-                </motion.div>
-                <Button
-                  color="grey"
-                  type="button"
-                  text="Prev"
-                  func={() =>
-                    setNumberSlider((prev) =>
-                      prev === 0 ? csvData.length - 1 : prev - 1
-                    )
-                  }
-                />
-                <Button
-                  color="grey"
-                  type="button"
-                  text="Next"
-                  func={() =>
-                    setNumberSlider((prev) =>
-                      prev === csvData.length - 1 ? 0 : prev + 1
-                    )
-                  }
-                />
-              </>
-            )}
-          </Card>
+                  <div className="flex flex-row flex-wrap justify-center items-center gap-4">
+                    <Button
+                      color="grey"
+                      type="button"
+                      text="Prev"
+                      func={() =>
+                        setNumberSlider((prev) =>
+                          prev === 0 ? csvData.length - 1 : prev - 1
+                        )
+                      }
+                    />
+                    <Button
+                      color="grey"
+                      type="button"
+                      text="Next"
+                      func={() =>
+                        setNumberSlider((prev) =>
+                          prev === csvData.length - 1 ? 0 : prev + 1
+                        )
+                      }
+                    />
+                  </div>
+                </>
+              )}
+            </Card>
+          </div>
         )}
-        <Card color="blue" classStyle="min-h-[150px]">
-          {inputFieldModelsText.map(({ type, name, label, color }, index) => (
-            <div className={`relative w-[300px]  ${index != 0 && "mt-[40px]"}`}>
-              <Input
-                type={type}
-                name={name}
-                label={label}
-                color={color}
-                register={register}
-              />
-            </div>
-          ))}
-        </Card>
-        <Card>
-          <div className="flex justify-center items-center flex-wrap w-full h-full">
-            {fields.map(({ id }, index) => (
-              <div key={id} className="flex flex-row mb-12">
-                <div className="relative flex flex-col mr-4">
-                  <label
-                    className={"font-semibold uppercase text-[#1c1c1c]"}
-                    htmlFor="layers"
-                  >
-                    <span
-                      className={`relative inline-flex tracking-[0.15em] transition-[0.2s] ease-in-out -translate-y-[15px]`}
-                    >
-                      Layers
-                    </span>
-                  </label>
-                  <select
-                    id="layers"
-                    name="layers"
-                    {...register(`models[${index}].layers`)}
-                    defaultValue="RNN"
-                  >
-                    <option value="RNN">RNN</option>
-                    <option value="LSTM">LSTM</option>
-                    <option value="GRU">GRU</option>
-                    <option value="Dense">Dense</option>
-                    <option value="RepeatVector">RepeatVector</option>
-                  </select>
-                </div>
-                <div className="relative ">
-                  <Input
-                    type="number"
-                    name={`models[${index}].units`}
-                    label="Units"
-                    color="grey"
-                    register={register}
-                  />
-                </div>
-                <div className="relative flex flex-col ml-4">
-                  <label
-                    className={"font-semibold uppercase text-[#1c1c1c]"}
-                    htmlFor={`models[${index}].layers`}
-                  >
-                    <span
-                      className={`-translate-y-[15px] relative inline-flex tracking-[0.15em] transition-[0.2s] ease-in-out`}
-                    >
-                      Sequences
-                    </span>
-                  </label>
-                  <input
-                    type="checkbox"
-                    id="returnSequences"
-                    name="returnSequences"
-                    {...register(`models[${index}].returnSequences`)}
-                    defaultChecked={true}
-                  />
-                </div>
-                <div className="relative flex flex-col ml-4">
-                  <label
-                    className={"font-semibold uppercase text-[#1c1c1c]"}
-                    htmlFor={`models[${index}].layers`}
-                  >
-                    <span
-                      className={`-translate-y-[15px] relative inline-flex tracking-[0.15em] transition-[0.2s] ease-in-out`}
-                    >
-                      Bidirectional
-                    </span>
-                  </label>
-                  <input
-                    type="checkbox"
-                    id="bidirectional"
-                    name="bidirectional"
-                    {...register(`models[${index}].bidirectional`)}
-                    defaultChecked={false}
-                  />
-                </div>
-                <button
-                  className="text-[#95A4FC]"
-                  type="button"
-                  onClick={() => remove(index)}
-                >
-                  <FaTimes />
-                </button>
+        {category && (
+          <Card color="blue" classStyle="min-h-[150px]">
+            {inputFieldModelsText.map(({ type, name, label, color }, index) => (
+              <div
+                className={`relative w-[300px]  ${index != 0 && "mt-[40px]"}`}
+              >
+                <Input
+                  type={type}
+                  name={name}
+                  label={label}
+                  color={color}
+                  register={register}
+                />
               </div>
             ))}
-            <button
-              type="button"
-              className="text-[#95A4FC]"
-              onClick={() => append({})}
-            >
-              <FaPlus />
-            </button>
-            <Button text="Submit" color="blue" type="submit" />
-          </div>
-        </Card>
-        <Card></Card>
-      </form>
-      <div className="grid lg:grid-cols-2 grid-cols-1 gap-4 ml-4 mt-4 h-max-content">
-        {epochsHistory.length != 0 && (
-          <Card color="grey" classStyle="w-full col-span-4">
-            <div className="flex overflow-auto gap-2">
-              <div>
-                {Object.entries(epochsHistory[0]).map(([key, value]) => (
-                  <div>
-                    <div className="flex w-[150px] flex-nowrap justify-center items-center border-[2px] border-[#A8C5DA] mb-1 p-1 rounded-[16px]">
-                      {key.charAt(0).toUpperCase() +
-                        key.slice(1).replace(/_/g, " ")}
-                    </div>
-                  </div>
-                ))}
-              </div>
-              {epochsHistory.length > 0 &&
-                epochsHistory.map((props, index) => (
-                  <div key={index}>
-                    {Object.entries(props).map(([key, value]) =>
-                      key === "epoch" ? (
-                        <div
-                          key={`${key}-${index}`}
-                          className="flex justify-center items-center border-[2px] border-[#A8C5DA] mb-1 p-1 rounded-[16px]"
-                        >
-                          {props.epoch + 1}
-                        </div>
-                      ) : (
-                        <div
-                          key={`${key}-${index}`}
-                          className={`flex justify-center items-center border-[2px] border-[#A8C5DA] mb-1 p-1 rounded-[16px] ${
-                            index ===
-                            lowestAndHighestIndex.find(
-                              (metrics) => key === metrics.key
-                            )?.lowestIndex
-                              ? key.includes("loss")
-                                ? "bg-green-200"
-                                : "bg-red-200"
-                              : index ===
-                                lowestAndHighestIndex.find(
-                                  (metrics) => key === metrics.key
-                                )?.highestIndex
-                              ? key.includes("loss")
-                                ? "bg-red-200"
-                                : "bg-green-200"
-                              : ""
-                          }`}
-                        >
-                          {value.toFixed(5)}
-                        </div>
-                      )
-                    )}
-                  </div>
-                ))}
-            </div>
-            {downloadLink && (
-              <div className="w-full flex justify-center items-center gap-6">
-                <div className="relative w-[300px] mt-[20px]">
-                  <Input
-                    type="text"
-                    name="name_file"
-                    label="Name File"
-                    color="grey"
-                    register={register}
-                  />
-                </div>
-                <motion.div
-                  layoutId={1}
-                  onClick={() => setDisplayPlot(1)}
-                  className="border-[2px] border-[#A8C5DA] w-[150px] h-[45px] rounded-[16px] flex justify-center items-center cursor-pointer"
-                >
-                  Display Plot
-                </motion.div>
-                <Button
-                  type="button"
-                  color="grey"
-                  text="Download"
-                  func={handleDownload}
-                />
-              </div>
-            )}
           </Card>
         )}
+        {category && (
+          <Card
+            classStyle="min-h-[150px]"
+            classStyleDiv="flex flex-col justify-center items-center w-full gap-4"
+          >
+            <div className="flex justify-center items-center flex-wrap w-full h-full">
+              <AnimatePresence>
+                {fields.map(({ id }, index) => (
+                  <motion.div
+                    variants={variants}
+                    initial="hidden"
+                    animate="visible"
+                    exit="exit"
+                    transition={transition}
+                    key={id}
+                    className="flex flex-row mb-12"
+                  >
+                    <div className="relative flex flex-col mr-4">
+                      <SelectInput
+                        options={[
+                          "RNN",
+                          "LSTM",
+                          "GRU",
+                          "RepeatVector",
+                          "Dense",
+                        ]}
+                        label="Layers"
+                        name={`models[${index}].layers`}
+                        isMulti={false}
+                        color="grey"
+                        setValue={setValue}
+                        watch={watch(`models[${index}].layers`)}
+                        styled={"w-[140px] mt-[-2px] mr-[8px]"}
+                      />
+                    </div>
+                    <div className="relative">
+                      <Input
+                        type="number"
+                        name={`models[${index}].units`}
+                        label="Units"
+                        color="grey"
+                        register={register}
+                      />
+                    </div>
+                    <div className="relative flex flex-col ml-4">
+                      <label
+                        className={"font-semibold uppercase text-[#1c1c1c]"}
+                        htmlFor={`models[${index}].layers`}
+                      >
+                        <span
+                          className={`-translate-y-[15px] relative inline-flex tracking-[0.15em] transition-[0.2s] ease-in-out`}
+                        >
+                          Sequences
+                        </span>
+                      </label>
+                      <input
+                        type="checkbox"
+                        id="returnSequences"
+                        name="returnSequences"
+                        {...register(`models[${index}].returnSequences`)}
+                        defaultChecked={true}
+                      />
+                    </div>
+                    <div className="relative flex flex-col ml-4">
+                      <label
+                        className={"font-semibold uppercase text-[#1c1c1c]"}
+                        htmlFor={`models[${index}].layers`}
+                      >
+                        <span
+                          className={`-translate-y-[15px] relative inline-flex tracking-[0.15em] transition-[0.2s] ease-in-out`}
+                        >
+                          Bidirectional
+                        </span>
+                      </label>
+                      <input
+                        type="checkbox"
+                        id="bidirectional"
+                        name="bidirectional"
+                        {...register(`models[${index}].bidirectional`)}
+                        defaultChecked={false}
+                      />
+                    </div>
+                    <button
+                      className="text-[#95A4FC]"
+                      type="button"
+                      onClick={() => remove(index)}
+                    >
+                      <FaTimes />
+                    </button>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+              <div className="flex flex-row gap-4">
+                <Button
+                  type="button"
+                  text={
+                    <div className="text-[#95A4FC]">
+                      <FaPlus />
+                    </div>
+                  }
+                  func={() => append({})}
+                  color="blue"
+                  classStyle="h-[45px]"
+                />
+                <Button text="Submit" color="blue" type="submit" />
+              </div>
+            </div>
+          </Card>
+        )}
+      </form>
+      <div className="sm:w-[83vw] mb-12 grid lg:grid-cols-2 grid-cols-1 gap-4 ml-4 mt-4 h-max-content">
+        <div className="lg:col-span-2">
+          {epochsHistory.length != 0 && (
+            <Card
+              color="grey"
+              classStyle="min-h-[150px]"
+              classStyleDiv="flex flex-col justify-center items-center w-full gap-4"
+            >
+              <div className="custom-scrollbar-gray w-[90%] flex overflow-auto gap-2">
+                <div>
+                  {Object.entries(epochsHistory[0]).map(([key, value]) => (
+                    <div>
+                      <div className="flex w-[150px] flex-nowrap justify-center items-center border-[2px] border-[#A8C5DA] mb-1 p-1 rounded-[16px]">
+                        {key.charAt(0).toUpperCase() +
+                          key.slice(1).replace(/_/g, " ")}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                {epochsHistory.length > 0 &&
+                  epochsHistory.map((props, index) => (
+                    <div key={index}>
+                      {Object.entries(props).map(([key, value]) =>
+                        key === "epoch" ? (
+                          <div
+                            key={`${key}-${index}`}
+                            className="flex justify-center items-center border-[2px] border-[#A8C5DA] mb-1 p-1 rounded-[16px]"
+                          >
+                            {props.epoch + 1}
+                          </div>
+                        ) : (
+                          <div
+                            key={`${key}-${index}`}
+                            className={`flex justify-center items-center border-[2px] border-[#A8C5DA] mb-1 p-1 rounded-[16px] ${
+                              index ===
+                              lowestAndHighestIndex.find(
+                                (metrics) => key === metrics.key
+                              )?.lowestIndex
+                                ? key.includes("loss")
+                                  ? "bg-green-200"
+                                  : "bg-red-200"
+                                : index ===
+                                  lowestAndHighestIndex.find(
+                                    (metrics) => key === metrics.key
+                                  )?.highestIndex
+                                ? key.includes("loss")
+                                  ? "bg-red-200"
+                                  : "bg-green-200"
+                                : ""
+                            }`}
+                          >
+                            {value.toFixed(5)}
+                          </div>
+                        )
+                      )}
+                    </div>
+                  ))}
+              </div>
+              {downloadLink && (
+                <div className="w-full flex justify-center items-center gap-6">
+                  <div className="relative w-[300px] mt-[20px]">
+                    <Input
+                      type="text"
+                      name="name_file"
+                      label="Name File"
+                      color="grey"
+                      register={register}
+                    />
+                  </div>
+                  <motion.div
+                    layoutId={1}
+                    onClick={() => setDisplayPlot(1)}
+                    className="border-[2px] border-[#A8C5DA] w-[150px] h-[45px] rounded-[16px] flex justify-center items-center cursor-pointer"
+                  >
+                    Display Plot
+                  </motion.div>
+                  <Button
+                    type="button"
+                    color="grey"
+                    text="Download"
+                    func={handleDownload}
+                  />
+                </div>
+              )}
+            </Card>
+          )}
+        </div>
       </div>
       <AnimatePresence onClick={(event) => event.stopPropagation()}>
         {displayPlot && (

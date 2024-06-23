@@ -1,35 +1,20 @@
 import React, { useState, useRef, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { parse } from "papaparse";
-import { useForm, useFieldArray } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import Plot from "react-plotly.js";
 import { io } from "socket.io-client";
 import axios from "axios";
-import { Button, Input, Card } from "components";
+import { Button, Input, Card, InputFile } from "components";
 
 const Evaluate = () => {
-  const {
-    register,
-    handleSubmit,
-    control,
-    watch,
-    formState: { errors },
-  } = useForm();
-
-  const { fields, remove, append } = useFieldArray({
-    control,
-    name: "models",
-  });
+  const { register, watch } = useForm();
 
   const socket = useRef();
   const fileInputTxtRef = useRef(null);
   const fileInputCsvRef = useRef(null);
   const [txtData, setTxtData] = useState(null);
-  const [txtHeaders, setTxtHeaders] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
-
-  const [csvData, setCsvData] = useState(null);
-  const [csvHeaders, setCsvHeaders] = useState([]);
   const [responseState, setResponseState] = useState(null);
 
   useEffect(() => {
@@ -65,8 +50,6 @@ const Evaluate = () => {
     if (file) {
       const text = await file.text();
       const { data } = parse(text, { header: true });
-      setCsvHeaders(Object.keys(data[0]));
-      setCsvData(data);
       try {
         const response = await axios.post(
           "http://127.0.0.1:5000/evaluate/time_series",
@@ -97,15 +80,18 @@ const Evaluate = () => {
   return (
     <div
       onClick={handleOutsideClick}
-      className="grid lg:grid-cols-2 grid-cols-1 gap-4 ml-4 mt-12 h-max-content"
+      className="sm:w-[83vw] flex flex-col gap-4 ml-4 mt-12 mb-12 h-max-content"
     >
-      <Card color="green" classStyle="min-h-[150px]">
-        <div className="text-[#1c1c1c] font-[14px] font-[600]">Select file</div>
-        <input
-          type="file"
-          className="mb-4"
+      <Card
+        color="green"
+        classStyle="min-h-[150px]"
+        classStyleDiv="flex flex-row flex-wrap justify-center items-center w-full gap-4"
+      >
+        <InputFile
           ref={fileInputTxtRef}
-          accept=".txt"
+          fileAcept=".txt"
+          multiple={false}
+          color="green"
         />
         <Button
           color="green"
@@ -115,29 +101,31 @@ const Evaluate = () => {
         />
       </Card>
       {txtData && (
-        <Card color="blue">
-          <div>
-            <div className="text-[#1c1c1c] font-[14px] font-[600]">
-              Select file
-            </div>
-            <input
-              type="file"
-              className="mb-4"
-              ref={fileInputCsvRef}
-              accept=".csv"
-            />
-            <Button
-              type="button"
-              text="Submit"
-              color="blue"
-              func={handleCsvSubmissionAndEvaluate}
-            />
-          </div>
+        <Card
+          color="blue"
+          classStyle="min-h-[150px]"
+          classStyleDiv="flex flex-row flex-wrap justify-center items-center w-full gap-4"
+        >
+          <InputFile
+            ref={fileInputCsvRef}
+            fileAcept=".csv"
+            multiple={false}
+            color="blue"
+          />
+          <Button
+            type="button"
+            text="Submit"
+            color="blue"
+            func={handleCsvSubmissionAndEvaluate}
+          />
         </Card>
       )}
       {responseState && (
-        <Card>
-          <div className="flex gap-[5px] flex-wrap">
+        <Card
+          classStyle="min-h-[150px]"
+          classStyleDiv="flex flex-row flex-wrap justify-center items-center w-full gap-4"
+        >
+          <div className="flex gap-[5px]  flex-row flex-wrap">
             {responseState?.results.map((state, index) => (
               <motion.div
                 key={index + 1}
@@ -161,93 +149,105 @@ const Evaluate = () => {
       )}
       <AnimatePresence onClick={(event) => event.stopPropagation()}>
         {selectedId !== null && (
-          <Card layoutId={selectedId} setSelectedId={setSelectedId}>
+          <Card
+            small={true}
+            layoutId={selectedId}
+            setSelectedId={setSelectedId}
+          >
             <motion.div>
-              <Plot
-                data={[
-                  {
-                    x: responseState?.results[selectedId - 1]?.y_test?.map(
-                      (value, index) => index
-                    ),
-                    y: responseState?.results[selectedId - 1]?.y_test?.map(
-                      (value, index) => value
-                    ),
-                    type: "scatter",
-                    mode: "lines",
-                    name: "y_test",
-                  },
-                  {
-                    x: responseState?.results[selectedId - 1]?.predictions?.map(
-                      (value, index) => index
-                    ),
-                    y: responseState?.results[selectedId - 1]?.predictions?.map(
-                      (value, index) => value
-                    ),
-                    type: "scatter",
-                    mode: "lines",
-                    name: "predictions",
-                  },
-                ]}
-                layout={{
-                  width: "5vw",
-                  height: "500px",
-                  // width: 800,
-                  // height: 400,
-                  title: {
-                    text: "Time Series",
-                  },
-                  xaxis: {
-                    title: {
-                      text: "Index",
-                      font: {
-                        size: 14,
-                      },
-                      standoff: 8,
-                    },
-                    zeroline: false,
-                  },
-                  yaxis: {
-                    title: {
-                      text: "Value",
-                      font: {
-                        size: 14,
-                      },
-                      standoff: 3,
-                    },
-                    zeroline: false,
-                  },
-                  margin: { t: 30, r: 30 },
-                  //legend: { orientation: 'h' },
-                }}
-              />
-              <div className="w-full flex justify-center items-center font-semibold uppercase mb-4">
+              <div className="w-full flex justify-center items-center font-semibold uppercase">
                 Metrics errors {responseState?.results[selectedId - 1].feature}
               </div>
-              {Object.entries(responseState?.results[selectedId - 1]).map(
-                ([key, value]) =>
-                  key !== "predictions" &&
-                  key !== "feature" &&
-                  key !== "y_test" && (
-                    <div className="flex overflow-auto gap-2" key={key}>
-                      <div className="flex w-[300px] p-2 justify-center items-center border-[2px] border-[#A8C5DA] mb-1 p-1 rounded-[16px]">
-                        {key
-                          .replace(/error/gi, "")
-                          .replace(/_/g, " ")
-                          .toUpperCase()}
+              <div className="bg-[white] border-[2px] border-[#95A4FC] rounded-[16px] flex justify-center items-center p-2">
+                <Plot
+                  data={[
+                    {
+                      x: responseState?.results[selectedId - 1]?.y_test?.map(
+                        (value, index) => index
+                      ),
+                      y: responseState?.results[selectedId - 1]?.y_test?.map(
+                        (value, index) => value
+                      ),
+                      type: "scatter",
+                      mode: "lines",
+                      name: "y_test",
+                    },
+                    {
+                      x: responseState?.results[
+                        selectedId - 1
+                      ]?.predictions?.map((value, index) => index),
+                      y: responseState?.results[
+                        selectedId - 1
+                      ]?.predictions?.map((value, index) => value),
+                      type: "scatter",
+                      mode: "lines",
+                      name: "predictions",
+                    },
+                  ]}
+                  layout={{
+                    //width: "5vw",
+                    height: "100px",
+                    // width: 800,
+                    // height: 400,
+                    title: {
+                      text: "Time Series",
+                    },
+                    xaxis: {
+                      title: {
+                        text: "Index",
+                        font: {
+                          size: 14,
+                        },
+                        standoff: 8,
+                      },
+                      zeroline: false,
+                    },
+                    yaxis: {
+                      title: {
+                        text: "Value",
+                        font: {
+                          size: 14,
+                        },
+                        standoff: 3,
+                      },
+                      zeroline: false,
+                    },
+                    //margin: { t: 30, r: 30 },
+                    //legend: { orientation: 'h' },
+                  }}
+                />
+              </div>
+              <div className="flex flex-col items-center justify-center gap-1 mt-2">
+                {Object.entries(responseState?.results[selectedId - 1]).map(
+                  ([key, value]) =>
+                    key !== "predictions" &&
+                    key !== "feature" &&
+                    key !== "y_test" && (
+                      <div className="flex overflow-auto gap-2" key={key}>
+                        <div className="flex w-[300px] justify-center items-center border-[2px] border-[#A8C5DA] rounded-[16px]">
+                          {key
+                            .replace(/error/gi, "")
+                            .replace(/_/g, " ")
+                            .toUpperCase()}
+                        </div>
+                        <div className="flex w-[300px] justify-center items-center border-[2px] border-[#A8C5DA] rounded-[16px]">
+                          {value.toFixed(3)}
+                        </div>
                       </div>
-                      <div className="flex w-[50%] p-2 justify-center items-center border-[2px] border-[#A8C5DA] mb-1 p-1 rounded-[16px]">
-                        {value.toFixed(3)}
-                      </div>
-                    </div>
-                  )
-              )}
+                    )
+                )}
+              </div>
             </motion.div>
           </Card>
         )}
       </AnimatePresence>
       {responseState && (
-        <Card color="green">
-          <div className="relative flex flex-col gap-4">
+        <Card
+          color="green"
+          classStyle="min-h-[150px]"
+          classStyleDiv="flex flex-row flex-wrap justify-center items-center w-full gap-4"
+        >
+          <div className="relative flex flex-row gap-4">
             <Input
               type="text"
               name="name_file"

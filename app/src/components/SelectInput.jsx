@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import Select, { NonceProvider } from "react-select";
+import Select from "react-select";
 
 const SelectInput = ({
   options,

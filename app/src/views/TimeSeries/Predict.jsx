@@ -1,36 +1,21 @@
 import React, { useState, useRef, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { parse } from "papaparse";
-import { useForm, useFieldArray } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import Plot from "react-plotly.js";
 import { io } from "socket.io-client";
 import axios from "axios";
-import { Card, Button, Input } from "components";
+import { Card, Button, Input, InputFile } from "components";
 
 const Predict = () => {
-  const {
-    register,
-    handleSubmit,
-    control,
-    watch,
-    formState: { errors },
-  } = useForm();
-
-  const { fields, remove, append } = useFieldArray({
-    control,
-    name: "models",
-  });
-
+  const { register, watch } = useForm();
   const socket = useRef();
   const fileInputTxtRef = useRef(null);
   const fileInputCsvRef = useRef(null);
   const [txtData, setTxtData] = useState(null);
-  const [txtHeaders, setTxtHeaders] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
   const [feature, setFeature] = useState();
-
   const [csvData, setCsvData] = useState(null);
-  const [csvHeaders, setCsvHeaders] = useState([]);
   const [responseState, setResponseState] = useState(null);
 
   useEffect(() => {
@@ -61,7 +46,6 @@ const Predict = () => {
     if (file) {
       const text = await file.text();
       const { data } = parse(text, { header: true });
-      setCsvHeaders(Object.keys(data[0]));
       setCsvData(data);
     }
   };
@@ -85,15 +69,18 @@ const Predict = () => {
   return (
     <div
       onClick={handleOutsideClick}
-      className="grid lg:grid-cols-2 grid-cols-1 gap-4 ml-4 mt-12 h-max-content"
+      className="sm:w-[83vw] flex flex-col gap-4 ml-4 mt-12 mb-12 h-max-content"
     >
-      <Card color="green" classStyle="min-h-[150px]">
-        <div className="text-[#1c1c1c] font-[14px] font-[600]">Select file</div>
-        <input
-          type="file"
-          className="mb-4"
+      <Card
+        color="green"
+        classStyle="min-h-[150px]"
+        classStyleDiv="flex flex-row flex-wrap justify-center items-center w-full gap-4"
+      >
+        <InputFile
           ref={fileInputTxtRef}
-          accept=".txt"
+          fileAcept=".txt"
+          multiple={false}
+          color="green"
         />
         <Button
           color="green"
@@ -103,17 +90,16 @@ const Predict = () => {
         />
       </Card>
       {txtData && (
-        <Card color="blue">
-          <div className="text-[#1c1c1c] font-[14px] font-[600]">
-            Select file
-          </div>
-          <input
-            type="file"
-            className="mb-4"
+        <Card
+          color="blue"
+          classStyleDiv="flex flex-row flex-wrap justify-center items-center w-full gap-4"
+        >
+          <InputFile
             ref={fileInputCsvRef}
-            accept=".csv"
+            fileAcept=".csv"
+            multiple={false}
+            color="blue"
           />
-
           <Button
             type="button"
             text="Submit"
@@ -123,7 +109,11 @@ const Predict = () => {
         </Card>
       )}
       {csvData && (
-        <Card color="grey">
+        <Card
+          color="grey"
+          classStyle="min-h-[150px]"
+          classStyleDiv="flex flex-wrap justify-center items-center w-full gap-4"
+        >
           <div className="relative mb-4">
             <Input
               type="number"
@@ -142,7 +132,7 @@ const Predict = () => {
         </Card>
       )}
       {responseState && (
-        <Card>
+        <Card classStyleDiv="flex flex-row flex-wrap justify-center items-center w-full gap-4">
           <div className="flex gap-[5px] flex-wrap">
             {responseState?.results.map((state, index) => (
               <motion.div
@@ -173,62 +163,66 @@ const Predict = () => {
           <Card layoutId={selectedId} setSelectedId={setSelectedId}>
             <motion.div>
               <motion.div>
-                <Plot
-                  data={[
-                    {
-                      x: csvData.map((value, index) => index),
-                      y: csvData.map((value) => value[feature]),
-                      type: "scatter",
-                      mode: "lines",
-                      name: "testing",
-                      marker: { color: "#82ca9d" },
-                    },
-                    {
-                      x: responseState?.results[selectedId - 1].predictions.map(
-                        (value, index) => responseState?.split_index + index
-                        //csvData.length - responseState.split_index + index
-                      ),
+                <div className="bg-[white] pt-12 border-[2px] border-[#95A4FC] rounded-[16px] flex justify-center items-center p-2">
+                  <Plot
+                    data={[
+                      {
+                        x: csvData.map((value, index) => index),
+                        y: csvData.map((value) => value[feature]),
+                        type: "scatter",
+                        mode: "lines",
+                        name: "testing",
+                        marker: { color: "#82ca9d" },
+                      },
+                      {
+                        x: responseState?.results[
+                          selectedId - 1
+                        ].predictions.map(
+                          (value, index) => responseState?.split_index + index
+                          //csvData.length - responseState.split_index + index
+                        ),
 
-                      y: responseState?.results[selectedId - 1].predictions.map(
-                        (value) => value
-                      ),
-                      type: "scatter",
-                      mode: "lines",
-                      name: "predictions",
-                    },
-                  ]}
-                  layout={{
-                    width: "5vw",
-                    height: "500px",
-                    // width: 800,
-                    // height: 400,
-                    title: {
-                      text: "Predictions",
-                    },
-                    xaxis: {
-                      title: {
-                        text: "Index",
-                        font: {
-                          size: 14,
-                        },
-                        standoff: 8,
+                        y: responseState?.results[
+                          selectedId - 1
+                        ].predictions.map((value) => value),
+                        type: "scatter",
+                        mode: "lines",
+                        name: "predictions",
                       },
-                      zeroline: false,
-                    },
-                    yaxis: {
+                    ]}
+                    layout={{
+                      width: "5vw",
+                      height: "500px",
+                      // width: 800,
+                      // height: 400,
                       title: {
-                        text: "Value",
-                        font: {
-                          size: 14,
-                        },
-                        standoff: 3,
+                        text: "Predictions",
                       },
-                      zeroline: false,
-                    },
-                    margin: { t: 30, r: 30 },
-                    //legend: { orientation: 'h' },
-                  }}
-                />
+                      xaxis: {
+                        title: {
+                          text: "Index",
+                          font: {
+                            size: 14,
+                          },
+                          standoff: 8,
+                        },
+                        zeroline: false,
+                      },
+                      yaxis: {
+                        title: {
+                          text: "Value",
+                          font: {
+                            size: 14,
+                          },
+                          standoff: 3,
+                        },
+                        zeroline: false,
+                      },
+                      margin: { t: 30, r: 30 },
+                      //legend: { orientation: 'h' },
+                    }}
+                  />
+                </div>
               </motion.div>
             </motion.div>
           </Card>
