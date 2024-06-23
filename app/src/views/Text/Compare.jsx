@@ -1,8 +1,9 @@
 import React, { useState, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { FaTimes } from "react-icons/fa";
 import Plot from "react-plotly.js";
 import { useForm, useFieldArray } from "react-hook-form";
-import { Card, Button } from "components";
+import { Card, Button, InputFile, SelectInput } from "components";
 import { metricsTextClassification } from "constants";
 
 const Compare = () => {
@@ -11,22 +12,15 @@ const Compare = () => {
   const [selectedTab, setSelectedTab] = useState("recall");
   const fileInputRef = useRef();
 
-  const {
-    register,
-    handleSubmit,
-    control,
-    watch,
-    setValue,
-    formState: { errors },
-  } = useForm();
+  const { register, handleSubmit, control, watch, setValue } = useForm();
 
   const {
-    fields: fieldsYLabels,
-    remove: removeYLabel,
-    append: appendYLabel,
+    fields: fieldsXLabels,
+    remove: removeXLabel,
+    append: appendXLabel,
   } = useFieldArray({
     control,
-    name: "y_labels",
+    name: "x_labels",
   });
 
   const {
@@ -38,7 +32,7 @@ const Compare = () => {
     name: "legends",
   });
 
-  const [yLabels, setYLabels] = useState([]);
+  const [xLabels, setXLabels] = useState([]);
   const [legends, setLegends] = useState([]);
 
   const handleFileChange = async (event) => {
@@ -72,7 +66,7 @@ const Compare = () => {
             const findFeatured = Object.entries(report)?.find(
               ([metric]) => String(selectedId) === String(metric)
             );
-            return findFeatured ? String(watch(`y_labels_${name}`)) : undefined;
+            return findFeatured ? String(watch(`x_labels_${name}`)) : undefined;
           }),
         y: selectedFiles
           .filter(({ content: { report }, name }) => {
@@ -121,8 +115,8 @@ const Compare = () => {
     return data;
   };
 
-  const onSubmit = ({ y_labels, legends, ...props }) => {
-    setYLabels(y_labels);
+  const onSubmit = ({ x_labels, legends, ...props }) => {
+    setXLabels(x_labels);
     setLegends(legends);
   };
 
@@ -130,202 +124,236 @@ const Compare = () => {
     <div onClick={() => {}}>
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="grid lg:grid-cols-2 grid-cols-1 gap-4 ml-4 mt-12 h-max-content"
+        className="sm:w-[83vw] grid lg:grid-cols-2 grid-cols-1 gap-4 ml-4 mt-12 h-max-content"
       >
         <div>
-          <Card color="green" classStyle="min-h-[150px]">
-            <div className="text-[#1c1c1c] font-[14px] font-[600]">
-              Select file
-            </div>
-            <input
-              type="file"
-              multiple
+          <Card
+            color="green"
+            classStyle="min-h-[150px]"
+            classStyleDiv="flex flex-col justify-center items-center w-full gap-4"
+          >
+            <InputFile
               ref={fileInputRef}
-              onChange={handleFileChange}
-              accept=".txt"
+              fileAcept=".txt"
+              multiple={true}
+              color="green"
             />
             <Button
               color="green"
               text="Submit"
               type="button"
-              func={() => fileInputRef.current.click()}
+              func={handleFileChange}
             />
           </Card>
         </div>
-        <div>
-          {selectedFiles.length > 0 && (
-            <Card color="blue" classStyle="min-h-[150px]">
-              <h4>Selected Featured:</h4>
-              <div className="flex gap-[5px] flex-wrap">
-                {[
-                  ...selectedFiles[0]?.content?.labels,
-                  ...["macro avg", "weighted avg", "accuracy"],
-                ]?.map((label, index) => (
-                  <motion.div
-                    key={index}
-                    onClick={() => setSelectedId(label)}
-                    layoutId={label}
-                    className={`${
-                      index % 4 === 0
-                        ? "border-[#95A4FC]"
-                        : index % 4 === 1
-                        ? "border-[#BAEDBD]"
-                        : index % 4 === 2
-                        ? "border-[#1C1C1C]"
-                        : "border-[#B1E3FF]"
-                    } border-[2px] mb-[10px] w-[200px] h-[50px] rounded-[16px] flex justify-center items-center cursor-pointer`}
-                  >
-                    <motion.div>{label}</motion.div>
-                  </motion.div>
-                ))}
-              </div>
-            </Card>
-          )}
-        </div>
-        <Card>
-          {selectedFiles?.map(({ name }, index) => (
+        {selectedFiles.length > 0 && (
+          <>
             <div>
-              <li key={index}>{name}</li>
-              <select
-                id="layers"
-                name="layers"
-                {...register(`y_labels_${name}`)}
-                defaultValue={"None"}
+              <Card
+                color="blue"
+                classStyle="min-h-[150px]"
+                classStyleDiv="flex flex-col justify-center items-center w-full gap-4"
               >
-                <option value="None">None</option>
-                {yLabels.map((yLabel, index) => (
-                  <option key={index} value={yLabel.name}>
-                    {yLabel.name}
-                  </option>
-                ))}
-              </select>
-              <select
-                id="layers"
-                name="layers"
-                {...register(`legends_${name}`)}
-                defaultValue={"None"}
-              >
-                <option value="None">None</option>
-                {legends.map((legend, index) => (
-                  <option key={index} value={legend.name}>
-                    {legend.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-          ))}
-        </Card>
-        <Card>
-          {fieldsYLabels.map(({ id }, index) => (
-            <div key={id}>
-              <input type="text" {...register(`y_labels[${index}].name`)} />
-              <button
-                type="button"
-                onClick={() => {
-                  const newYLabels = yLabels.filter((_, idx) => idx !== index);
-                  removeYLabel(index);
-                  setYLabels(newYLabels);
-                }}
-              >
-                Remove
-              </button>
-            </div>
-          ))}
-          <button
-            type="button"
-            onClick={() => {
-              appendYLabel({});
-            }}
-          >
-            Add yLabel
-          </button>
-        </Card>
-        <Card>
-          {fieldsLegend.map(({ id }, index) => (
-            <div key={id}>
-              <input type="text" {...register(`legends[${index}].name`)} />
-              <button
-                type="button"
-                onClick={() => {
-                  const newLegend = legends.filter((_, idx) => idx !== index);
-                  removeLegend(index);
-                  setLegends(newLegend);
-                }}
-              >
-                Remove
-              </button>
-            </div>
-          ))}
-          <button type="button" onClick={() => appendLegend({})}>
-            Add legend
-          </button>
-          <button type="subit">Submit</button>
-        </Card>
-        <AnimatePresence onClick={(event) => event.stopPropagation()}>
-          {selectedId !== null && (
-            <Card
-              color="blue"
-              layoutId={selectedId}
-              setSelectedId={setSelectedId}
-            >
-              <div className="flex flex-row justify-center gap-4 mb-8 p-2">
-                {selectedId !== "accuracy" &&
-                  metricsTextClassification.map(({ name, title }) => (
-                    <div key={name} onClick={() => setSelectedTab(name)}>
-                      <div
-                        className={`${
-                          name === selectedTab ? "relative" : ""
-                        } border-[#95A4FC] border-[2px] w-[150px] h-[50px] rounded-[16px] flex justify-center items-center cursor-pointer`}
-                      >
-                        {title}
-                        {name === selectedTab ? (
-                          <motion.div
-                            className="before:content-[''] before:absolute before:w-[10px] before:h-[6px] before:bottom-0 before:bg-[white] before:border-[2px] before:top-[-3.5px] before:left-[50%] before:translate-x-[-50%] before:border-[#95A4FC] before:translate-x-[-50%] box-shadow-blue
-                          after:content-[''] after:absolute after:w-[10px] after:h-[6px] after:bottom-0 after:bg-[white] after:border-[2px] after:bottom-[-4px] after:left-[50%] after:translate-x-[-50%] after:border-[#95A4FC] after:translate-x-[-50%]"
-                            layoutId={selectedTab}
-                          />
-                        ) : null}
-                      </div>
-                    </div>
+                <h4 className="font-[600] text-base uppercase tracking-widest">
+                  Bar chart
+                </h4>
+                <div className="flex gap-[5px] flex-wrap justify-center">
+                  {[
+                    ...selectedFiles[0]?.content?.labels,
+                    ...["macro avg", "weighted avg", "accuracy"],
+                  ]?.map((label, index) => (
+                    <motion.div
+                      key={index}
+                      onClick={() => setSelectedId(label)}
+                      layoutId={label}
+                      className={`${
+                        index % 4 === 0
+                          ? "border-[#95A4FC]"
+                          : index % 4 === 1
+                          ? "border-[#BAEDBD]"
+                          : index % 4 === 2
+                          ? "border-[#1C1C1C]"
+                          : "border-[#B1E3FF]"
+                      } border-[2px] mb-[10px] w-[200px] h-[50px] rounded-[16px] flex justify-center items-center cursor-pointer`}
+                    >
+                      <motion.div>{label}</motion.div>
+                    </motion.div>
                   ))}
-              </div>
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={selectedTab ? selectedTab : "empty"}
-                  initial={{ y: 10, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  exit={{ y: -10, opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <div className="bg-[white] border-[2px] border-[#95A4FC] rounded-[16px] flex justify-center items-center p-2">
-                    <Plot
-                      data={fetchData(selectedTab)}
-                      layout={{
-                        width: 800,
-                        height: 400,
-                        title: `${
-                          selectedId !== "accuracy"
-                            ? selectedTab.charAt(0).toUpperCase() +
-                              selectedTab.slice(1)
-                            : ""
-                        } ${
-                          selectedId.charAt(0).toUpperCase() +
-                          selectedId.slice(1)
-                        }`,
-                        yaxis: {
-                          title: "Value",
-                        },
-                        xaxis: {
-                          title: "Index",
-                        },
-                      }}
+                </div>
+              </Card>
+            </div>
+            <Card
+              classStyle="min-h-[150px]"
+              classStyleDiv="flex flex-col justify-center items-center w-full gap-4"
+            >
+              {selectedFiles?.map(({ name }, index) => (
+                <div className="flex flex-row justify-center items-center mb-6 gap-6">
+                  <div
+                    className="font-[600] text-base tracking-widest"
+                    key={index}
+                  >
+                    {name}
+                  </div>
+                  <div className="flex flex-col flex-wrap justify-center items-center gap-6">
+                    <SelectInput
+                      options={[
+                        "None",
+                        ...xLabels.map((xLabel) => xLabel.name),
+                      ]}
+                      label="X Label"
+                      name={`x_labels_${name}`}
+                      isMulti={false}
+                      color="grey"
+                      setValue={setValue}
+                      watch={watch(`x_labels_${name}`)}
+                    />
+
+                    <SelectInput
+                      options={[
+                        "None",
+                        ...legends.map((legend) => legend.name),
+                      ]}
+                      label="Legends"
+                      name={`legends_${name}`}
+                      isMulti={false}
+                      color="grey"
+                      setValue={setValue}
+                      watch={watch(`legends_${name}`)}
                     />
                   </div>
-                </motion.div>
-              </AnimatePresence>
+                </div>
+              ))}
             </Card>
-          )}
-        </AnimatePresence>
+            <Card
+              classStyle="min-h-[150px]"
+              classStyleDiv="flex flex-col justify-center items-center w-full gap-4"
+            >
+              {fieldsXLabels.map(({ id }, index) => (
+                <div key={id} className="flex gap-2">
+                  <input type="text" {...register(`x_labels[${index}].name`)} />
+                  <button
+                    type="button"
+                    className="text-[#95A4FC]"
+                    onClick={() => {
+                      const newXLabels = xLabels.filter(
+                        (_, idx) => idx !== index
+                      );
+                      removeXLabel(index);
+                      setXLabels(newXLabels);
+                    }}
+                  >
+                    <FaTimes />
+                  </button>
+                </div>
+              ))}
+              <Button
+                color="grey"
+                func={() => {
+                  appendXLabel({});
+                }}
+                type="button"
+                text="Add xLabel"
+              />
+            </Card>
+            <Card
+              classStyle="min-h-[150px]"
+              classStyleDiv="flex flex-col justify-center items-center w-full gap-4"
+            >
+              {fieldsLegend.map(({ id }, index) => (
+                <div key={id} className="flex gap-2">
+                  <input type="text" {...register(`legends[${index}].name`)} />
+                  <button
+                    type="button"
+                    className="text-[#95A4FC]"
+                    onClick={() => {
+                      const newLegend = legends.filter(
+                        (_, idx) => idx !== index
+                      );
+                      removeLegend(index);
+                      setLegends(newLegend);
+                    }}
+                  >
+                    <FaTimes />
+                  </button>
+                </div>
+              ))}
+              <Button
+                color="grey"
+                func={() => {
+                  appendLegend({});
+                }}
+                type="button"
+                text="Add legend"
+              />
+              <Button color="grey" type="submit" text="Submit" />
+            </Card>
+            <AnimatePresence onClick={(event) => event.stopPropagation()}>
+              {selectedId !== null && (
+                <Card
+                  color="blue"
+                  layoutId={selectedId}
+                  setSelectedId={setSelectedId}
+                >
+                  <div className="flex flex-row justify-center gap-4 mb-8 p-2">
+                    {selectedId !== "accuracy" &&
+                      metricsTextClassification.map(({ name, title }) => (
+                        <div key={name} onClick={() => setSelectedTab(name)}>
+                          <div
+                            className={`${
+                              name === selectedTab ? "relative" : ""
+                            } border-[#95A4FC] border-[2px] w-[150px] h-[50px] rounded-[16px] flex justify-center items-center cursor-pointer`}
+                          >
+                            {title}
+                            {name === selectedTab ? (
+                              <motion.div
+                                className="before:content-[''] before:absolute before:w-[10px] before:h-[6px] before:bottom-0 before:bg-[white] before:border-[2px] before:top-[-3.5px] before:left-[50%] before:translate-x-[-50%] before:border-[#95A4FC] before:translate-x-[-50%] box-shadow-blue
+                          after:content-[''] after:absolute after:w-[10px] after:h-[6px] after:bottom-0 after:bg-[white] after:border-[2px] after:bottom-[-4px] after:left-[50%] after:translate-x-[-50%] after:border-[#95A4FC] after:translate-x-[-50%]"
+                                layoutId={selectedTab}
+                              />
+                            ) : null}
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={selectedTab ? selectedTab : "empty"}
+                      initial={{ y: 10, opacity: 0 }}
+                      animate={{ y: 0, opacity: 1 }}
+                      exit={{ y: -10, opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <div className="bg-[white] border-[2px] border-[#95A4FC] rounded-[16px] flex justify-center items-center p-2">
+                        <Plot
+                          data={fetchData(selectedTab)}
+                          layout={{
+                            width: 800,
+                            height: 400,
+                            title: `${
+                              selectedId !== "accuracy"
+                                ? selectedTab.charAt(0).toUpperCase() +
+                                  selectedTab.slice(1)
+                                : ""
+                            } ${
+                              selectedId.charAt(0).toUpperCase() +
+                              selectedId.slice(1)
+                            }`,
+                            yaxis: {
+                              title: "Value",
+                            },
+                            xaxis: {
+                              title: "Index",
+                            },
+                          }}
+                        />
+                      </div>
+                    </motion.div>
+                  </AnimatePresence>
+                </Card>
+              )}
+            </AnimatePresence>
+          </>
+        )}
       </form>
     </div>
   );
