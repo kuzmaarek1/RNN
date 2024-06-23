@@ -125,7 +125,7 @@ const Evaluate = () => {
           classStyle="min-h-[150px]"
           classStyleDiv="flex flex-row flex-wrap justify-center items-center w-full gap-4"
         >
-          <div className="flex gap-[5px]  flex-row flex-wrap">
+          <div className="flex gap-[5px] justify-center items-center flex-row flex-wrap">
             {responseState?.results.map((state, index) => (
               <motion.div
                 key={index + 1}

@@ -352,6 +352,7 @@ def evaluate_time_series():
             np.repeat([dataTrainMin], forecast_steps).flatten(),
         ]
     )
+    predictions = scaler.inverse_transform(predictions)
     results = []
 
     def calculate_errors(y_true, y_pred):
@@ -392,6 +393,7 @@ def evaluate_time_series():
         }
         results.append(result)
 
+    print(predictions)
     return jsonify(
         {
             "predictions": predictions.tolist(),

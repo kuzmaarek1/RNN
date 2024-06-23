@@ -210,7 +210,7 @@ const Models = () => {
         {YLabels.length > 0 && (
           <div className="lg:col-span-2">
             <Card>
-              <div className="flex gap-[5px] flex-wrap">
+              <div className="flex justify-center items-center gap-[5px] flex-wrap">
                 {YLabels.map((YLabel, index) => (
                   <motion.div
                     key={YLabel}
