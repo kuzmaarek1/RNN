@@ -230,7 +230,11 @@ const Compare = () => {
             >
               {fieldsXLabels.map(({ id }, index) => (
                 <div key={id} className="flex gap-2">
-                  <input type="text" {...register(`x_labels[${index}].name`)} />
+                  <input
+                    className="relative w-full p-[10px_0px] bg-[transparent] border-[none] outline-none text-[black] text-[1em] uppercase tracking-[0.05em] border-b-[2px] border-[#A8C5DA] input"
+                    type="text"
+                    {...register(`x_labels[${index}].name`)}
+                  />
                   <button
                     type="button"
                     className="text-[#95A4FC]"
@@ -261,7 +265,11 @@ const Compare = () => {
             >
               {fieldsLegend.map(({ id }, index) => (
                 <div key={id} className="flex gap-2">
-                  <input type="text" {...register(`legends[${index}].name`)} />
+                  <input
+                    className="relative w-full p-[10px_0px] bg-[transparent] border-[none] outline-none text-[black] text-[1em] uppercase tracking-[0.05em] border-b-[2px] border-[#A8C5DA] input"
+                    type="text"
+                    {...register(`legends[${index}].name`)}
+                  />
                   <button
                     type="button"
                     className="text-[#95A4FC]"
