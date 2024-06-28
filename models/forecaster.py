@@ -5,20 +5,38 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from scalecast.Forecaster import Forecaster
 
-data = pd.read_csv(
-    "C:/Users/akuzm/OneDrive/Pulpit/AirPassengers.csv", parse_dates=["Month"]
-)
-
-f = Forecaster(y=data["#Passengers"], current_dates=data["Month"])
+data = pd.read_csv("GOOG.csv", parse_dates=["date"])
+data["date"] = data["date"].dt.tz_localize(None)
+f = Forecaster(y=data["close"], current_dates=data["date"])
 
 print(f)
 
-f.plot_pacf(lags=26)
+f.plot_acf(lags=500)
 plt.show()
 
-f.seasonal_decompose().plot()
+f.seasonal_decompose(period=30).plot()
 plt.show()
 
+stat, pval, _, _, _, _ = f.adf_test(full_res=True)
+print(stat)
+print(pval)
+
+data = pd.read_csv("DailyDelhiClimateTrain.csv", parse_dates=["date"])
+# data["date"] = data["date"].dt.tz_localize(None)
+f = Forecaster(y=data["meantemp"], current_dates=data["date"])
+
+print(f)
+
+f.plot_acf(lags=500)
+plt.show()
+
+f.seasonal_decompose(period=30).plot()
+plt.show()
+
+stat, pval, _, _, _, _ = f.adf_test(full_res=True)
+print(stat)
+print(pval)
+"""
 f.set_test_length(
     50
 )  # 1. 12 observations to test the results12)       # 1. 12 observations to test the results
@@ -28,3 +46,4 @@ f.set_estimator("lstm")  # 3. LSTM neural network
 f.manual_forecast(call_me="lstm_default")
 f.plot_test_set(ci=True)
 plt.show()
+"""

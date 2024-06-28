@@ -393,7 +393,6 @@ def evaluate_time_series():
         }
         results.append(result)
 
-    print(predictions)
     return jsonify(
         {
             "predictions": predictions.tolist(),

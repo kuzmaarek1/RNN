@@ -236,48 +236,50 @@ const Models = () => {
         <AnimatePresence onClick={(event) => event.stopPropagation()}>
           {selectedId && (
             <Card layoutId={selectedId} setSelectedId={setSelectedId}>
-              <Plot
-                data={[
-                  {
-                    x: chartData.map((dataPoint) => dataPoint.label),
-                    y: chartData.map((dataPoint) => dataPoint.value),
-                    type: "scatter",
-                    mode: "lines",
-                    marker: { color: "#82ca9d" },
-                  },
-                ]}
-                layout={{
-                  width: "5vw",
-                  height: "500px",
-                  // width: 800,
-                  // height: 400,
-                  title: {
-                    text: `Feauture - ${selectedId}`,
-                  },
-                  xaxis: {
-                    title: {
-                      text: "Index",
-                      font: {
-                        size: 14,
-                      },
-                      standoff: 8,
+              <div className="bg-[white] border-[2px] border-[#95A4FC] rounded-[16px] flex justify-center items-center p-2">
+                <Plot
+                  data={[
+                    {
+                      x: chartData.map((dataPoint) => dataPoint.label),
+                      y: chartData.map((dataPoint) => dataPoint.value),
+                      type: "scatter",
+                      mode: "lines",
+                      marker: { color: "#82ca9d" },
                     },
-                    zeroline: false,
-                  },
-                  yaxis: {
+                  ]}
+                  layout={{
+                    width: "5vw",
+                    height: "500px",
+                    // width: 800,
+                    // height: 400,
                     title: {
-                      text: "Value",
-                      font: {
-                        size: 14,
-                      },
-                      standoff: 3,
+                      text: `Feauture - ${selectedId}`,
                     },
-                    zeroline: false,
-                  },
-                  margin: { t: 30, r: 30 },
-                  //legend: { orientation: 'h' },
-                }}
-              />
+                    xaxis: {
+                      title: {
+                        text: "Index",
+                        font: {
+                          size: 14,
+                        },
+                        standoff: 8,
+                      },
+                      zeroline: false,
+                    },
+                    yaxis: {
+                      title: {
+                        text: "Value",
+                        font: {
+                          size: 14,
+                        },
+                        standoff: 3,
+                      },
+                      zeroline: false,
+                    },
+                    margin: { t: 30, r: 30 },
+                    //legend: { orientation: 'h' },
+                  }}
+                />
+              </div>
             </Card>
           )}
         </AnimatePresence>
