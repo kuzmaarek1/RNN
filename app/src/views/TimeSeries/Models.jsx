@@ -28,7 +28,7 @@ const Models = () => {
   const [selectedTab, setSelectedTab] = useState("loss");
 
   useEffect(() => {
-    socket.current = io("http://127.0.0.1:5000", {
+    socket.current = io("https://rnn-0jd7.onrender.com/", {
       transports: ["websocket"],
       upgrade: false,
       reconnection: true,
