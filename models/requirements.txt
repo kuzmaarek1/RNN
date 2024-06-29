@@ -1,11 +1,10 @@
+tensorflow==2.13.1
 Flask
 Flask-SocketIO
 Flask-Cors
 pandas
 numpy
 scikit-learn
-keras
 beautifulsoup4
-tensorflow
 setuptools
 gunicorn

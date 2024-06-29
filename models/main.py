@@ -4,22 +4,25 @@ from flask_cors import CORS
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
-from keras.models import Sequential
+from tensorflow.keras.models import Sequential
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import confusion_matrix, classification_report
-import keras
 import json
 from bs4 import BeautifulSoup
 import re
-from keras_preprocessing.sequence import pad_sequences
-from keras_preprocessing.text import Tokenizer
-from keras.layers import Dense, Embedding, LSTM
-from keras.utils import to_categorical
+
+# from tensorflow.keras_preprocessing.sequence import pad_sequences
+from tensorflow.keras.preprocessing.sequence import pad_sequences
+
+# from tensorflow.keras_preprocessing.text import Tokenizer
+from tensorflow.keras.preprocessing.text import Tokenizer
+from tensorflow.keras.utils import to_categorical
 import tensorflow as tf
 from sklearn import metrics
 import uuid
 import time
-from keras.layers import (
+from tensorflow.keras.layers import (
+    Embedding,
     Dense,
     LSTM,
     GRU,
@@ -136,7 +139,7 @@ def train_model_time_series(message):
 
     model.add(Dense(len(filter) * forecast_steps))
 
-    class EpochLogger(keras.callbacks.Callback):
+    class EpochLogger(tf.keras.callbacks.Callback):
         def on_epoch_end(self, epoch, logs=None):
             epoch_info = {
                 "epoch": epoch,
@@ -253,7 +256,7 @@ def train_model_text_classification(message):
 
     model.add(Dense(num_categories, activation="softmax"))
 
-    class EpochLogger(keras.callbacks.Callback):
+    class EpochLogger(tf.keras.callbacks.Callback):
         def on_epoch_end(self, epoch, logs=None):
             epoch_info = {
                 "epoch": epoch,
