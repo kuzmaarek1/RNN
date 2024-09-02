@@ -3,10 +3,10 @@ import { AnimatePresence, motion } from "framer-motion";
 import { FaTimes, FaPlus } from "react-icons/fa";
 import { parse } from "papaparse";
 import { useForm, useFieldArray } from "react-hook-form";
-import Plot from "react-plotly.js";
 import { io } from "socket.io-client";
 import { Button, Card, Input, InputFile, SelectInput } from "components";
 import { inputFieldModelsTimeSeries } from "constants";
+import { PlotContainer } from "views";
 
 const Models = () => {
   const { register, handleSubmit, control, watch, setValue } = useForm();
@@ -28,7 +28,7 @@ const Models = () => {
   const [selectedTab, setSelectedTab] = useState("loss");
 
   useEffect(() => {
-    socket.current = io("https://rnn-0jd7.onrender.com/", {
+    socket.current = io("http://127.0.0.1:5000", {
       transports: ["websocket"],
       upgrade: false,
       reconnection: true,
@@ -236,50 +236,18 @@ const Models = () => {
         <AnimatePresence onClick={(event) => event.stopPropagation()}>
           {selectedId && (
             <Card layoutId={selectedId} setSelectedId={setSelectedId}>
-              <div className="bg-[white] border-[2px] border-[#95A4FC] rounded-[16px] flex justify-center items-center p-2">
-                <Plot
-                  data={[
-                    {
-                      x: chartData.map((dataPoint) => dataPoint.label),
-                      y: chartData.map((dataPoint) => dataPoint.value),
-                      type: "scatter",
-                      mode: "lines",
-                      marker: { color: "#82ca9d" },
-                    },
-                  ]}
-                  layout={{
-                    width: "5vw",
-                    height: "500px",
-                    // width: 800,
-                    // height: 400,
-                    title: {
-                      text: `Feauture - ${selectedId}`,
-                    },
-                    xaxis: {
-                      title: {
-                        text: "Index",
-                        font: {
-                          size: 14,
-                        },
-                        standoff: 8,
-                      },
-                      zeroline: false,
-                    },
-                    yaxis: {
-                      title: {
-                        text: "Value",
-                        font: {
-                          size: 14,
-                        },
-                        standoff: 3,
-                      },
-                      zeroline: false,
-                    },
-                    margin: { t: 30, r: 30 },
-                    //legend: { orientation: 'h' },
-                  }}
-                />
-              </div>
+              <PlotContainer
+                data={[
+                  {
+                    x: chartData.map((dataPoint) => dataPoint.label),
+                    y: chartData.map((dataPoint) => dataPoint.value),
+                    type: "scatter",
+                    mode: "lines",
+                    marker: { color: "#82ca9d" },
+                  },
+                ]}
+                title={`Feauture - ${selectedId}`}
+              />
             </Card>
           )}
         </AnimatePresence>
@@ -545,62 +513,35 @@ const Models = () => {
                 exit={{ y: -10, opacity: 0 }}
                 transition={{ duration: 0.2 }}
               >
-                <div className="bg-[white] pt-12 border-[2px] border-[#95A4FC] rounded-[16px] flex justify-center items-center p-2">
-                  <Plot
-                    data={[
-                      {
-                        x: epochsHistory.map(
-                          (epochHistory) => epochHistory.epoch + 1
-                        ),
-                        y: epochsHistory.map(
-                          (epochHistory) => epochHistory[selectedTab]
-                        ),
-                        type: "scatter",
-                        mode: "lines",
-                        name: "training",
-                      },
-                      epochsHistory[0][`val_${selectedTab}`] !== undefined && {
-                        x: epochsHistory.map(
-                          (epochHistory) => epochHistory.epoch + 1
-                        ),
-                        y: epochsHistory.map(
-                          (epochHistory) => epochHistory[`val_${selectedTab}`]
-                        ),
-                        type: "scatter",
-                        mode: "lines",
-                        name: "val",
-                      },
-                    ].filter(Boolean)}
-                    layout={{
-                      width: "5vw",
-                      height: "500px",
-                      title: {
-                        text: "Time Series",
-                      },
-                      xaxis: {
-                        title: {
-                          text: "Index",
-                          font: {
-                            size: 14,
-                          },
-                          standoff: 8,
-                        },
-                        zeroline: false,
-                      },
-                      yaxis: {
-                        title: {
-                          text: "Value",
-                          font: {
-                            size: 14,
-                          },
-                          standoff: 3,
-                        },
-                        zeroline: false,
-                      },
-                      margin: { t: 30, r: 30 },
-                    }}
-                  />
-                </div>
+                <PlotContainer
+                  data={[
+                    {
+                      x: epochsHistory.map(
+                        (epochHistory) => epochHistory.epoch + 1
+                      ),
+                      y: epochsHistory.map(
+                        (epochHistory) => epochHistory[selectedTab]
+                      ),
+                      type: "scatter",
+                      mode: "lines",
+                      name: "training",
+                    },
+                    epochsHistory[0][`val_${selectedTab}`] !== undefined && {
+                      x: epochsHistory.map(
+                        (epochHistory) => epochHistory.epoch + 1
+                      ),
+                      y: epochsHistory.map(
+                        (epochHistory) => epochHistory[`val_${selectedTab}`]
+                      ),
+                      type: "scatter",
+                      mode: "lines",
+                      name: "val",
+                    },
+                  ].filter(Boolean)}
+                  title={`${selectedTab
+                    .charAt(0)
+                    .toUpperCase()}${selectedTab.slice(1)}`}
+                />
               </motion.div>
             </AnimatePresence>
           </Card>

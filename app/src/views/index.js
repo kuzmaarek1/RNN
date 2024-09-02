@@ -10,3 +10,4 @@ export { default as CompareText } from "views/Text/Compare";
 export { default as DataPreparation } from "views/Text/DataPreparation";
 export { default as Animation } from "views/TimeSeries/Animation";
 export { default as TextAnimation } from "views/Text/Animation";
+export { default as PlotContainer } from "views/PlotContainer";
