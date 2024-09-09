@@ -132,7 +132,7 @@ const Compare = () => {
     <div onClick={handleOutsideClick}>
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="sm:w-[83vw] grid lg:grid-cols-2 grid-cols-1 gap-4 ml-4 mt-12 h-max-content"
+        className="sm:w-[83vw]  sm:ml-[236px] grid lg:grid-cols-2 grid-cols-1 gap-4 ml-4 mt-12 h-max-content"
       >
         <div>
           <Card

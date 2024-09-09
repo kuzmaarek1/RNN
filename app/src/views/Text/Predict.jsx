@@ -31,7 +31,7 @@ const Predict = () => {
   };
 
   return (
-    <div className="sm:w-[83vw] flex flex-col gap-4 ml-4 mt-12 mb-12 h-max-content">
+    <div className="sm:w-[83vw] sm:ml-[236px] flex flex-col gap-4 ml-4 mt-12 mb-12 h-max-content">
       <div>
         <Card
           color="green"

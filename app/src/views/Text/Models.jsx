@@ -151,7 +151,7 @@ const Models = () => {
   };
 
   return (
-    <div onClick={handleOutsideClick}>
+    <div onClick={handleOutsideClick} className="sm:ml-[220px]">
       <form
         onSubmit={handleSubmit(onSubmit)}
         className="sm:w-[83vw] grid lg:grid-cols-2 grid-cols-1 gap-4 ml-4 mt-12 h-max-content"

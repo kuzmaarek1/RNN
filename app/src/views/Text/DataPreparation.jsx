@@ -37,7 +37,7 @@ const DataPreparation = () => {
   };
 
   return (
-    <form className="sm:w-[83vw] flex flex-col gap-4 ml-4 mt-12 mb-12 h-max-content">
+    <form className="sm:w-[83vw] sm:ml-[236px] flex flex-col gap-4 ml-4 mt-12 mb-12 h-max-content">
       <Card
         color="green"
         classStyleDiv="flex flex-col justify-center items-center w-full gap-4"

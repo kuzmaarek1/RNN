@@ -106,7 +106,7 @@ const Evaluate = () => {
   return (
     <div
       onClick={handleOutsideClick}
-      className="sm:w-[83vw] flex flex-col gap-4 ml-4 mt-12 mb-12 h-max-content"
+      className="sm:w-[83vw] sm:ml-[236px] flex flex-col ml-4 mt-12 mb-12 h-max-content"
     >
       <Card
         color="green"
