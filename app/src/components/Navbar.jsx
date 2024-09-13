@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from "react";
 import { NavLink } from "react-router-dom";
-import { motion, AnimatePresence, useCycle } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { navbarItems, navbarTitle } from "constants";
 import { Animation, TextAnimation } from "views";
 import { MenuToggle } from "components";
@@ -73,6 +73,7 @@ const ListConatiner = ({
 const MenuItem = ({ isMenuToggle, isOpen, handleOnClick }) => {
   const NavLinkStyle =
     "text-[#1c1c1c] sm:text-[14px] text-[16px] font-[400] w-full hover:bg-[#1c1c1c0d] sm:p-[8px] p-[12px] sm:text-left text-center rounded-[8px]";
+  //"text-[#1c1c1c] sm:text-[1em] h-[5.5em] text-[16px] font-[400] w-full hover:bg-[#1c1c1c0d] sm:p-[8px] p-[12px] sm:text-left text-center rounded-[8px]";
   return (
     <>
       <ListConatiner
@@ -169,8 +170,7 @@ const sidebar = {
   },
 };
 
-const Navbar = () => {
-  const [isOpen, toggleOpen] = useCycle(false, true);
+const Navbar = ({ isOpen, toggleOpen }) => {
   const containerRef = useRef(null);
   const { height } = useDimensions(containerRef);
 
