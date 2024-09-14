@@ -151,10 +151,10 @@ const Models = () => {
   };
 
   return (
-    <div onClick={handleOutsideClick} className="sm:ml-[220px]">
+    <div onClick={handleOutsideClick} className="w-full">
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="sm:w-[83vw] grid lg:grid-cols-2 grid-cols-1 gap-4 ml-4 mt-12 h-max-content"
+        className="w-[calc(100%-2rem)] grid lg:grid-cols-2 grid-cols-1 gap-4 mx-4 mt-12 h-max-content"
       >
         <Card
           color="green"
@@ -397,7 +397,7 @@ const Models = () => {
           </Card>
         )}
       </form>
-      <div className="sm:w-[83vw] mb-12 grid lg:grid-cols-2 grid-cols-1 gap-4 ml-4 mt-4 h-max-content">
+      <div className="w-[calc(100%-2rem)] grid lg:grid-cols-2 grid-cols-1 gap-4 mx-4 mt-12 h-max-content">
         <div className="lg:col-span-2">
           {epochsHistory.length != 0 && (
             <Card

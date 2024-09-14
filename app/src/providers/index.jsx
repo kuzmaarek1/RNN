@@ -7,9 +7,13 @@ const AppProviders = ({ children }) => {
   const [isOpen, toggleOpen] = useCycle(false, true);
   return (
     <Router>
-      <div className="flex flex-rows">
+      <div className="flex flex-rows w-full">
         <Navbar isOpen={isOpen} toggleOpen={toggleOpen} />
-        <div className={`${isOpen} ? "block" : "sm:block hidden"`}>
+        <div
+          className={`${
+            isOpen ? "sm:flex hidden" : "flex "
+          } items-center w-[100vw] sm:ml-[220px] sm:w-[calc(100vw-220px)]`}
+        >
           {children}
         </div>
       </div>

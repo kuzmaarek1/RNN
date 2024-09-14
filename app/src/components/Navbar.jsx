@@ -73,7 +73,7 @@ const ListConatiner = ({
 const MenuItem = ({ isMenuToggle, isOpen, handleOnClick }) => {
   const NavLinkStyle =
     "text-[#1c1c1c] sm:text-[14px] text-[16px] font-[400] w-full hover:bg-[#1c1c1c0d] sm:p-[8px] p-[12px] sm:text-left text-center rounded-[8px]";
-  //"text-[#1c1c1c] sm:text-[1em] h-[5.5em] text-[16px] font-[400] w-full hover:bg-[#1c1c1c0d] sm:p-[8px] p-[12px] sm:text-left text-center rounded-[8px]";
+
   return (
     <>
       <ListConatiner
@@ -198,7 +198,7 @@ const Navbar = ({ isOpen, toggleOpen }) => {
                 delay: 0.5,
               },
             }}
-            className={`min-h-[100vh] overflow-scroll z-10 sm:hidden flex justify-center absolute w-[100%] flex-col p-[12px] border-r-[1px] border-r-[#1c1c1c1a] border-r-solid gap-y-[1px] gap-x-[4px] bg-[white]`}
+            className={`min-h-[100vh] w-[100%] z-10 sm:hidden flex justify-center itmes-center absolute flex-col items-center gap-y-[1px] gap-x-[4px] bg-[white]`}
           >
             <motion.div variants={variants} className="flex flex-col gap-1">
               <MenuItem

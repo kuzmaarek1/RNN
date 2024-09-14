@@ -55,7 +55,7 @@ const Card = ({
             : color === "blue"
             ? "bg-[#e5ecf6] border-[#95A4FC] before:border-[#95A4FC] after:border-[#95A4FC]"
             : "bg-[#F7F9FB] border-[#A8C5DA] before:border-[#A8C5DA] after:border-[#A8C5DA]"
-        } rounded-[16px] border-[2px] p-8 relative flex flex-rows
+        } rounded-[16px] border-[2px] p-8 relative flex flex-rows 
         before:content-[''] before:absolute before:w-[10px] before:h-[6px] before:bottom-0 before:bg-[white] before:border-[2px] before:top-[-3.5px] before:left-[85%] before:translate-x-[-50%]  before:translate-x-[-50%] 
         after:content-[''] after:absolute after:w-[10px] after:h-[6px] after:bottom-0 after:bg-[white] after:border-[2px] after:bottom-[-3.5px] after:left-[15%] after:translate-x-[-80%] after:translate-x-[-80%]`}
       >
