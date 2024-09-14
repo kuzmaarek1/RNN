@@ -11,7 +11,7 @@ const AppProviders = ({ children }) => {
         <Navbar isOpen={isOpen} toggleOpen={toggleOpen} />
         <div
           className={`${
-            isOpen ? "sm:flex hidden" : "flex "
+            isOpen ? "sm:flex hidden" : "flex"
           } items-center w-[100vw] sm:ml-[220px] sm:w-[calc(100vw-220px)]`}
         >
           {children}

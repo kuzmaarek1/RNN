@@ -121,7 +121,7 @@ const SelectInput = ({
   };
 
   return (
-    <div className={`relative ${styled ? styled : "w-[300px]"}`}>
+    <div className={`relative ${styled ? styled : "sm:w-[300px] w-[250px]"}`}>
       <label
         className={`absolute left-0 
         mt-[-8px] ${

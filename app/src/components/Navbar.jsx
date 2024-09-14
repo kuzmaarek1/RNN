@@ -88,7 +88,7 @@ const MenuItem = ({ isMenuToggle, isOpen, handleOnClick }) => {
         <img
           src={Logo}
           alt="Recurrent neural network"
-          className="w-[70px] h-[110px]"
+          className="w-[70px] h-[110px] mt-1"
         />
       </ListConatiner>
       {navbarItems.map(({ title, link }, indexTitle) => (

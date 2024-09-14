@@ -4,7 +4,7 @@ const Button = ({ text, func, color, type, classStyle, file }) => {
   return (
     <div>
       <button
-        className={`${classStyle} button relative uppercase spacing tracking-widest font-[400] text-base py-[10px] duration-500 w-[150px] rounded-[16px] border-[2px]
+        className={`${classStyle} button relative uppercase spacing tracking-widest pl-[0.1em] font-[400] text-base py-[10px] duration-500 w-[150px] rounded-[16px] border-[2px]
          ${
            color === "green"
              ? "border-[#A1E3CB]"
@@ -12,13 +12,12 @@ const Button = ({ text, func, color, type, classStyle, file }) => {
              ? "border-[#95A4FC]"
              : "border-[#A8C5DA]"
          } 
-         ${file && "font-[600]"}
-         text-[#1c1c1c] group
-         hover:tracking-[0.25em] before:content-[''] before:absolute before:inset-[2px]`}
+         ${file ? "font-[600]" : ""}
+         text-[#1c1c1c] group hover:tracking-[0.25em] hover:pl-[0.25em] before:content-[''] before:absolute before:inset-[2px]`}
         onClick={func}
         type={type}
       >
-        <span className="relative flex items-center justify-center">
+        <span className="relative flex items-center justify-center text-center">
           {text}
         </span>
         <i

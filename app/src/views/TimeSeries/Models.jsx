@@ -160,7 +160,7 @@ const Models = () => {
     <div onClick={handleOutsideClick} className="w-full">
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="w-[calc(100%-2rem)] grid mx-4 px-4 sm:grid-cols-2 grid-cols-1 gap-4 mt-12 h-max-content"
+        className="w-[calc(100%-2rem)] grid mx-4 px-4 lg:grid-cols-2 grid-cols-1 gap-4 mt-12 h-max-content"
       >
         <div>
           <Card
@@ -265,7 +265,7 @@ const Models = () => {
               />
               {inputFieldModelsTimeSeries.map(
                 ({ type, name, label, color }, index) => (
-                  <div className={`relative w-[300px] mt-8`}>
+                  <div className={`relative sm:w-[300px] w-[250px] mt-8`}>
                     <Input
                       type={type}
                       name={name}

@@ -14,7 +14,7 @@ const InputFile = forwardRef(({ fileAcept, multiple, color }, ref) => {
   const handleFileInputChange = (event) => {
     const files = event.target.files;
     if (files.length > 0) {
-      const maxLength = 20;
+      const maxLength = 10;
       const truncatedName =
         multiple && files.length > 1
           ? `${files.length} files selected`
@@ -46,7 +46,7 @@ const InputFile = forwardRef(({ fileAcept, multiple, color }, ref) => {
         multiple={multiple}
         onChange={handleFileInputChange}
       />
-      <div className="ml-[-25px] flex gap-4 justify-center items-center">
+      <div className="flex gap-4 justify-center items-center">
         {fileAcept === ".csv" ? (
           <GrDocumentCsv className={IconsStyles} />
         ) : (
@@ -58,7 +58,7 @@ const InputFile = forwardRef(({ fileAcept, multiple, color }, ref) => {
             text={fileName}
             type="button"
             func={handleCustomBtnClick}
-            classStyle="w-[300px]"
+            classStyle="sm:w-[300px] w-[210px]"
             file={true}
           />
         </label>
