@@ -24,7 +24,7 @@ const Card = ({
             ? "bg-[#e5ecf6] border-[#95A4FC]"
             : "bg-[#F7F9FB] border-[#A8C5DA]"
         } ${
-          small ? "p-6" : "p-12"
+          small ? "p-6" : "p-8"
         } animate-presence rounded-[16px] border-[3px] custom-box-shadow relative
         `}
         layoutId={layoutId}

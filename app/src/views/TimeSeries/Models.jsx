@@ -247,6 +247,7 @@ const Models = () => {
                   },
                 ]}
                 title={`Feauture - ${selectedId}`}
+                classStyle={`w-[75vw]`}
               />
             </Card>
           )}

@@ -2,15 +2,19 @@
 @tailwind components;
 @tailwind utilities;
 
-
 @layer base {
   html {
     font-family: "Inter-Regular", Helvetica;
   }
 }
 
+.js-plotly-plot svg {
+  display: inline;
+  margin-top: 5px;
+}
+
 .custom-box-shadow {
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4);
 }
 
 .box-shadow-button-green::before,
@@ -19,61 +23,61 @@
 .box-shadow-button-blue::after, 
 .box-shadow-button-grey::before,
 .box-shadow-button-grey::after{
-   transition: 0.5s, box-shadow 0.5s;
+  transition: 0.5s, box-shadow 0.5s;
 }
 
  .button:hover .box-shadow-button-green::before {
-    box-shadow:50px 0 #fff, 
+  box-shadow:50px 0 #fff, 
     -50px 0 #A1E3CB,
     -50px 0 4px white,
     10px -10px #A1E3CB,
     -10px -10px #fff;
-    transition-delay: 0s,0.5s;
+  transition-delay: 0s,0.5s;
 }
 
 .button:hover .box-shadow-button-green::after {
-    box-shadow:-50px 0 #fff, 
+  box-shadow:-50px 0 #fff, 
     50px 0 #A1E3CB,
     50px 0 4px white,
     -10px 10px #A1E3CB,
     10px 10px #fff;
-    transition-delay: 0s,0.5s;
+  transition-delay: 0s,0.5s;
 }
 
 .button:hover .box-shadow-button-blue::before {
-    box-shadow:50px 0 #fff, 
+  box-shadow:50px 0 #fff, 
     -50px 0 #95A4FC,
     -50px 0 4px white,
     10px -10px #95A4FC,
     -10px -10px #fff;
-    transition-delay: 0s,0.5s;
+  transition-delay: 0s,0.5s;
 }
 
 .button:hover .box-shadow-button-blue::after {
-    box-shadow:-50px 0 #fff, 
+  box-shadow:-50px 0 #fff, 
     50px 0 #95A4FC,
     50px 0 4px white,
     -10px 10px #95A4FC,
     10px 10px #fff;
-    transition-delay: 0s,0.5s;
+  transition-delay: 0s,0.5s;
 }
 
 .button:hover .box-shadow-button-grey::before {
-    box-shadow:50px 0 #fff, 
+  box-shadow:50px 0 #fff, 
     -50px 0 #A8C5DA,
     -50px 0 4px white,
     10px -10px #A8C5DA,
     -10px -10px #fff;
-    transition-delay: 0s,0.5s;
+  transition-delay: 0s,0.5s;
 }
 
 .button:hover .box-shadow-button-grey::after {
-    box-shadow:-50px 0 #fff, 
+  box-shadow:-50px 0 #fff, 
     50px 0 #A8C5DA,
     50px 0 4px white,
     -10px 10px #A8C5DA,
     10px 10px #fff;
-    transition-delay: 0s,0.5s;
+  transition-delay: 0s,0.5s;
 }
 
 .input:focus ~ label span, 
@@ -85,15 +89,15 @@
 }
 
 .h-max-content {
-    height: max-content;
+  height: max-content;
 }
 
 .active-link {
-    background-color: #1c1c1c0d;
+  background-color: #1c1c1c0d;
 }
 
 .box-shadow-blue::before {
-    box-shadow:50px 0 #fff, 
+  box-shadow:50px 0 #fff, 
     -50px 0 #95A4FC,
     -50px 0 4px white,
     10px -10px #95A4FC,
@@ -101,7 +105,7 @@
 }
 
 .box-shadow-blue::after {
-    box-shadow:-50px 0 #fff, 
+  box-shadow:-50px 0 #fff, 
     50px 0 #95A4FC,
     50px 0 4px white,
     -10px 10px #95A4FC,
