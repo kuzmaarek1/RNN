@@ -399,7 +399,7 @@ const Models = () => {
           </Card>
         )}
       </form>
-      <div className="w-[calc(100%-2rem)] grid lg:grid-cols-2 grid-cols-1 gap-4 mx-4 mt-12 h-max-content">
+      <div className="w-[calc(100%-2rem)] grid lg:grid-cols-2 grid-cols-1 gap-4 px-4 mx-4 mt-4 mb-12 h-max-content">
         <div className="lg:col-span-2">
           {epochsHistory.length != 0 && (
             <Card
@@ -458,7 +458,7 @@ const Models = () => {
                   ))}
               </div>
               {downloadLink && (
-                <div className="w-full flex justify-center items-center gap-6">
+                <div className="w-full flex justify-center items-center gap-6 flex-wrap">
                   <div className="relative w-[300px] mt-[20px]">
                     <Input
                       type="text"
@@ -468,6 +468,12 @@ const Models = () => {
                       register={register}
                     />
                   </div>
+                  <Button
+                    type="button"
+                    color="grey"
+                    text="Download"
+                    func={handleDownload}
+                  />
                   <motion.div
                     layoutId={1}
                     onClick={() => setDisplayPlot(1)}
@@ -475,12 +481,6 @@ const Models = () => {
                   >
                     Display Plot
                   </motion.div>
-                  <Button
-                    type="button"
-                    color="grey"
-                    text="Download"
-                    func={handleDownload}
-                  />
                 </div>
               )}
             </Card>
