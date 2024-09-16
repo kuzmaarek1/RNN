@@ -218,58 +218,70 @@ const Models = () => {
                   max={`${csvData.length - 1}`}
                 />
               </div>
-              {numberSlider != null && (
-                <>
+              <AnimatePresence>
+                {numberSlider != null && (
                   <motion.div
-                    key={numberSlider ? numberSlider : "empty"}
-                    initial={{ y: 10, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    exit={{ y: -10, opacity: 0 }}
-                    transition={{ duration: 0.2 }}
+                    variants={variants}
+                    initial="hidden"
+                    animate="visible"
+                    exit="exit"
+                    key="hidden"
+                    transition={transition}
+                    className="flex flex-col justify-center items-center w-full gap-2"
                   >
-                    <motion.div>
-                      <motion.div className="flex flex-row flex-wrap mt-2 justify-center items-center gap-x-4 gap-y-0">
-                        <motion.div className="flex w-[150px] flex-nowrap justify-center items-center border-[2px] border-[#A8C5DA] mb-1 p-1 rounded-[16px]">
-                          Category
+                    <motion.div
+                      key={numberSlider ? numberSlider : "empty"}
+                      initial={{ y: 20, opacity: 0, scale: 0.8 }}
+                      animate={{ y: 0, opacity: 1, scale: 1 }}
+                      exit={{ y: -20, opacity: 0, scale: 0.8 }}
+                      transition={{ duration: 0.2 }}
+                      layout
+                    >
+                      <motion.div>
+                        <motion.div className="flex flex-row flex-wrap mt-2 justify-center items-center gap-x-4 gap-y-0">
+                          <motion.div className="flex w-[150px] flex-nowrap justify-center items-center border-[2px] border-[#A8C5DA] mb-1 p-1 rounded-[16px]">
+                            Category
+                          </motion.div>
+                          <motion.div className="flex w-[150px] flex-nowrap justify-center items-center border-[2px] border-[#A8C5DA] mb-1 p-1 rounded-[16px]">
+                            {csvData[numberSlider][category]}
+                          </motion.div>
                         </motion.div>
-                        <motion.div className="flex w-[150px] flex-nowrap justify-center items-center border-[2px] border-[#A8C5DA] mb-1 p-1 rounded-[16px]">
-                          {csvData[numberSlider][category]}
-                        </motion.div>
-                      </motion.div>
-                      <motion.div className="flex flex-row flex-wrap gap-4 border-[2px] border-[#A8C5DA] p-1 rounded-[16px] px-3">
-                        <motion.div className="max-h-[150px] flex w-[100%] pt-1 flex-wrap justify-center items-center  overflow-auto">
-                          {csvData[numberSlider][text]}
+                        <motion.div className="flex flex-row flex-wrap gap-4 border-[2px] border-[#A8C5DA] p-1 rounded-[16px] px-3">
+                          <motion.div className="max-h-[150px] flex w-[100%] pt-1 flex-wrap justify-center items-center  overflow-auto">
+                            {csvData[numberSlider][text]}
+                          </motion.div>
                         </motion.div>
                       </motion.div>
                     </motion.div>
+                    <motion.div className="flex flex-row flex-wrap justify-center items-center gap-x-4 gap-y-2">
+                      <Button
+                        color="grey"
+                        type="button"
+                        text="Prev"
+                        func={() =>
+                          setNumberSlider((prev) =>
+                            prev === 0 ? csvData.length - 1 : prev - 1
+                          )
+                        }
+                      />
+                      <Button
+                        color="grey"
+                        type="button"
+                        text="Next"
+                        func={() =>
+                          setNumberSlider((prev) =>
+                            prev === csvData.length - 1 ? 0 : prev + 1
+                          )
+                        }
+                      />
+                    </motion.div>
                   </motion.div>
-                  <div className="flex flex-row flex-wrap justify-center items-center gap-x-4 gap-y-2">
-                    <Button
-                      color="grey"
-                      type="button"
-                      text="Prev"
-                      func={() =>
-                        setNumberSlider((prev) =>
-                          prev === 0 ? csvData.length - 1 : prev - 1
-                        )
-                      }
-                    />
-                    <Button
-                      color="grey"
-                      type="button"
-                      text="Next"
-                      func={() =>
-                        setNumberSlider((prev) =>
-                          prev === csvData.length - 1 ? 0 : prev + 1
-                        )
-                      }
-                    />
-                  </div>
-                </>
-              )}
+                )}
+              </AnimatePresence>
             </Card>
           </div>
         )}
+
         {category && (
           <Card color="blue" classStyle="min-h-[150px]">
             {inputFieldModelsText.map(({ type, name, label, color }, index) => (
