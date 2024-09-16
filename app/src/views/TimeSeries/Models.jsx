@@ -328,7 +328,7 @@ const Models = () => {
                             {index + 1}
                           </motion.div>
                           <button
-                            className="mt-[-10px] flex justify-center items-center w-[50px] text-[#95A4FC] text-center relative py-1 px-4 rounded-[16px] border-[2px] border-[#A8C5DA] w-full h-full left-0 top-0 right-0
+                            className="mt-[-10px] flex justify-center items-center w-[50px] text-[#95A4FC] text-center relative py-1 px-4 rounded-[16px] border-[2px] border-[#A8C5DA]  h-full left-0 top-0 right-0
                                     hover:before:w-[10px] hover:before:left-[calc(50%)]
                                     before:content-[''] before:absolute before:w-[10px] before:h-[6px] before:bg-[white] 
                                     before:border-[2px] before:border-[#A8C5DA] box-shadow-button-blue
@@ -419,57 +419,58 @@ const Models = () => {
               classStyle="min-h-[150px]"
               classStyleDiv="flex flex-col justify-center items-center w-full gap-4"
             >
-              <div className="custom-scrollbar-gray w-[90%] flex overflow-auto gap-2">
+              <div className="w-[90%] flex overflow-auto gap-2">
                 <div>
                   {Object.entries(epochsHistory[0]).map(([key, value]) => (
                     <div>
-                      <div className="flex w-[150px] flex-nowrap justify-center items-center border-[2px] border-[#A8C5DA] mb-1 p-1 rounded-[16px]">
+                      <div className="flex w-[110px] flex-nowrap justify-center items-center border-[2px] border-[#A8C5DA] mb-1 p-1 rounded-[16px]">
                         {key.charAt(0).toUpperCase() +
                           key.slice(1).replace(/_/g, " ")}
                       </div>
                     </div>
                   ))}
                 </div>
-                {epochsHistory.length > 0 &&
-                  epochsHistory.map((props, index) => (
-                    <div key={index}>
-                      {Object.entries(props).map(([key, value]) =>
-                        key === "epoch" ? (
-                          <div
-                            key={`${key}-${index}`}
-                            className="flex justify-center items-center border-[2px] border-[#A8C5DA] mb-1 p-1 rounded-[16px]"
-                          >
-                            {props.epoch + 1}
-                          </div>
-                        ) : (
-                          <div
-                            key={`${key}-${index}`}
-                            className={`flex justify-center items-center border-[2px] border-[#A8C5DA] mb-1 p-1 rounded-[16px] ${
-                              index ===
-                              lowestAndHighestIndex.find(
-                                (metrics) => key === metrics.key
-                              )?.lowestIndex
-                                ? key.includes("loss")
-                                  ? "bg-green-200"
-                                  : "bg-red-200"
-                                : index ===
-                                  lowestAndHighestIndex.find(
-                                    (metrics) => key === metrics.key
-                                  )?.highestIndex
-                                ? key.includes("loss")
-                                  ? "bg-red-200"
-                                  : "bg-green-200"
-                                : ""
-                            }`}
-                          >
-                            {value.toFixed(5)}
-                          </div>
-                        )
-                      )}
-                    </div>
-                  ))}
+                <div className="custom-scrollbar-gray  flex overflow-auto gap-2">
+                  {epochsHistory.length > 0 &&
+                    epochsHistory.map((props, index) => (
+                      <div key={index}>
+                        {Object.entries(props).map(([key, value]) =>
+                          key === "epoch" ? (
+                            <div
+                              key={`${key}-${index}`}
+                              className="flex justify-center items-center border-[2px] border-[#A8C5DA] mb-1 p-1 rounded-[16px]"
+                            >
+                              {props.epoch + 1}
+                            </div>
+                          ) : (
+                            <div
+                              key={`${key}-${index}`}
+                              className={`flex justify-center items-center border-[2px] border-[#A8C5DA] mb-1 p-1 rounded-[16px] ${
+                                index ===
+                                lowestAndHighestIndex.find(
+                                  (metrics) => key === metrics.key
+                                )?.lowestIndex
+                                  ? key.includes("loss")
+                                    ? "bg-green-200"
+                                    : "bg-red-200"
+                                  : index ===
+                                    lowestAndHighestIndex.find(
+                                      (metrics) => key === metrics.key
+                                    )?.highestIndex
+                                  ? key.includes("loss")
+                                    ? "bg-red-200"
+                                    : "bg-green-200"
+                                  : ""
+                              }`}
+                            >
+                              {value.toFixed(5)}
+                            </div>
+                          )
+                        )}
+                      </div>
+                    ))}
+                </div>
               </div>
-
               {downloadLink && (
                 <div className="w-full flex justify-center items-center flex-wrap  gap-6">
                   <div className="relative w-[300px] mt-[20px]">

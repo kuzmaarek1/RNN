@@ -200,7 +200,7 @@ const Models = () => {
         {category && (
           <div className="lg:col-span-2">
             <Card classStyleDiv="flex flex-col justify-center items-center w-full gap-4">
-              <div className="relative sm:w-[400px] w-[200px]">
+              <div className="relative w-[200px]">
                 <Input
                   type="number"
                   name="numberSlider"
@@ -227,8 +227,8 @@ const Models = () => {
                     exit={{ y: -10, opacity: 0 }}
                     transition={{ duration: 0.2 }}
                   >
-                    <motion.div className="h-[210px] overflow-auto">
-                      <motion.div className="flex flex-row flex-wrap gap-4 mt-2 justify-center items-center">
+                    <motion.div>
+                      <motion.div className="flex flex-row flex-wrap mt-2 justify-center items-center gap-x-4 gap-y-0">
                         <motion.div className="flex w-[150px] flex-nowrap justify-center items-center border-[2px] border-[#A8C5DA] mb-1 p-1 rounded-[16px]">
                           Category
                         </motion.div>
@@ -236,14 +236,14 @@ const Models = () => {
                           {csvData[numberSlider][category]}
                         </motion.div>
                       </motion.div>
-                      <motion.div className="flex flex-row flex-wrap gap-4 mt-2">
-                        <motion.div className="flex w-[100%] flex-nowrap justify-center items-center border-[2px] border-[#A8C5DA] mb-1 p-1 rounded-[16px]">
+                      <motion.div className="flex flex-row flex-wrap gap-4 border-[2px] border-[#A8C5DA] p-1 rounded-[16px] px-3">
+                        <motion.div className="max-h-[150px] flex w-[100%] pt-1 flex-wrap justify-center items-center  overflow-auto">
                           {csvData[numberSlider][text]}
                         </motion.div>
                       </motion.div>
                     </motion.div>
                   </motion.div>
-                  <div className="flex flex-row flex-wrap justify-center items-center gap-4">
+                  <div className="flex flex-row flex-wrap justify-center items-center gap-x-4 gap-y-2">
                     <Button
                       color="grey"
                       type="button"
@@ -407,55 +407,57 @@ const Models = () => {
               classStyle="min-h-[150px]"
               classStyleDiv="flex flex-col justify-center items-center w-full gap-4"
             >
-              <div className="custom-scrollbar-gray w-[90%] flex overflow-auto gap-2">
+              <div className="w-[90%] flex overflow-auto gap-2">
                 <div>
                   {Object.entries(epochsHistory[0]).map(([key, value]) => (
                     <div>
-                      <div className="flex w-[150px] flex-nowrap justify-center items-center border-[2px] border-[#A8C5DA] mb-1 p-1 rounded-[16px]">
+                      <div className="flex w-[110px] flex-nowrap justify-center items-center border-[2px] border-[#A8C5DA] mb-1 p-1 rounded-[16px]">
                         {key.charAt(0).toUpperCase() +
                           key.slice(1).replace(/_/g, " ")}
                       </div>
                     </div>
                   ))}
                 </div>
-                {epochsHistory.length > 0 &&
-                  epochsHistory.map((props, index) => (
-                    <div key={index}>
-                      {Object.entries(props).map(([key, value]) =>
-                        key === "epoch" ? (
-                          <div
-                            key={`${key}-${index}`}
-                            className="flex justify-center items-center border-[2px] border-[#A8C5DA] mb-1 p-1 rounded-[16px]"
-                          >
-                            {props.epoch + 1}
-                          </div>
-                        ) : (
-                          <div
-                            key={`${key}-${index}`}
-                            className={`flex justify-center items-center border-[2px] border-[#A8C5DA] mb-1 p-1 rounded-[16px] ${
-                              index ===
-                              lowestAndHighestIndex.find(
-                                (metrics) => key === metrics.key
-                              )?.lowestIndex
-                                ? key.includes("loss")
-                                  ? "bg-green-200"
-                                  : "bg-red-200"
-                                : index ===
-                                  lowestAndHighestIndex.find(
-                                    (metrics) => key === metrics.key
-                                  )?.highestIndex
-                                ? key.includes("loss")
-                                  ? "bg-red-200"
-                                  : "bg-green-200"
-                                : ""
-                            }`}
-                          >
-                            {value.toFixed(5)}
-                          </div>
-                        )
-                      )}
-                    </div>
-                  ))}
+                <div className="custom-scrollbar-gray  flex overflow-auto gap-2">
+                  {epochsHistory.length > 0 &&
+                    epochsHistory.map((props, index) => (
+                      <div key={index}>
+                        {Object.entries(props).map(([key, value]) =>
+                          key === "epoch" ? (
+                            <div
+                              key={`${key}-${index}`}
+                              className="flex justify-center items-center border-[2px] border-[#A8C5DA] mb-1 p-1 rounded-[16px]"
+                            >
+                              {props.epoch + 1}
+                            </div>
+                          ) : (
+                            <div
+                              key={`${key}-${index}`}
+                              className={`flex justify-center items-center border-[2px] border-[#A8C5DA] mb-1 p-1 rounded-[16px] ${
+                                index ===
+                                lowestAndHighestIndex.find(
+                                  (metrics) => key === metrics.key
+                                )?.lowestIndex
+                                  ? key.includes("loss")
+                                    ? "bg-green-200"
+                                    : "bg-red-200"
+                                  : index ===
+                                    lowestAndHighestIndex.find(
+                                      (metrics) => key === metrics.key
+                                    )?.highestIndex
+                                  ? key.includes("loss")
+                                    ? "bg-red-200"
+                                    : "bg-green-200"
+                                  : ""
+                              }`}
+                            >
+                              {value.toFixed(5)}
+                            </div>
+                          )
+                        )}
+                      </div>
+                    ))}
+                </div>
               </div>
               {downloadLink && (
                 <div className="w-full flex justify-center items-center gap-6 flex-wrap">

@@ -114,12 +114,10 @@
 
 .custom-scrollbar-gray {
   overflow-y: auto;
-  scrollbar-width: thin;
-  scrollbar-color: #A8C5DA transparent;
 }
 
 .custom-scrollbar-gray::-webkit-scrollbar {
-  width: 8px;
+  height: 10px;
 }
 
 .custom-scrollbar-gray::-webkit-scrollbar-track {
