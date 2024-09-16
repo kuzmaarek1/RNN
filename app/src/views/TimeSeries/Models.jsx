@@ -4,7 +4,14 @@ import { FaTimes, FaPlus } from "react-icons/fa";
 import { parse } from "papaparse";
 import { useForm, useFieldArray } from "react-hook-form";
 import { io } from "socket.io-client";
-import { Button, Card, Input, InputFile, SelectInput } from "components";
+import {
+  Button,
+  Card,
+  Input,
+  InputFile,
+  SelectInput,
+  CheckboxInput,
+} from "components";
 import { inputFieldModelsTimeSeries } from "constants";
 import { PlotContainer } from "views";
 
@@ -292,84 +299,79 @@ const Models = () => {
                       exit="exit"
                       transition={transition}
                       key={id}
-                      className="flex flex-row mb-12"
+                      className="flex flex-row flex-wrap mb-12 gap-4 relative justify-center items-center"
                     >
-                      <div className="relative">
-                        <SelectInput
-                          options={[
-                            "RNN",
-                            "LSTM",
-                            "GRU",
-                            "ConvLSTM2D",
-                            "Dense",
-                          ]}
-                          label="Layers"
-                          name={`models[${index}].layers`}
-                          isMulti={false}
-                          color="grey"
-                          setValue={setValue}
-                          watch={watch(`models[${index}].layers`)}
-                          styled={"w-[140px] mt-[-2px] mr-[8px]"}
-                        />
-                      </div>
-                      <div className="relative">
-                        <Input
-                          type="number"
-                          name={`models[${index}].units`}
-                          label="Units"
-                          color="grey"
-                          register={register}
-                        />
-                      </div>
-                      <div className="relative flex flex-col ml-4">
-                        <label
-                          className={"font-semibold uppercase text-[#1c1c1c]"}
-                          htmlFor={`models[${index}].layers`}
+                      <div className="h-full flex flex-col flex-1 justify-center items-center relative z-10">
+                        <svg
+                          viewBox="0 0 450 50"
+                          className="w-[40px] h-[100px] svgText mt-[10px]"
                         >
-                          <span
-                            className={`-translate-y-[15px] relative inline-flex tracking-[0.15em] transition-[0.2s] ease-in-out`}
+                          <text
+                            x="50%" /* Poziome wyrównanie do środka */
+                            y="50%" /* Pionowe wyrównanie do środka */
+                            dominantBaseline="middle" /* Ustawienie punktu odniesienia */
+                            textAnchor="middle" /* Wyrównanie tekstu względem środka */
                           >
-                            Sequences
-                          </span>
-                        </label>
-                        <input
-                          type="checkbox"
-                          id="returnSequences"
-                          name="returnSequences"
-                          {...register(`models[${index}].returnSequences`)}
-                          defaultChecked={true}
-                        />
-                      </div>
-                      <div className="relative flex flex-col ml-4">
-                        <label
-                          className={"font-semibold uppercase text-[#1c1c1c]"}
-                          htmlFor={`models[${index}].layers`}
+                            {index + 1}
+                          </text>
+                        </svg>
+                        <button
+                          className="text-[#95A4FC] text-center absolute bottom-[10px]"
+                          type="button"
+                          onClick={() => remove(index)}
                         >
-                          <span
-                            className={`-translate-y-[15px] relative inline-flex tracking-[0.15em] transition-[0.2s] ease-in-out`}
-                          >
-                            Bidirectional
-                          </span>
-                        </label>
-                        <input
-                          type="checkbox"
-                          id="bidirectional"
-                          name="bidirectional"
-                          {...register(`models[${index}].bidirectional`)}
-                          defaultChecked={false}
-                        />
+                          <FaTimes />
+                        </button>
                       </div>
-                      <button
-                        className="text-[#95A4FC]"
-                        type="button"
-                        onClick={() => remove(index)}
-                      >
-                        <FaTimes />
-                      </button>
+                      <div className="flex flex-row flex-wrap justify-center items-center gap-6">
+                        <div className="flex flex-col h-[100%] justify-center gap-6">
+                          <div className="relative">
+                            <SelectInput
+                              options={[
+                                "RNN",
+                                "LSTM",
+                                "GRU",
+                                "ConvLSTM2D",
+                                "Dense",
+                              ]}
+                              label="Layers"
+                              name={`models[${index}].layers`}
+                              isMulti={false}
+                              color="grey"
+                              setValue={setValue}
+                              watch={watch(`models[${index}].layers`)}
+                              styled={"w-[200px] mt-[-2px] mr-[8px]"}
+                            />
+                          </div>
+                          <div className="relative w-[200px] mt-[-2px] mr-[8px]">
+                            <Input
+                              type="number"
+                              name={`models[${index}].units`}
+                              label="Units"
+                              color="grey"
+                              register={register}
+                            />
+                          </div>
+                        </div>
+                        <div className="flex flex-col h-[100%] justify-center gap-2">
+                          <CheckboxInput
+                            id={`models[${index}].returnSequences`}
+                            label="Sequences"
+                            register={register}
+                            defaultChecked={false}
+                          />
+                          <CheckboxInput
+                            id={`models[${index}].bidirectional`}
+                            label="Bidirectional"
+                            register={register}
+                            defaultChecked={false}
+                          />
+                        </div>
+                      </div>
                     </motion.div>
                   ))}
                 </AnimatePresence>
-                <div className="flex flex-row gap-4">
+                <div className="flex flex-row flex-wrap items-center justify-center gap-4">
                   <Button
                     type="button"
                     text={
@@ -542,6 +544,7 @@ const Models = () => {
                   title={`${selectedTab
                     .charAt(0)
                     .toUpperCase()}${selectedTab.slice(1)}`}
+                  classStyle={`w-[75vw]`}
                 />
               </motion.div>
             </AnimatePresence>

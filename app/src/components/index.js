@@ -6,3 +6,4 @@ export { default as Card } from "components/Card";
 export { default as MetricsBox } from "components/MetricsBox";
 export { default as SelectInput } from "components/SelectInput";
 export { default as MenuToggle } from "components/MenuToggle";
+export { default as CheckboxInput } from "components/CheckboxInput";

@@ -139,7 +139,7 @@ const SelectInput = ({
                          (watch?.length === 0 || watch === undefined) &&
                          !focused
                        ) &&
-                       "transform font-semibold  uppercase translate-y-[-22px]"
+                       "transform font-semibold  uppercase translate-y-[-25px]"
                      }
                `}
             style={{ transitionDelay: `${i * 0.1}s` }}

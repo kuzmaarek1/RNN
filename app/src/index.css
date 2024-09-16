@@ -145,3 +145,95 @@
   border-radius: 10px;
   border: 2px solid transparent;
 }
+
+.svgText{
+  font   : bold 400px Century Gothic, Arial;
+}
+
+text{
+  fill            : none;
+  stroke          : #95A4FC;
+  stroke-width    : 8px;
+  stroke-linejoin : round;
+}
+
+.check {
+  cursor: pointer;
+  position: relative;
+  margin: auto;
+  -webkit-tap-highlight-color: transparent;
+  transform: translate3d(0, 0, 0);
+}
+
+.check::before {
+  content: "";
+  position: absolute;
+  top: -15px;
+  left: -15px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(34, 50, 84, 0.03); /* rgba(#223254, .03) */
+  opacity: 0;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  transform: scale(0.9);
+}
+
+.check svg {
+  position: relative;
+  z-index: 1;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke: #A8C5DA;
+  stroke-width: 1.5;
+  transform: translate3d(0, 0, 0);
+  transition: all 0.3s ease;
+}
+
+.check svg path {
+  stroke-dasharray: 60;
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 0.3s ease;
+}
+
+.check svg polyline {
+  stroke-dasharray: 22;
+  stroke-dashoffset: 66;
+  transition: stroke-dashoffset 0.3s ease, opacity 0.3s ease;
+}
+
+.check:hover::before {
+  opacity: 0.3;
+  transform: scale(1);
+}
+
+.check:hover svg {
+  stroke:#A8C5DA;
+}
+
+input[type="checkbox"]:checked + .check svg {
+  stroke:#A8C5DA;
+}
+
+input[type="checkbox"]:checked + .check svg path {
+  stroke-dashoffset: 60;
+  transition: stroke-dashoffset 0.3s ease;
+}
+
+input[type="checkbox"]:checked + .check svg polyline {
+  stroke-dashoffset: 42;
+  opacity: 1;
+  transition: stroke-dashoffset 0.3s ease, opacity 0.3s ease;
+  transition-delay: 0.15s;
+}
+
+input[type="checkbox"]:not(:checked) + .check svg path {
+  stroke-dashoffset: 0;
+  transition-delay: 0.2s;
+}
+
+input[type="checkbox"]:not(:checked) + .check svg polyline {
+  stroke-dashoffset: 66;
+  opacity: 0.5;
+}
