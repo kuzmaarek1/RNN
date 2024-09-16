@@ -146,15 +146,8 @@
   border: 2px solid transparent;
 }
 
-.svgText{
-  font   : bold 400px Century Gothic, Arial;
-}
-
-text{
-  fill            : none;
-  stroke          : #95A4FC;
-  stroke-width    : 8px;
-  stroke-linejoin : round;
+.outline-text {
+    -webkit-text-stroke: 1px #95A4FC;
 }
 
 .check {

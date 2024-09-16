@@ -301,22 +301,22 @@ const Models = () => {
                       key={id}
                       className="flex flex-row flex-wrap mb-12 gap-4 relative justify-center items-center"
                     >
-                      <div className="h-full flex flex-col flex-1 justify-center items-center relative z-10">
-                        <svg
-                          viewBox="0 0 450 50"
-                          className="w-[40px] h-[100px] svgText mt-[10px]"
+                      <div className="h-full gap-1 flex flex-col flex-1 justify-center items-center relative z-10">
+                        <motion.div
+                          key={index + 1}
+                          initial={{ scale: 0 }}
+                          animate={{ rotate: 360, scale: 1 }}
+                          transition={{
+                            type: "spring",
+                            stiffness: 260,
+                            damping: 20,
+                          }}
+                          className="text-[#F7F9FB] font-bold text-[50px] font-outline outline-text"
                         >
-                          <text
-                            x="50%" /* Poziome wyrównanie do środka */
-                            y="50%" /* Pionowe wyrównanie do środka */
-                            dominantBaseline="middle" /* Ustawienie punktu odniesienia */
-                            textAnchor="middle" /* Wyrównanie tekstu względem środka */
-                          >
-                            {index + 1}
-                          </text>
-                        </svg>
+                          {index + 1}
+                        </motion.div>
                         <button
-                          className="text-[#95A4FC] text-center absolute bottom-[10px]"
+                          className="text-[#95A4FC] text-center"
                           type="button"
                           onClick={() => remove(index)}
                         >

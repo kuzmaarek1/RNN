@@ -20,11 +20,11 @@ const CheckboxInput = ({ id, label, register, defaultChecked = false }) => {
           className="absolute rounded-[16px] border-[2px] border-[#A8C5DA] w-full h-full left-0 top-0
                       group-hover:before:w-[10px] group-hover:before:left-[calc(50%)]
                       before:content-[''] before:absolute before:w-[10px] before:h-[6px] before:bg-[white] 
-                      before:border-[2px] before:border-[#95A4FC] box-shadow-button-blue
+                      before:border-[2px] before:border-[#A8C5DA] box-shadow-button-blue
                       before:top-[-3.5px] before:left-[80%] before:translate-x-[-50%]
                       group-hover:after:w-[10px] group-hover:after:left-[calc(50%)]
                       after:content-[''] after:absolute after:w-[10px] after:h-[6px] after:bg-[white] 
-                      after:border-[2px] after:border-[#95A4FC] after:bottom-[-3.5px] after:left-[20%]
+                      after:border-[2px] after:border-[#A8C5DA] after:bottom-[-3.5px] after:left-[20%]
                       after:translate-x-[-50%]"
         ></div>
 
