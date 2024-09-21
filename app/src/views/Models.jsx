@@ -1,9 +1,15 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useMemo, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { FaTimes, FaPlus } from "react-icons/fa";
 import { parse } from "papaparse";
 import { useForm, useFieldArray } from "react-hook-form";
-import { io } from "socket.io-client";
+import { inputFieldModelsTimeSeries, inputFieldModelsText } from "constants";
+import { useModels } from "hooks/useModels.js";
+import {
+  PlotContainer,
+  TimeSeriesDataVisualization,
+  TextDataVisualization,
+} from "views";
 import {
   Button,
   Card,
@@ -12,105 +18,104 @@ import {
   SelectInput,
   CheckboxInput,
 } from "components";
-import { inputFieldModelsTimeSeries } from "constants";
-import { PlotContainer } from "views";
 
-const Models = () => {
-  const { register, handleSubmit, control, watch, setValue } = useForm();
-
+const Models = ({ options }) => {
+  const fileInputRef = useRef(null);
+  const { register, handleSubmit, control, watch, reset, setValue } = useForm();
   const { fields, remove, append } = useFieldArray({
     control,
     name: "models",
   });
-
-  const socket = useRef();
-  const fileInputRef = useRef(null);
-  const [csvData, setCsvData] = useState(null);
-  const [csvHeaders, setCsvHeaders] = useState([]);
-  const [YLabels, setYLabels] = useState([]);
-  const [selectedId, setSelectedId] = useState(null);
-  const [downloadLink, setDownloadLink] = useState(null);
-  const [epochsHistory, setEpochsHistory] = useState([]);
-  const [displayPlot, setDisplayPlot] = useState(null);
-  const [selectedTab, setSelectedTab] = useState("loss");
+  const {
+    csvData,
+    csvHeaders,
+    YLabels,
+    selectedId,
+    displayPlot,
+    selectedTab,
+    epochsHistory,
+    downloadLink,
+    numberSlider,
+    updateFile,
+    socket,
+  } = useModels(options);
 
   useEffect(() => {
-    socket.current = io("http://127.0.0.1:5000", {
-      transports: ["websocket"],
-      upgrade: false,
-      reconnection: true,
-      maxHttpBufferSize: 1e8,
-      maxChunkedMessageSize: 1e8,
-    });
-    socket.current.on("epoch_update", (epochs) => {
-      setEpochsHistory((prev) => [...prev, JSON.parse(epochs)]);
-    });
-    socket.current.on("training_completed", (results) => {
-      const parsedData = JSON.parse(results);
-      setDownloadLink(parsedData);
-    });
-  }, []);
-
-  const chartData = csvData?.map((row, index) => {
-    const value = parseFloat(row[selectedId]);
-    return {
-      label: index,
-      value: value,
-    };
-  });
-
-  const handleCsvSubmission = async () => {
-    const file = fileInputRef.current.files[0];
-    if (file) {
-      const text = await file.text();
-      const { data } = parse(text, { header: true });
-      setCsvHeaders(Object.keys(data[0]));
-      setCsvData(data);
-    }
-  };
-  const handleXLabel = () => {
-    const selectedXLabel = watch("XLabel");
-    const YLabels = csvHeaders.filter(
-      (csvHeader) => csvHeader !== selectedXLabel
-    );
-    setYLabels(YLabels);
-  };
+    reset();
+  }, [options]);
 
   const handleOutsideClick = (event) => {
     if (
       (selectedId || displayPlot) &&
       !event.target.closest(".animate-presence")
     ) {
-      if (selectedId) setSelectedId(null);
-      else setDisplayPlot(null);
+      if (selectedId) updateFile("selectedId", null);
+      else updateFile("displayPlot", null);
     }
   };
 
   const onSubmit = (data) => {
-    setEpochsHistory([]);
+    updateFile("epochsHistory", []);
     socket.current.emit(
-      "train/time_series",
+      options === "TimeSeries"
+        ? "train/time_series"
+        : "train/text_classification",
       JSON.stringify({
         ...data,
         dataset: csvData,
+        ...(options !== "TimeSeries" && {
+          category: watch("Category"),
+          text: csvHeaders.find((csvHeader) => csvHeader !== watch("Category")),
+        }),
       })
     );
   };
 
-  const handleDownload = () => {
-    if (downloadLink) {
-      const dataToDownload = JSON.stringify(downloadLink);
-      const blob = new Blob([dataToDownload], { type: "text/plain" });
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `${watch("name_file")}.txt`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
+  const handleCsvSubmission = async () => {
+    const file = fileInputRef.current.files[0];
+    if (file) {
+      const text = await file.text();
+      const { data } = parse(text, { header: true });
+      updateFile("csvHeaders", Object.keys(data[0]));
+      updateFile("csvData", data);
     }
   };
+
+  const selectConfig = {
+    TimeSeries: {
+      label: "X Label",
+      name: "XLabel",
+      inputField: inputFieldModelsTimeSeries,
+    },
+    Text: {
+      label: "Category",
+      name: "Category",
+      inputField: inputFieldModelsText,
+    },
+  };
+
+  const handleLabelOrCategoryInput = () => {
+    const selectedValue = watch(name);
+    if (watch(name)) {
+      const availableYLabels = csvHeaders.filter(
+        (csvHeader) => csvHeader !== selectedValue
+      );
+      updateFile("YLabels", availableYLabels);
+    }
+  };
+
+  const { label, name, inputField } = useMemo(() => {
+    return selectConfig[options];
+  }, [options]);
+
+  const chartData = () =>
+    csvData?.map((row, index) => {
+      const value = parseFloat(row[selectedId]);
+      return {
+        label: index,
+        value: value,
+      };
+    });
 
   const findExtremeIndex = (epochsHistory, index, compareFunc) => {
     return epochsHistory.reduce((extremeIndex, currentValue, currentIndex) => {
@@ -152,15 +157,28 @@ const Models = () => {
         )
       : null;
 
+  const handleDownload = () => {
+    if (downloadLink) {
+      const dataToDownload = JSON.stringify(downloadLink);
+      const blob = new Blob([dataToDownload], { type: "text/plain" });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${watch("name_file")}.txt`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    }
+  };
+  const transition = {
+    duration: 0.2,
+    ease: [0.42, 0, 0.58, 1],
+  };
   const variants = {
     hidden: { y: 20, opacity: 0, scale: 0.8 },
     visible: { y: 0, opacity: 1, scale: 1 },
     exit: { y: -20, opacity: 0, scale: 0.8 },
-  };
-
-  const transition = {
-    duration: 0.2,
-    ease: [0.42, 0, 0.58, 1],
   };
 
   return (
@@ -169,121 +187,102 @@ const Models = () => {
         onSubmit={handleSubmit(onSubmit)}
         className="w-[calc(100%-2rem)] grid mx-4 px-4 lg:grid-cols-2 grid-cols-1 gap-4 mt-12 h-max-content"
       >
-        <div>
-          <Card
+        <Card
+          color="green"
+          classStyle="min-h-[150px]"
+          classStyleDiv="flex flex-col justify-center items-center w-full gap-4"
+        >
+          <InputFile
+            ref={fileInputRef}
+            fileAcept=".csv"
+            multiple={false}
             color="green"
+          />
+          <Button
+            color="green"
+            text="Submit"
+            type="button"
+            func={handleCsvSubmission}
+          />
+        </Card>
+        {csvHeaders.length > 0 && (
+          <Card
+            color="blue"
             classStyle="min-h-[150px]"
             classStyleDiv="flex flex-col justify-center items-center w-full gap-4"
           >
-            <InputFile
-              ref={fileInputRef}
-              fileAcept=".csv"
-              multiple={false}
-              color="green"
+            <SelectInput
+              options={csvHeaders}
+              label={label}
+              name={name}
+              isMulti={false}
+              color="blue"
+              setValue={setValue}
+              watch={watch(name)}
             />
             <Button
-              color="green"
+              color="blue"
               text="Submit"
               type="button"
-              func={handleCsvSubmission}
+              func={handleLabelOrCategoryInput}
             />
           </Card>
-        </div>
-        {csvHeaders.length > 0 && (
-          <div>
-            <Card
-              color="blue"
-              classStyle="min-h-[150px]"
-              classStyleDiv="flex flex-col justify-center items-center w-full gap-4"
-            >
-              <SelectInput
-                options={csvHeaders}
-                label="X Label"
-                name="XLabel"
-                isMulti={false}
-                color="blue"
-                setValue={setValue}
-                watch={watch("XLabel")}
-              />
-              <Button
-                type="button"
-                text="Submit"
-                color="blue"
-                func={handleXLabel}
-              />
-            </Card>
-          </div>
         )}
-        {YLabels.length > 0 && (
-          <div className="lg:col-span-2">
-            <Card>
-              <div className="flex justify-center items-center gap-[5px] flex-wrap">
-                {YLabels.map((YLabel, index) => (
-                  <motion.div
-                    key={YLabel}
-                    layoutId={YLabel}
-                    onClick={() => setSelectedId(YLabel)}
-                    className={`${
-                      index % 4 === 0
-                        ? "border-[#95A4FC]"
-                        : index % 4 === 1
-                        ? "border-[#BAEDBD]"
-                        : index % 4 === 2
-                        ? "border-[#1C1C1C]"
-                        : "border-[#B1E3FF]"
-                    } border-[2px] mb-[10px] w-[200px] h-[50px] rounded-[16px] flex justify-center items-center cursor-pointer`}
-                  >
-                    <motion.div>{YLabel}</motion.div>
-                  </motion.div>
-                ))}
-              </div>
-            </Card>
-          </div>
-        )}
-        <AnimatePresence onClick={(event) => event.stopPropagation()}>
-          {selectedId && (
-            <Card layoutId={selectedId} setSelectedId={setSelectedId}>
-              <PlotContainer
-                data={[
-                  {
-                    x: chartData.map((dataPoint) => dataPoint.label),
-                    y: chartData.map((dataPoint) => dataPoint.value),
-                    type: "scatter",
-                    mode: "lines",
-                    marker: { color: "#82ca9d" },
-                  },
-                ]}
-                title={`Feauture - ${selectedId}`}
-                classStyle={`w-[75vw]`}
-              />
-            </Card>
-          )}
-        </AnimatePresence>
-        {YLabels.length > 0 && (
+        {watch(name) &&
+          YLabels.length > 0 &&
+          (options === "TimeSeries" ? (
+            <TimeSeriesDataVisualization
+              YLabels={YLabels}
+              selectedId={selectedId}
+              setSelectedId={updateFile}
+              chartData={chartData()}
+            />
+          ) : (
+            <TextDataVisualization
+              register={register}
+              numberSlider={numberSlider}
+              setNumberSlider={updateFile}
+              category={
+                numberSlider !== null && csvData[numberSlider][watch(name)]
+              }
+              text={numberSlider !== null && csvData[numberSlider][YLabels]}
+              size={csvData.length}
+              transition={transition}
+              variants={variants}
+            />
+          ))}
+        {watch(name) && YLabels.length > 0 && (
           <>
-            <Card color="green">
-              <SelectInput
-                options={YLabels}
-                label="y feauture"
-                name="y_feauture"
-                isMulti={true}
-                color="green"
-                setValue={setValue}
-                watch={watch("y_feauture")}
-              />
-              {inputFieldModelsTimeSeries.map(
-                ({ type, name, label, color }, index) => (
-                  <div className={`relative sm:w-[300px] w-[250px] mt-8`}>
-                    <Input
-                      type={type}
-                      name={name}
-                      label={label}
-                      color={color}
-                      register={register}
-                    />
-                  </div>
-                )
+            <Card
+              color={options == "TimeSeries" ? `green` : "blue"}
+              classStyle="lg:px-8 px-4 py-8 flex justify-center lg:justify-start"
+            >
+              {options == "TimeSeries" && (
+                <SelectInput
+                  options={YLabels}
+                  label="y feauture"
+                  name="y_feauture"
+                  isMulti={true}
+                  color="green"
+                  setValue={setValue}
+                  watch={watch("y_feauture")}
+                />
               )}
+              {inputField.map(({ type, name, label, color }, index) => (
+                <div
+                  className={`relative sm:w-[300px] w-[250px] mt-8 ${
+                    index === 0 && options === "Text" && "mt-[10px]"
+                  }`}
+                >
+                  <Input
+                    type={type}
+                    name={name}
+                    label={label}
+                    color={color}
+                    register={register}
+                  />
+                </div>
+              ))}
             </Card>
             <Card
               classStyle="min-h-[150px]"
@@ -302,7 +301,7 @@ const Models = () => {
                       key={id}
                       className="flex flex-row flex-wrap mb-12 gap-6 relative justify-center items-center"
                     >
-                      <div className="relative flex flex-col flex-1 justify-center items-center relative z-10">
+                      <div className="relative flex flex-col flex-1 justify-center items-center">
                         <motion.div
                           key={index + 1}
                           initial={{ scale: 0 }}
@@ -340,7 +339,9 @@ const Models = () => {
                                 "RNN",
                                 "LSTM",
                                 "GRU",
-                                "ConvLSTM2D",
+                                options == "TimeSeries"
+                                  ? "ConvLSTM2D"
+                                  : "RepeatVector",
                                 "Dense",
                               ]}
                               label="Layers"
@@ -426,7 +427,7 @@ const Models = () => {
                     </div>
                   ))}
                 </div>
-                <div className="custom-scrollbar-gray  flex overflow-auto gap-2">
+                <div className="custom-scrollbar-gray flex overflow-auto gap-2">
                   {epochsHistory.length > 0 &&
                     epochsHistory.map((props, index) => (
                       <div key={index}>
@@ -468,7 +469,7 @@ const Models = () => {
                 </div>
               </div>
               {downloadLink && (
-                <div className="w-full flex justify-center items-center flex-wrap  gap-6">
+                <div className="w-full flex justify-center items-center flex-wrap gap-6">
                   <div className="relative w-[300px] mt-[20px]">
                     <Input
                       type="text"
@@ -486,7 +487,7 @@ const Models = () => {
                   />
                   <motion.div
                     layoutId={1}
-                    onClick={() => setDisplayPlot(1)}
+                    onClick={() => updateFile("displayPlot", 1)}
                     className="border-[2px] border-[#A8C5DA] w-[150px] h-[45px] rounded-[16px] flex justify-center items-center cursor-pointer"
                   >
                     Display Plot
@@ -499,14 +500,17 @@ const Models = () => {
       </div>
       <AnimatePresence onClick={(event) => event.stopPropagation()}>
         {displayPlot && (
-          <Card layoutId={displayPlot} setSelectedId={setDisplayPlot}>
-            <div className="flex mb-8 gap-4 justify-center">
+          <Card layoutId={displayPlot} setSelectedId={updateFile}>
+            <div className="flex flex-wrap gap-4 mb-4 justify-center">
               {epochsHistory.length > 0 &&
                 Object.entries(epochsHistory[0]).map(
                   ([key, _], index) =>
                     key !== "epoch" &&
                     !key.includes("val") && (
-                      <div key={index} onClick={() => setSelectedTab(key)}>
+                      <div
+                        key={index}
+                        onClick={() => updateFile("selectedTab", key)}
+                      >
                         <div
                           className={`${
                             key === selectedTab ? "relative" : ""
@@ -572,5 +576,4 @@ const Models = () => {
     </div>
   );
 };
-
 export default Models;

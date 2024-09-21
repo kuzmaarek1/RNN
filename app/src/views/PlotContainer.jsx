@@ -16,7 +16,7 @@ const PlotContainer = ({ color, data, title, XTitle, YTitle, classStyle }) => {
       >
         {title}
       </div>
-      <div className="flex flex-row justify-center items-center w-[100%]">
+      <div className="flex flex-row justify-center items-center w-[100%] relative">
         <div
           className={`bg-[white] border-[2px] ${
             color === "green"
@@ -24,7 +24,7 @@ const PlotContainer = ({ color, data, title, XTitle, YTitle, classStyle }) => {
               : color === "blue"
               ? "border-[#95A4FC]"
               : "border-[#A8C5DA]"
-          } absolute left-0 rounded-[16px] flex justify-center items-center py-1 text-[12px] mr-[-16px] z-10 tracking-[0.1em] pr-[0.9em] pl-[1em] rotate-[270deg]`}
+          } absolute left-0 translate-x-[-50%] translate-y-[calc(-50%+1em)] rounded-[16px] flex justify-center items-center py-1 text-[12px] z-10 tracking-[0.1em] pr-[0.9em] pl-[1em] rotate-[270deg] z-20`}
         >
           {YTitle ? YTitle : "Value"}
         </div>
@@ -36,7 +36,7 @@ const PlotContainer = ({ color, data, title, XTitle, YTitle, classStyle }) => {
         : color === "blue"
         ? "border-[#95A4FC]"
         : "border-[#A8C5DA]"
-    } rounded-[16px] flex justify-center items-center p-2`}
+    } rounded-[16px] flex justify-center items-center p-2 relative`}
         >
           <Plot
             data={data}

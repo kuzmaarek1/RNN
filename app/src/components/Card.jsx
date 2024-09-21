@@ -25,14 +25,14 @@ const Card = ({
             : "bg-[#F7F9FB] border-[#A8C5DA]"
         } ${
           small ? "p-6" : "p-8"
-        } animate-presence rounded-[16px] border-[3px] custom-box-shadow relative
+        } ${classStyleDiv} animate-presence rounded-[16px] border-[3px] custom-box-shadow relative max-h-[90vh] overflow-auto
         `}
         layoutId={layoutId}
       >
         {children}
         <motion.button
           className="absolute top-0 right-0 m-5 text-[#95A4FC]"
-          onClick={() => setSelectedId(null)}
+          onClick={() => setSelectedId("selectedId", null)}
           type="button"
         >
           <FaTimes />
