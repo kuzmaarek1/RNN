@@ -1,18 +1,13 @@
 import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import {
-  ModelsTimeSeries,
-  EvaluateTimeSeries,
-  PredictTimeSeries,
   CompareTimeSeries,
-  ModelsText,
-  PredictText,
-  EvaluateText,
   Training,
   CompareText,
   DataPreparation,
   Models,
   Predict,
+  Evaluate,
 } from "views";
 
 const Root = () => {
@@ -27,7 +22,10 @@ const Root = () => {
         element={<Training key="TimeSeries" />}
       />
       <Route path="/training/text" element={<Training key="Text" />} />
-      <Route path="/evaluate/time_series" element={<EvaluateTimeSeries />} />
+      <Route
+        path="/evaluate/time_series"
+        element={<Evaluate key="TimeSeries" options="TimeSeries" />}
+      />
       <Route
         path="/predict/time_series"
         element={<Predict key="TimeSeries" options="TimeSeries" />}
@@ -42,7 +40,10 @@ const Root = () => {
         path="/predict/text"
         element={<Predict key="Text" options="Text" />}
       />
-      <Route path="/evaluate/text" element={<EvaluateText />} />
+      <Route
+        path="/evaluate/text"
+        element={<Evaluate key="Text" options="Text" />}
+      />
       <Route path="/compare/text" element={<CompareText />} />
       <Route path="/preparation/text" element={<DataPreparation />} />
     </Routes>

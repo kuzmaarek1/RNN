@@ -1,7 +1,15 @@
 import React from "react";
 import Plot from "react-plotly.js";
 
-const PlotContainer = ({ color, data, title, XTitle, YTitle, classStyle }) => {
+const PlotContainer = ({
+  color,
+  data,
+  title,
+  XTitle,
+  YTitle,
+  annotations,
+  classStyle,
+}) => {
   return (
     <div className="flex justify-center items-center flex-col mt-[3px]">
       <div
@@ -59,6 +67,7 @@ const PlotContainer = ({ color, data, title, XTitle, YTitle, classStyle }) => {
                   size: 10,
                 },
               },
+              annotations: annotations ? annotations : [],
               margin: { t: 0, r: 0, l: 40, b: 30 },
             }}
             useResizeHandler={true}
