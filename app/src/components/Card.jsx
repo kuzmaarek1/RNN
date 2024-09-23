@@ -32,7 +32,11 @@ const Card = ({
         {children}
         <motion.button
           className="absolute top-0 right-0 m-5 text-[#95A4FC]"
-          onClick={() => setSelectedId("selectedId", null)}
+          onClick={() => {
+            console.log("d");
+            console.log(setSelectedId);
+            setSelectedId();
+          }}
           type="button"
         >
           <FaTimes />

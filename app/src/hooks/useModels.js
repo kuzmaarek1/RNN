@@ -32,7 +32,7 @@ export const useModels = (options) => {
     }
   };
 
-  const updateFile = (field, newData) => {
+  const updateField = (field, newData) => {
     dispatch({ type: "UPDATE_FIELD", field: field, payload: newData });
   };
 
@@ -63,7 +63,7 @@ export const useModels = (options) => {
         : "training_completed/text_classification";
     socket.current.on(completedEvent, (results) => {
       const parsedData = JSON.parse(results);
-      updateFile("downloadLink", parsedData);
+      updateField("downloadLink", parsedData);
     });
 
     return () => {
@@ -71,5 +71,5 @@ export const useModels = (options) => {
     };
   }, [options]);
 
-  return { ...state, socket, dispatch, updateFile };
+  return { ...state, socket, dispatch, updateField };
 };

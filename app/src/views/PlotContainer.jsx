@@ -53,6 +53,12 @@ const PlotContainer = ({ color, data, title, XTitle, YTitle, classStyle }) => {
                 },
                 zeroline: false,
               },
+              legend: {
+                y: 0.95,
+                font: {
+                  size: 10,
+                },
+              },
               margin: { t: 0, r: 0, l: 40, b: 30 },
             }}
             useResizeHandler={true}

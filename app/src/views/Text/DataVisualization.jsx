@@ -74,8 +74,9 @@ const DataVisualization = ({
                   type="button"
                   text="Prev"
                   func={() =>
-                    setNumberSlider((prev) =>
-                      prev === 0 ? size - 1 : prev - 1
+                    setNumberSlider(
+                      "numberSlider",
+                      numberSlider === 0 ? size - 1 : numberSlider - 1
                     )
                   }
                 />
@@ -84,8 +85,9 @@ const DataVisualization = ({
                   type="button"
                   text="Next"
                   func={() =>
-                    setNumberSlider((prev) =>
-                      prev === size - 1 ? 0 : prev + 1
+                    setNumberSlider(
+                      "numberSlider",
+                      numberSlider === size - 1 ? 0 : numberSlider + 1
                     )
                   }
                 />

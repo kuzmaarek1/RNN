@@ -12,6 +12,7 @@ import {
   CompareText,
   DataPreparation,
   Models,
+  Predict,
 } from "views";
 
 const Root = () => {
@@ -27,14 +28,20 @@ const Root = () => {
       />
       <Route path="/training/text" element={<Training key="Text" />} />
       <Route path="/evaluate/time_series" element={<EvaluateTimeSeries />} />
-      <Route path="/predict/time_series" element={<PredictTimeSeries />} />
+      <Route
+        path="/predict/time_series"
+        element={<Predict key="TimeSeries" options="TimeSeries" />}
+      />
       <Route path="/compare/time_series" element={<CompareTimeSeries />} />
       <Route path="*" element={<Navigate to="/models/time_series" />} />
       <Route
         path="/models/text"
         element={<Models key="Text" options="Text" />}
       />
-      <Route path="/predict/text" element={<PredictText />} />
+      <Route
+        path="/predict/text"
+        element={<Predict key="Text" options="Text" />}
+      />
       <Route path="/evaluate/text" element={<EvaluateText />} />
       <Route path="/compare/text" element={<CompareText />} />
       <Route path="/preparation/text" element={<DataPreparation />} />

@@ -1,8 +1,6 @@
-export { default as PredictTimeSeries } from "views/TimeSeries/Predict";
 export { default as EvaluateTimeSeries } from "views/TimeSeries/Evaluate";
 export { default as CompareTimeSeries } from "views/TimeSeries//Compare";
 export { default as Training } from "views/Training";
-export { default as PredictText } from "views/Text/Predict";
 export { default as EvaluateText } from "views/Text/Evaluate";
 export { default as CompareText } from "views/Text/Compare";
 export { default as DataPreparation } from "views/Text/DataPreparation";
@@ -10,5 +8,6 @@ export { default as Animation } from "views/TimeSeries/Animation";
 export { default as TextAnimation } from "views/Text/Animation";
 export { default as PlotContainer } from "views/PlotContainer";
 export { default as Models } from "views/Models";
+export { default as Predict } from "views/Predict";
 export { default as TimeSeriesDataVisualization } from "views/TimeSeries/DataVisualization";
 export { default as TextDataVisualization } from "views/Text/DataVisualization";

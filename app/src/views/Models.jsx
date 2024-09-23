@@ -36,7 +36,7 @@ const Models = ({ options }) => {
     epochsHistory,
     downloadLink,
     numberSlider,
-    updateFile,
+    updateField,
     socket,
   } = useModels(options);
 
@@ -49,13 +49,13 @@ const Models = ({ options }) => {
       (selectedId || displayPlot) &&
       !event.target.closest(".animate-presence")
     ) {
-      if (selectedId) updateFile("selectedId", null);
-      else updateFile("displayPlot", null);
+      if (selectedId) updateField("selectedId", null);
+      else updateField("displayPlot", null);
     }
   };
 
   const onSubmit = (data) => {
-    updateFile("epochsHistory", []);
+    updateField("epochsHistory", []);
     socket.current.emit(
       options === "TimeSeries"
         ? "train/time_series"
@@ -76,8 +76,8 @@ const Models = ({ options }) => {
     if (file) {
       const text = await file.text();
       const { data } = parse(text, { header: true });
-      updateFile("csvHeaders", Object.keys(data[0]));
-      updateFile("csvData", data);
+      updateField("csvHeaders", Object.keys(data[0]));
+      updateField("csvData", data);
     }
   };
 
@@ -100,7 +100,7 @@ const Models = ({ options }) => {
       const availableYLabels = csvHeaders.filter(
         (csvHeader) => csvHeader !== selectedValue
       );
-      updateFile("YLabels", availableYLabels);
+      updateField("YLabels", availableYLabels);
     }
   };
 
@@ -181,6 +181,7 @@ const Models = ({ options }) => {
     exit: { y: -20, opacity: 0, scale: 0.8 },
   };
 
+  console.log(csvData);
   return (
     <div onClick={handleOutsideClick} className="w-full">
       <form
@@ -234,18 +235,18 @@ const Models = ({ options }) => {
             <TimeSeriesDataVisualization
               YLabels={YLabels}
               selectedId={selectedId}
-              setSelectedId={updateFile}
+              setSelectedId={() => updateField("selectedId", null)}
               chartData={chartData()}
             />
           ) : (
             <TextDataVisualization
               register={register}
               numberSlider={numberSlider}
-              setNumberSlider={updateFile}
+              setNumberSlider={updateField}
+              text={numberSlider !== null && csvData[numberSlider][YLabels]}
               category={
                 numberSlider !== null && csvData[numberSlider][watch(name)]
               }
-              text={numberSlider !== null && csvData[numberSlider][YLabels]}
               size={csvData.length}
               transition={transition}
               variants={variants}
@@ -487,7 +488,7 @@ const Models = ({ options }) => {
                   />
                   <motion.div
                     layoutId={1}
-                    onClick={() => updateFile("displayPlot", 1)}
+                    onClick={() => updateField("displayPlot", 1)}
                     className="border-[2px] border-[#A8C5DA] w-[150px] h-[45px] rounded-[16px] flex justify-center items-center cursor-pointer"
                   >
                     Display Plot
@@ -500,7 +501,10 @@ const Models = ({ options }) => {
       </div>
       <AnimatePresence onClick={(event) => event.stopPropagation()}>
         {displayPlot && (
-          <Card layoutId={displayPlot} setSelectedId={updateFile}>
+          <Card
+            layoutId={displayPlot}
+            setSelectedId={() => updateField("displayPlot", null)}
+          >
             <div className="flex flex-wrap gap-4 mb-4 justify-center">
               {epochsHistory.length > 0 &&
                 Object.entries(epochsHistory[0]).map(
@@ -509,7 +513,7 @@ const Models = ({ options }) => {
                     !key.includes("val") && (
                       <div
                         key={index}
-                        onClick={() => updateFile("selectedTab", key)}
+                        onClick={() => updateField("selectedTab", key)}
                       >
                         <div
                           className={`${
